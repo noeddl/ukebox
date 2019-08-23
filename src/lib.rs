@@ -1,1 +1,2 @@
+mod chord;
 mod note;
