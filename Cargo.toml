@@ -9,4 +9,5 @@ edition = "2018"
 [dependencies]
 
 [dev-dependencies]
+indoc = "0.3"
 rstest = "0.3"
