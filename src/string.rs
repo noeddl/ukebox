@@ -73,7 +73,6 @@ impl fmt::Display for String<'_> {
 
 #[cfg(test)]
 mod tests {
-    extern crate rstest;
     use super::*;
     use rstest::rstest_parametrize;
 

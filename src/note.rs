@@ -146,7 +146,6 @@ note_consts! {
 
 #[cfg(test)]
 mod tests {
-    extern crate rstest;
     use super::*;
     use rstest::rstest_parametrize;
 

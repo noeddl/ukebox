@@ -44,7 +44,6 @@ impl fmt::Display for Ukulele<'_> {
 
 #[cfg(test)]
 mod tests {
-    extern crate rstest;
     use super::*;
     use indoc::indoc;
     use rstest::rstest_parametrize;
