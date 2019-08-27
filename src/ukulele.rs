@@ -22,10 +22,16 @@ impl Ukulele<'_> {
     }
 
     /// Play `chord` starting from fret number `min_fret`.
-    pub fn play(&mut self, chord: &Chord, min_fret: usize) {
+    pub fn play(&mut self, chord: &str, min_fret: usize) {
         for s in &mut self.strings {
-            s.play_note(chord, min_fret);
+            s.play_note(&Chord::from(chord), min_fret);
         }
+    }
+}
+
+impl Default for Ukulele<'_> {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
@@ -62,7 +68,7 @@ mod tests {
     )]
     fn test_play_and_display(chord: &str, min_fret: usize, display: &str) {
         let mut uke = Ukulele::new();
-        uke.play(&Chord::from(chord), min_fret);
+        uke.play(&chord, min_fret);
         assert_eq!(format!("{}", uke), display);
     }
 }
