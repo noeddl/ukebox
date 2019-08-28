@@ -3,7 +3,7 @@ use crate::note::Note;
 use std::fmt;
 
 /// Number of frets shown on the fretboard chart.
-const CHART_WIDTH: usize = 5;
+const CHART_WIDTH: usize = 4;
 
 /// A string of a Ukulele - not to be confused with Rust's own `String`.
 pub struct String<'a> {
@@ -67,7 +67,20 @@ impl fmt::Display for String<'_> {
             s.push_str(&format!("-{}-+", c));
         }
 
-        write!(f, "{}", s)
+        // Mark string as open or muted or neither.
+        let sym = match self.fret {
+            Some(fret) if fret == 0 => "○",
+            None => "x",
+            _ => " ",
+        };
+
+        // Get the name of the note played.
+        let note = match self.note {
+            Some(note) => format!("{}", note),
+            None => "X".to_owned(),
+        };
+
+        write!(f, "{} {}||{} {}", self.name, sym, s, note)
     }
 }
 
@@ -86,9 +99,9 @@ mod tests {
 
     #[rstest_parametrize(
         string, chord, min_fret, note, fret, played, display,
-        case("C", "C", 0, Some("C"), Some(0), true, "---+---+---+---+---+"),
-        case("C", "C", 1, Some("E"), Some(4), true, "---+---+---+-●-+---+"),
-        case("C", "D", 0, Some("D"), Some(2), true, "---+-●-+---+---+---+"),
+        case("C", "C", 0, Some("C"), Some(0), true, "C ○||---+---+---+---+ C"),
+        case("C", "C", 1, Some("E"), Some(4), true, "C  ||---+---+---+-●-+ E"),
+        case("C", "D", 0, Some("D"), Some(2), true, "C  ||---+-●-+---+---+ D"),
         //case("?", "?", 0, None, None, false), // TODO: We need a test for this case ...
     )]
     fn test_play_note(

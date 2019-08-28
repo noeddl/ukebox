@@ -11,6 +11,6 @@ fn main() {
     let mut uke = Ukulele::new();
     uke.play(&args.chord, 0);
 
-    println!("{}", args.chord);
+    println!("[{}]\n", args.chord);
     println!("{}", uke);
 }
