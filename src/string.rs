@@ -25,7 +25,7 @@ impl String<'_> {
 
         let max_fret = min_fret + CHART_WIDTH;
 
-        for i in min_fret..max_fret {
+        for i in min_fret..=max_fret {
             // Get the next note on the fretboard.
             let note = open_string + i;
 
@@ -102,6 +102,7 @@ mod tests {
         case("C", "C", 0, Some("C"), Some(0), true, "C ○||---+---+---+---+ C"),
         case("C", "C", 1, Some("E"), Some(4), true, "C  ||---+---+---+-●-+ E"),
         case("C", "D", 0, Some("D"), Some(2), true, "C  ||---+-●-+---+---+ D"),
+        case("G", "B", 0, Some("B"), Some(4), true, "G  ||---+---+---+-●-+ B"),
         //case("?", "?", 0, None, None, false), // TODO: We need a test for this case ...
     )]
     fn test_play_note(
