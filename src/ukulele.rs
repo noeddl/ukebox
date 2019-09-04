@@ -1,22 +1,22 @@
 use crate::chord::Chord;
-use crate::string::String;
+use crate::streng::Streng;
 use std::fmt;
 
 const STRING_COUNT: usize = 4;
 
 /// A ukulele.
 pub struct Ukulele<'a> {
-    strings: [String<'a>; STRING_COUNT],
+    strings: [Streng<'a>; STRING_COUNT],
 }
 
 impl Ukulele<'_> {
     pub fn new() -> Self {
         Self {
             strings: [
-                String::from("G"),
-                String::from("C"),
-                String::from("E"),
-                String::from("A"),
+                Streng::from("G"),
+                Streng::from("C"),
+                Streng::from("E"),
+                Streng::from("A"),
             ],
         }
     }

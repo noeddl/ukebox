@@ -5,8 +5,10 @@ use std::fmt;
 /// Number of frets shown on the fretboard chart.
 const CHART_WIDTH: usize = 4;
 
-/// A string of a Ukulele - not to be confused with Rust's own `String`.
-pub struct String<'a> {
+/// A string of a ukulele (or potentially another string instrument).
+/// We use the Danish word `streng` to avoid name clashes and confusion
+/// with Rust's `String`.
+pub struct Streng<'a> {
     /// The string's name (= name of the fundamental note).
     name: &'a str,
     /// The note played on the string.
@@ -15,7 +17,7 @@ pub struct String<'a> {
     fret: Option<usize>,
 }
 
-impl String<'_> {
+impl Streng<'_> {
     /// Play the note from `chord` which is the next on the string, starting
     /// from fret number `min_fret`.
     /// Return `true` if a note from `chord` can be played on the string under
@@ -41,7 +43,7 @@ impl String<'_> {
     }
 }
 
-impl<'a> From<&'a str> for String<'a> {
+impl<'a> From<&'a str> for Streng<'a> {
     fn from(s: &'a str) -> Self {
         Self {
             name: s,
@@ -53,7 +55,7 @@ impl<'a> From<&'a str> for String<'a> {
 
 /// Display the string in ASCII art showing at which fret to press it
 /// for playing the current note.
-impl fmt::Display for String<'_> {
+impl fmt::Display for Streng<'_> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let mut s = "".to_owned();
 
@@ -91,7 +93,7 @@ mod tests {
 
     #[rstest_parametrize(string, case("C"), case("C#"))]
     fn test_from_str(string: &str) {
-        let s = String::from(string);
+        let s = Streng::from(string);
         assert_eq!(s.name, string);
         assert_eq!(s.note, None);
         assert_eq!(s.fret, None);
@@ -114,7 +116,7 @@ mod tests {
         played: bool,
         display: &str,
     ) {
-        let mut s = String::from(string);
+        let mut s = Streng::from(string);
         let c = Chord::from(chord);
         let n = match note {
             Some(n) => Some(Note::from(n)),

@@ -1,4 +1,4 @@
 mod chord;
 mod note;
-mod string;
+mod streng;
 pub mod ukulele;
