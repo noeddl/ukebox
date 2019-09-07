@@ -22,9 +22,9 @@ impl Ukulele<'_> {
     }
 
     /// Play `chord` starting from fret number `min_fret`.
-    pub fn play(&mut self, chord: &str, min_fret: usize) {
+    pub fn play(&mut self, chord: &Chord, min_fret: usize) {
         for s in &mut self.strings {
-            s.play_note(&Chord::from(chord), min_fret);
+            s.play_note(chord, min_fret);
         }
     }
 }
@@ -53,6 +53,7 @@ mod tests {
     use super::*;
     use indoc::indoc;
     use rstest::rstest_parametrize;
+    use std::str::FromStr;
 
     #[rstest_parametrize(chord, min_fret, display,
         case(
@@ -68,7 +69,7 @@ mod tests {
     )]
     fn test_play_and_display(chord: &str, min_fret: usize, display: &str) {
         let mut uke = Ukulele::new();
-        uke.play(&chord, min_fret);
+        uke.play(&Chord::from_str(chord).unwrap(), min_fret);
         assert_eq!(format!("{}", uke), display);
     }
 }

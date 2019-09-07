@@ -1,4 +1,6 @@
+use std::str::FromStr;
 use structopt::StructOpt;
+use ukebox::chord::Chord;
 use ukebox::ukulele::Ukulele;
 
 #[derive(StructOpt)]
@@ -9,8 +11,9 @@ struct Cmd {
 fn main() {
     let args = Cmd::from_args();
     let mut uke = Ukulele::new();
-    uke.play(&args.chord, 0);
+    let chord = Chord::from_str(&args.chord).unwrap();
+    uke.play(&chord, 0);
 
-    println!("[{}]\n", args.chord);
+    println!("[{}]\n", chord);
     println!("{}", uke);
 }

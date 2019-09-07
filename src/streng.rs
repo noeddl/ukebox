@@ -90,6 +90,7 @@ impl fmt::Display for Streng<'_> {
 mod tests {
     use super::*;
     use rstest::rstest_parametrize;
+    use std::str::FromStr;
 
     #[rstest_parametrize(string, case("C"), case("C#"))]
     fn test_from_str(string: &str) {
@@ -117,7 +118,7 @@ mod tests {
         display: &str,
     ) {
         let mut s = Streng::from(string);
-        let c = Chord::from(chord);
+        let c = Chord::from_str(chord).unwrap();
         let n = match note {
             Some(n) => Some(Note::from(n)),
             None => None,
