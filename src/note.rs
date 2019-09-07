@@ -17,11 +17,13 @@ lazy_static! {
 
 /// Custom error for strings that cannot be parsed into notes.
 #[derive(Debug)]
-pub struct ParseNoteError;
+pub struct ParseNoteError {
+    name: String,
+}
 
 impl fmt::Display for ParseNoteError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "Could not parse note name")
+        write!(f, "Could not parse note name \"{}\"", self.name)
     }
 }
 
@@ -86,9 +88,11 @@ impl FromStr for Note {
     type Err = ParseNoteError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let name = s.to_string();
+
         let pitch_class = match NOTE_CLASSES.get(s) {
             Some(value) => PitchClass::Value(*value),
-            None => return Err(ParseNoteError),
+            None => return Err(ParseNoteError { name }),
         };
 
         Ok(Self { pitch_class })

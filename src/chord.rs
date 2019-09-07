@@ -4,11 +4,13 @@ use std::str::FromStr;
 
 /// Custom error for strings that cannot be parsed into chords.
 #[derive(Debug)]
-pub struct ParseChordError;
+pub struct ParseChordError {
+    name: String,
+}
 
 impl fmt::Display for ParseChordError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "Could not parse chord name")
+        write!(f, "Could not parse chord name \"{}\"", self.name)
     }
 }
 
@@ -53,10 +55,11 @@ impl FromStr for Chord {
     // instance of 'RGB'
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let quality = ChordQuality::Major;
+        let name = s.to_string();
 
         let root = match Note::from_str(s) {
             Ok(note) => note,
-            Err(_) => return Err(ParseChordError),
+            Err(_) => return Err(ParseChordError { name }),
         };
 
         let mut notes = vec![];
@@ -64,8 +67,6 @@ impl FromStr for Chord {
         for interval in quality.get_intervals() {
             notes.push(root + interval);
         }
-
-        let name = s.to_string();
 
         Ok(Self {
             name,
