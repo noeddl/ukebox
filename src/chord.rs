@@ -53,7 +53,12 @@ impl FromStr for Chord<'_> {
     // instance of 'RGB'
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let quality = ChordQuality::Major;
-        let root = Note::from(s);
+
+        let root = match Note::from_str(s) {
+            Ok(note) => note,
+            Err(_) => return Err(ParseChordError),
+        };
+
         let mut notes = vec![];
 
         for interval in quality.get_intervals() {
@@ -100,9 +105,9 @@ mod tests {
     )]
     fn test_from_str_major(chord: &str, root: &str, third: &str, fifth: &str) {
         let c = Chord::from_str(chord).unwrap();
-        let r = Note::from(root);
-        let t = Note::from(third);
-        let f = Note::from(fifth);
+        let r = Note::from_str(root).unwrap();
+        let t = Note::from_str(third).unwrap();
+        let f = Note::from_str(fifth).unwrap();
         assert_eq!(c.notes, vec![r, t, f]);
         assert_eq!(c.quality, ChordQuality::Major);
     }
@@ -117,7 +122,7 @@ mod tests {
     )]
     fn test_contains(chord: &str, note: &str, contains: bool) {
         let c = Chord::from_str(chord).unwrap();
-        let n = Note::from(note);
+        let n = Note::from_str(note).unwrap();
         assert_eq!(c.contains(&n), contains);
     }
 }

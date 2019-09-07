@@ -1,5 +1,16 @@
 use std::fmt;
 use std::ops::Add;
+use std::str::FromStr;
+
+/// Custom error for strings that cannot be parsed into notes.
+#[derive(Debug)]
+pub struct ParseNoteError;
+
+impl fmt::Display for ParseNoteError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "Could not parse note name")
+    }
+}
 
 /// A pitch class is "a set of all pitches that are a whole number of octaves
 /// apart, e.g., the pitch class C consists of the Cs in all octaves."
@@ -58,27 +69,29 @@ impl fmt::Display for Note<'_> {
     }
 }
 
-impl<'a> From<&'a str> for Note<'_> {
-    fn from(s: &'a str) -> Self {
+impl FromStr for Note<'_> {
+    type Err = ParseNoteError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
-            "C" => C_,
-            "C#" => C_SHARP,
-            "Db" => C_SHARP,
-            "D" => D_,
-            "D#" => D_SHARP,
-            "Eb" => D_SHARP,
-            "E" => E_,
-            "F" => F_,
-            "F#" => F_SHARP,
-            "Gb" => F_SHARP,
-            "G" => G_,
-            "G#" => G_SHARP,
-            "Ab" => G_SHARP,
-            "A" => A_,
-            "A#" => A_SHARP,
-            "Bb" => A_SHARP,
-            "B" => B_,
-            _ => panic!("Invalid note specified"),
+            "C" => Ok(C_),
+            "C#" => Ok(C_SHARP),
+            "Db" => Ok(C_SHARP),
+            "D" => Ok(D_),
+            "D#" => Ok(D_SHARP),
+            "Eb" => Ok(D_SHARP),
+            "E" => Ok(E_),
+            "F" => Ok(F_),
+            "F#" => Ok(F_SHARP),
+            "Gb" => Ok(F_SHARP),
+            "G" => Ok(G_),
+            "G#" => Ok(G_SHARP),
+            "Ab" => Ok(G_SHARP),
+            "A" => Ok(A_),
+            "A#" => Ok(A_SHARP),
+            "Bb" => Ok(A_SHARP),
+            "B" => Ok(B_),
+            _ => Err(ParseNoteError),
         }
     }
 }
@@ -171,7 +184,7 @@ mod tests {
         case("B", B_)
     )]
     fn test_from_str(s: &str, note: Note) {
-        let n = Note::from(s);
+        let n = Note::from_str(s).unwrap();
         assert_eq!(n, note);
     }
 

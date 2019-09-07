@@ -1,6 +1,7 @@
 use crate::chord::Chord;
 use crate::note::Note;
 use std::fmt;
+use std::str::FromStr;
 
 /// Number of frets shown on the fretboard chart.
 const CHART_WIDTH: usize = 4;
@@ -23,7 +24,7 @@ impl Streng<'_> {
     /// Return `true` if a note from `chord` can be played on the string under
     /// the given conditions, return `false` otherwise.
     pub fn play_note(&mut self, chord: &Chord, min_fret: usize) -> bool {
-        let open_string = Note::from(self.name);
+        let open_string = Note::from_str(self.name).unwrap();
 
         let max_fret = min_fret + CHART_WIDTH;
 
@@ -90,7 +91,6 @@ impl fmt::Display for Streng<'_> {
 mod tests {
     use super::*;
     use rstest::rstest_parametrize;
-    use std::str::FromStr;
 
     #[rstest_parametrize(string, case("C"), case("C#"))]
     fn test_from_str(string: &str) {
@@ -120,7 +120,7 @@ mod tests {
         let mut s = Streng::from(string);
         let c = Chord::from_str(chord).unwrap();
         let n = match note {
-            Some(n) => Some(Note::from(n)),
+            Some(n) => Some(Note::from_str(n).unwrap()),
             None => None,
         };
 
