@@ -1,9 +1,10 @@
 use structopt::StructOpt;
+use ukebox::chord::Chord;
 use ukebox::ukulele::Ukulele;
 
 #[derive(StructOpt)]
 struct Cmd {
-    chord: String,
+    chord: Chord,
 }
 
 fn main() {

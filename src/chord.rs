@@ -1,4 +1,18 @@
 use crate::note::Note;
+use std::fmt;
+use std::str::FromStr;
+
+/// Custom error for strings that cannot be parsed into chords.
+#[derive(Debug)]
+pub struct ParseChordError {
+    name: String,
+}
+
+impl fmt::Display for ParseChordError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "Could not parse chord name \"{}\"", self.name)
+    }
+}
 
 /// Chord quality.
 /// https://en.wikipedia.org/wiki/Chord_names_and_symbols_(popular_music)#Chord_quality
@@ -16,28 +30,49 @@ impl ChordQuality {
 }
 
 /// A chord such as C, Cm and so on.
-pub struct Chord<'a> {
+pub struct Chord {
+    name: String,
     quality: ChordQuality,
-    notes: Vec<Note<'a>>,
+    notes: Vec<Note>,
 }
 
-impl Chord<'_> {
-    pub fn contains(&self, note: &Note) -> bool {
-        self.notes.contains(note)
+impl Chord {
+    pub fn contains(&self, note: Note) -> bool {
+        self.notes.contains(&note)
     }
 }
 
-impl<'a> From<&'a str> for Chord<'_> {
-    fn from(s: &'a str) -> Self {
+impl fmt::Display for Chord {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.name)
+    }
+}
+
+impl FromStr for Chord {
+    type Err = ParseChordError;
+
+    // Parses a color hex code of the form '#rRgGbB..' into an
+    // instance of 'RGB'
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
         let quality = ChordQuality::Major;
-        let root = Note::from(s);
+        let name = s.to_string();
+
+        let root = match Note::from_str(s) {
+            Ok(note) => note,
+            Err(_) => return Err(ParseChordError { name }),
+        };
+
         let mut notes = vec![];
 
         for interval in quality.get_intervals() {
             notes.push(root + interval);
         }
 
-        Self { quality, notes }
+        Ok(Self {
+            name,
+            quality,
+            notes,
+        })
     }
 }
 
@@ -70,10 +105,10 @@ mod tests {
         case("B", "B", "D#", "F#")
     )]
     fn test_from_str_major(chord: &str, root: &str, third: &str, fifth: &str) {
-        let c = Chord::from(chord);
-        let r = Note::from(root);
-        let t = Note::from(third);
-        let f = Note::from(fifth);
+        let c = Chord::from_str(chord).unwrap();
+        let r = Note::from_str(root).unwrap();
+        let t = Note::from_str(third).unwrap();
+        let f = Note::from_str(fifth).unwrap();
         assert_eq!(c.notes, vec![r, t, f]);
         assert_eq!(c.quality, ChordQuality::Major);
     }
@@ -87,8 +122,8 @@ mod tests {
         case("C", "D", false)
     )]
     fn test_contains(chord: &str, note: &str, contains: bool) {
-        let c = Chord::from(chord);
-        let n = Note::from(note);
-        assert_eq!(c.contains(&n), contains);
+        let c = Chord::from_str(chord).unwrap();
+        let n = Note::from_str(note).unwrap();
+        assert_eq!(c.contains(n), contains);
     }
 }
