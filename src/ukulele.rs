@@ -5,11 +5,11 @@ use std::fmt;
 const STRING_COUNT: usize = 4;
 
 /// A ukulele.
-pub struct Ukulele<'a> {
-    strings: [Streng<'a>; STRING_COUNT],
+pub struct Ukulele {
+    strings: [Streng; STRING_COUNT],
 }
 
-impl Ukulele<'_> {
+impl Ukulele {
     pub fn new() -> Self {
         Self {
             strings: [
@@ -29,14 +29,14 @@ impl Ukulele<'_> {
     }
 }
 
-impl Default for Ukulele<'_> {
+impl Default for Ukulele {
     fn default() -> Self {
         Self::new()
     }
 }
 
 /// Display the ukulele's fretboard in ASCII art.
-impl fmt::Display for Ukulele<'_> {
+impl fmt::Display for Ukulele {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let mut s = "".to_owned();
 

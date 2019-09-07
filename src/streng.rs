@@ -9,22 +9,22 @@ const CHART_WIDTH: usize = 4;
 /// A string of a ukulele (or potentially another string instrument).
 /// We use the Danish word `streng` to avoid name clashes and confusion
 /// with Rust's `String`.
-pub struct Streng<'a> {
+pub struct Streng {
     /// The string's name (= name of the fundamental note).
-    name: &'a str,
+    name: String,
     /// The note played on the string.
     note: Option<Note>,
     /// The fret pressed to play `note`.
     fret: Option<usize>,
 }
 
-impl Streng<'_> {
+impl Streng {
     /// Play the note from `chord` which is the next on the string, starting
     /// from fret number `min_fret`.
     /// Return `true` if a note from `chord` can be played on the string under
     /// the given conditions, return `false` otherwise.
     pub fn play_note(&mut self, chord: &Chord, min_fret: usize) -> bool {
-        let open_string = Note::from_str(self.name).unwrap();
+        let open_string = Note::from_str(&self.name).unwrap();
 
         let max_fret = min_fret + CHART_WIDTH;
 
@@ -44,10 +44,10 @@ impl Streng<'_> {
     }
 }
 
-impl<'a> From<&'a str> for Streng<'a> {
-    fn from(s: &'a str) -> Self {
+impl From<&str> for Streng {
+    fn from(s: &str) -> Self {
         Self {
-            name: s,
+            name: s.to_string(),
             note: None,
             fret: None,
         }
@@ -56,7 +56,7 @@ impl<'a> From<&'a str> for Streng<'a> {
 
 /// Display the string in ASCII art showing at which fret to press it
 /// for playing the current note.
-impl fmt::Display for Streng<'_> {
+impl fmt::Display for Streng {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let mut s = "".to_owned();
 
