@@ -1,6 +1,19 @@
+use std::collections::HashMap;
 use std::fmt;
 use std::ops::Add;
 use std::str::FromStr;
+
+const PITCH_CLASS_COUNT: usize = 12;
+
+lazy_static! {
+    /// Mapping of note names to pitch classes.
+    static ref NOTE_CLASSES: HashMap<&'static str, usize> = [
+        ("C", 0), ("C#", 1), ("Db", 1), ("D", 2),("D#", 3),
+        ("Eb", 3), ("E", 4), ("F", 5), ("F#", 6), ("Gb", 6),
+        ("G", 7), ("G#", 8), ("Ab", 8), ("A", 9), ("A#", 10),
+        ("Bb", 10), ("B", 11)
+    ].iter().cloned().collect();
+}
 
 /// Custom error for strings that cannot be parsed into notes.
 #[derive(Debug)]
@@ -40,81 +53,69 @@ impl Add<usize> for PitchClass {
 }
 
 /// A note such a C, C# and so on.
-///
-/// There are several ways to access a specific note:
-/// * Use a constant:
-///   `C_SHARP`
-/// * Convert a string into a Note:
-///   `Note::from("C#")`
-/// * Convert an integer into a Note:
-///   `Note::from(1)`
-/// * Convert a PitchClass into a Note:
-///   `Note::from(PitchClass::Value(1))`
-/// * Access the NOTES constant at the index that corresponds to the
-///   note's pitch class:
-///   `NOTES[1]
 #[derive(Debug, Clone, Copy, PartialEq)]
-pub struct Note<'a> {
+pub struct Note {
     pitch_class: PitchClass,
-    name: &'a str,
-    enharmonic_name: Option<&'a str>,
 }
 
-impl fmt::Display for Note<'_> {
+impl fmt::Display for Note {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self.enharmonic_name {
-            None => write!(f, "{}", self.name),
-            Some(enh_name) => write!(f, "{}/{}", self.name, enh_name),
-        }
+        let PitchClass::Value(value) = self.pitch_class;
+
+        let s = match value {
+            0 => "C",
+            1 => "C#/Db",
+            2 => "D",
+            3 => "D#/Eb",
+            4 => "E",
+            5 => "F",
+            6 => "F#/Gb",
+            7 => "G",
+            8 => "G#/Ab",
+            9 => "A",
+            10 => "A#/Bb",
+            11 => "B",
+            _ => panic!(format!("Pitch class {} is out of range", value)),
+        };
+
+        write!(f, "{}", s)
     }
 }
 
-impl FromStr for Note<'_> {
+impl FromStr for Note {
     type Err = ParseNoteError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        match s {
-            "C" => Ok(C_),
-            "C#" => Ok(C_SHARP),
-            "Db" => Ok(C_SHARP),
-            "D" => Ok(D_),
-            "D#" => Ok(D_SHARP),
-            "Eb" => Ok(D_SHARP),
-            "E" => Ok(E_),
-            "F" => Ok(F_),
-            "F#" => Ok(F_SHARP),
-            "Gb" => Ok(F_SHARP),
-            "G" => Ok(G_),
-            "G#" => Ok(G_SHARP),
-            "Ab" => Ok(G_SHARP),
-            "A" => Ok(A_),
-            "A#" => Ok(A_SHARP),
-            "Bb" => Ok(A_SHARP),
-            "B" => Ok(B_),
-            _ => Err(ParseNoteError),
-        }
+        let pitch_class = match NOTE_CLASSES.get(s) {
+            Some(value) => PitchClass::Value(*value),
+            None => return Err(ParseNoteError),
+        };
+
+        Ok(Self { pitch_class })
     }
 }
 
-impl From<usize> for Note<'_> {
+impl From<usize> for Note {
     fn from(n: usize) -> Self {
         // If i > 11, cycle the list of notes as often as necessary to retrieve
         // a note in a higher octave, e.g. index 12 corresponds to 0 (as does
         // 24, 36, ... In practice, it will however probably not be necessary to
         // go so far.)
-        let i = n % NOTES.len();
-        NOTES[i]
+        let i = n % PITCH_CLASS_COUNT;
+        Self {
+            pitch_class: PitchClass::Value(i),
+        }
     }
 }
 
-impl From<PitchClass> for Note<'_> {
+impl From<PitchClass> for Note {
     fn from(pitch_class: PitchClass) -> Self {
         let PitchClass::Value(value) = pitch_class;
         Self::from(value)
     }
 }
 
-impl Add<usize> for Note<'_> {
+impl Add<usize> for Note {
     type Output = Self;
 
     /// Get the note that is `n` semitones higher than the current note.
@@ -124,39 +125,6 @@ impl Add<usize> for Note<'_> {
     }
 }
 
-/// Macro to create Note constants C_, C_SHARP etc and the constant list NOTES
-/// containing these Note constants.
-macro_rules! note_consts {
-    ($($value:expr, $id:ident, $name:expr, $enharmonic_name:expr;)*) => {
-        $(
-            #[doc = $name]
-            pub const $id: Note = Note {
-                pitch_class: PitchClass::Value($value),
-                name: $name,
-                enharmonic_name: $enharmonic_name,
-            };
-        )*
-
-        /// A list of all of the notes.
-        pub static NOTES: &[Note] = &[$($id, )*];
-    }
-}
-
-note_consts! {
-    0,  C_,         "C",    None;
-    1,  C_SHARP,    "C#",   Some("Db");
-    2,  D_,         "D",    None;
-    3,  D_SHARP,    "D#",   Some("Eb");
-    4,  E_,         "E",    None;
-    5,  F_,         "F",    None;
-    6,  F_SHARP,    "F#",   Some("Gb");
-    7,  G_,         "G",    None;
-    8,  G_SHARP,    "G#",   Some("Ab");
-    9,  A_,         "A",    None;
-    10, A_SHARP,    "A#",   Some("Bb");
-    11, B_,         "B",    None;
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -164,113 +132,118 @@ mod tests {
 
     #[rstest_parametrize(
         s,
-        note,
-        case("C", C_),
-        case("C#", C_SHARP),
-        case("Db", C_SHARP),
-        case("D", D_),
-        case("D#", D_SHARP),
-        case("Eb", D_SHARP),
-        case("E", E_),
-        case("F", F_),
-        case("F#", F_SHARP),
-        case("Gb", F_SHARP),
-        case("G", G_),
-        case("G#", G_SHARP),
-        case("Ab", G_SHARP),
-        case("A", A_),
-        case("A#", A_SHARP),
-        case("Bb", A_SHARP),
-        case("B", B_)
+        pc,
+        case("C", 0),
+        case("C#", 1),
+        case("Db", 1),
+        case("D", 2),
+        case("D#", 3),
+        case("Eb", 3),
+        case("E", 4),
+        case("F", 5),
+        case("F#", 6),
+        case("Gb", 6),
+        case("G", 7),
+        case("G#", 8),
+        case("Ab", 8),
+        case("A", 9),
+        case("A#", 10),
+        case("Bb", 10),
+        case("B", 11)
     )]
-    fn test_from_str(s: &str, note: Note) {
+    fn test_from_str(s: &str, pc: usize) {
         let n = Note::from_str(s).unwrap();
-        assert_eq!(n, note);
+        let PitchClass::Value(value) = n.pitch_class;
+        assert_eq!(value, pc);
     }
 
     #[rstest_parametrize(
         i,
-        note,
-        case(0, C_),
-        case(1, C_SHARP),
-        case(2, D_),
-        case(3, D_SHARP),
-        case(4, E_),
-        case(5, F_),
-        case(6, F_SHARP),
-        case(7, G_),
-        case(8, G_SHARP),
-        case(9, A_),
-        case(10, A_SHARP),
-        case(11, B_),
-        case(12, C_),
-        case(13, C_SHARP),
-        case(24, C_),
-        case(325, C_SHARP)
+        pc,
+        case(0, 0),
+        case(1, 1),
+        case(2, 2),
+        case(3, 3),
+        case(4, 4),
+        case(5, 5),
+        case(6, 6),
+        case(7, 7),
+        case(8, 8),
+        case(9, 9),
+        case(10, 10),
+        case(11, 11),
+        case(12, 0),
+        case(13, 1),
+        case(24, 0),
+        case(325, 1)
     )]
-    fn test_from_int(i: usize, note: Note) {
+    fn test_from_int(i: usize, pc: usize) {
         let n = Note::from(i);
-        assert_eq!(n, note);
+        let PitchClass::Value(value) = n.pitch_class;
+        assert_eq!(value, pc);
     }
 
     #[rstest_parametrize(
         i,
-        note,
-        case(0, C_),
-        case(1, C_SHARP),
-        case(2, D_),
-        case(3, D_SHARP),
-        case(4, E_),
-        case(5, F_),
-        case(6, F_SHARP),
-        case(7, G_),
-        case(8, G_SHARP),
-        case(9, A_),
-        case(10, A_SHARP),
-        case(11, B_),
-        case(12, C_),
-        case(13, C_SHARP),
-        case(24, C_),
-        case(325, C_SHARP)
+        pc,
+        case(0, 0),
+        case(1, 1),
+        case(2, 2),
+        case(3, 3),
+        case(4, 4),
+        case(5, 5),
+        case(6, 6),
+        case(7, 7),
+        case(8, 8),
+        case(9, 9),
+        case(10, 10),
+        case(11, 11),
+        case(12, 0),
+        case(13, 1),
+        case(24, 0),
+        case(325, 1)
     )]
-    fn test_from_pitch_class(i: usize, note: Note) {
+    fn test_from_pitch_class(i: usize, pc: usize) {
         let n = Note::from(PitchClass::Value(i));
-        assert_eq!(n, note);
+        let PitchClass::Value(value) = n.pitch_class;
+        assert_eq!(value, pc);
     }
 
     #[rstest_parametrize(
-        note,
+        pc,
         s,
-        case(C_, "C"),
-        case(C_SHARP, "C#/Db"),
-        case(D_, "D"),
-        case(D_SHARP, "D#/Eb"),
-        case(E_, "E"),
-        case(F_, "F"),
-        case(F_SHARP, "F#/Gb"),
-        case(G_, "G"),
-        case(G_SHARP, "G#/Ab"),
-        case(A_, "A"),
-        case(A_SHARP, "A#/Bb"),
-        case(B_, "B")
+        case(0, "C"),
+        case(1, "C#/Db"),
+        case(2, "D"),
+        case(3, "D#/Eb"),
+        case(4, "E"),
+        case(5, "F"),
+        case(6, "F#/Gb"),
+        case(7, "G"),
+        case(8, "G#/Ab"),
+        case(9, "A"),
+        case(10, "A#/Bb"),
+        case(11, "B")
     )]
-    fn test_display(note: Note, s: &str) {
+    fn test_display(pc: usize, s: &str) {
+        let note = Note::from(pc);
         assert_eq!(format!("{}", note), s);
     }
 
     #[rstest_parametrize(
-        note,
+        pc,
         i,
         result,
-        case(C_, 0, C_),
-        case(C_, 1, C_SHARP),
-        case(C_, 10, A_SHARP),
-        case(C_, 12, C_),
-        case(C_, 13, C_SHARP),
-        case(C_, 24, C_)
+        case(0, 0, 0),
+        case(0, 1, 1),
+        case(0, 10, 10),
+        case(0, 12, 0),
+        case(0, 13, 1),
+        case(0, 24, 0)
     )]
-    fn test_add_int(note: Note, i: usize, result: Note) {
-        assert_eq!(note + i, result);
+    fn test_add_int(pc: usize, i: usize, result: usize) {
+        let note = Note::from(pc);
+        assert_eq!(note + i, Note::from(result));
     }
 
     #[rstest_parametrize(

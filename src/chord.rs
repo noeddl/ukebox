@@ -28,25 +28,25 @@ impl ChordQuality {
 }
 
 /// A chord such as C, Cm and so on.
-pub struct Chord<'a> {
+pub struct Chord {
     name: String,
     quality: ChordQuality,
-    notes: Vec<Note<'a>>,
+    notes: Vec<Note>,
 }
 
-impl Chord<'_> {
-    pub fn contains(&self, note: &Note) -> bool {
-        self.notes.contains(note)
+impl Chord {
+    pub fn contains(&self, note: Note) -> bool {
+        self.notes.contains(&note)
     }
 }
 
-impl fmt::Display for Chord<'_> {
+impl fmt::Display for Chord {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.name)
     }
 }
 
-impl FromStr for Chord<'_> {
+impl FromStr for Chord {
     type Err = ParseChordError;
 
     // Parses a color hex code of the form '#rRgGbB..' into an
@@ -123,6 +123,6 @@ mod tests {
     fn test_contains(chord: &str, note: &str, contains: bool) {
         let c = Chord::from_str(chord).unwrap();
         let n = Note::from_str(note).unwrap();
-        assert_eq!(c.contains(&n), contains);
+        assert_eq!(c.contains(n), contains);
     }
 }

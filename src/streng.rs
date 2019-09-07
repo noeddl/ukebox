@@ -13,7 +13,7 @@ pub struct Streng<'a> {
     /// The string's name (= name of the fundamental note).
     name: &'a str,
     /// The note played on the string.
-    note: Option<Note<'a>>,
+    note: Option<Note>,
     /// The fret pressed to play `note`.
     fret: Option<usize>,
 }
@@ -33,7 +33,7 @@ impl Streng<'_> {
             let note = open_string + i;
 
             // Check if the current note is one of the ones we're looking for.
-            if chord.contains(&note) {
+            if chord.contains(note) {
                 self.note = Some(note);
                 self.fret = Some(i);
                 return true;
