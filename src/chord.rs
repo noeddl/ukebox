@@ -32,6 +32,17 @@ impl ChordQuality {
     }
 }
 
+impl fmt::Display for ChordQuality {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let s = match self {
+            Self::Major => "major",
+            Self::Minor => "minor",
+        };
+
+        write!(f, "{}", s)
+    }
+}
+
 /// A chord such as C, Cm and so on.
 pub struct Chord {
     name: String,
@@ -47,7 +58,7 @@ impl Chord {
 
 impl fmt::Display for Chord {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.name)
+        write!(f, "{} - {} {}", self.name, self.notes[0], self.quality)
     }
 }
 
