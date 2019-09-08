@@ -22,7 +22,7 @@ enum ChordQuality {
 }
 
 impl ChordQuality {
-    fn get_intervals(&self) -> Vec<usize> {
+    fn get_intervals(&self) -> Vec<u8> {
         match self {
             Self::Major => vec![0, 4, 7],
         }
