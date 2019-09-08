@@ -1,4 +1,5 @@
 use crate::note::Note;
+use regex::Regex;
 use std::fmt;
 use std::str::FromStr;
 
@@ -19,13 +20,26 @@ impl fmt::Display for ParseChordError {
 #[derive(Debug, PartialEq)]
 enum ChordQuality {
     Major,
+    Minor,
 }
 
 impl ChordQuality {
     fn get_intervals(&self) -> Vec<u8> {
         match self {
             Self::Major => vec![0, 4, 7],
+            Self::Minor => vec![0, 3, 7],
         }
+    }
+}
+
+impl fmt::Display for ChordQuality {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let s = match self {
+            Self::Major => "major",
+            Self::Minor => "minor",
+        };
+
+        write!(f, "{}", s)
     }
 }
 
@@ -44,24 +58,38 @@ impl Chord {
 
 impl fmt::Display for Chord {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.name)
+        write!(f, "{} - {} {}", self.name, self.notes[0], self.quality)
     }
 }
 
 impl FromStr for Chord {
     type Err = ParseChordError;
 
-    // Parses a color hex code of the form '#rRgGbB..' into an
-    // instance of 'RGB'
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let quality = ChordQuality::Major;
         let name = s.to_string();
 
-        let root = match Note::from_str(s) {
+        // Regular expression for chord names.
+        let re = Regex::new(r"(?P<root>[CDEFGAB][#b]?)(?P<quality>m?)").unwrap();
+
+        // Match regex.
+        let caps = match re.captures(s) {
+            Some(caps) => caps,
+            None => return Err(ParseChordError { name }),
+        };
+
+        // Get root note.
+        let root = match Note::from_str(&caps["root"]) {
             Ok(note) => note,
             Err(_) => return Err(ParseChordError { name }),
         };
 
+        // Get chord quality.
+        let quality = match &caps["quality"] {
+            "m" => ChordQuality::Minor,
+            _ => ChordQuality::Major,
+        };
+
+        // Collect notes of the chord.
         let mut notes = vec![];
 
         for interval in quality.get_intervals() {
@@ -111,6 +139,38 @@ mod tests {
         let f = Note::from_str(fifth).unwrap();
         assert_eq!(c.notes, vec![r, t, f]);
         assert_eq!(c.quality, ChordQuality::Major);
+    }
+
+    #[rstest_parametrize(
+        chord,
+        root,
+        third,
+        fifth,
+        case("Cm", "C", "Eb", "G"),
+        case("C#m", "C#", "E", "G#"),
+        case("Dbm", "Db", "E", "Ab"),
+        case("Dm", "D", "F", "A"),
+        case("D#m", "D#", "Gb", "A#"),
+        case("Ebm", "Eb", "Gb", "Bb"),
+        case("Em", "E", "G", "B"),
+        case("Fm", "F", "Ab", "C"),
+        case("F#m", "F#", "A", "C#"),
+        case("Gbm", "Gb", "A", "Db"),
+        case("Gm", "G", "Bb", "D"),
+        case("G#m", "G#", "B", "D#"),
+        case("Abm", "Ab", "B", "Eb"),
+        case("Am", "A", "C", "E"),
+        case("A#m", "A#", "Db", "F"),
+        case("Bbm", "Bb", "Db", "F"),
+        case("Bm", "B", "D", "F#")
+    )]
+    fn test_from_str_minor(chord: &str, root: &str, third: &str, fifth: &str) {
+        let c = Chord::from_str(chord).unwrap();
+        let r = Note::from_str(root).unwrap();
+        let t = Note::from_str(third).unwrap();
+        let f = Note::from_str(fifth).unwrap();
+        assert_eq!(c.notes, vec![r, t, f]);
+        assert_eq!(c.quality, ChordQuality::Minor);
     }
 
     #[rstest_parametrize(
