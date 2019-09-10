@@ -1,4 +1,5 @@
 use crate::note::Note;
+use crate::Frets;
 use regex::Regex;
 use std::fmt;
 use std::str::FromStr;
@@ -24,7 +25,7 @@ enum ChordQuality {
 }
 
 impl ChordQuality {
-    fn get_intervals(&self) -> Vec<u8> {
+    fn get_intervals(&self) -> Vec<Frets> {
         match self {
             Self::Major => vec![0, 4, 7],
             Self::Minor => vec![0, 3, 7],

@@ -1,9 +1,10 @@
 use std::fmt;
 use std::ops::Add;
 use std::str::FromStr;
+use crate::Frets;
 
 /// Number of pitch classes.
-const PITCH_CLASS_COUNT: u8 = 12;
+const PITCH_CLASS_COUNT: Frets = 12;
 
 /// Custom error for strings that cannot be parsed into notes.
 #[derive(Debug)]
@@ -43,7 +44,7 @@ enum PitchClass {
 }
 
 impl PitchClass {
-    fn from_int(n: u8) -> Self {
+    fn from_int(n: Frets) -> Self {
         // If n > 11, cycle the list of notes as often as necessary to retrieve
         // a note in a higher octave, e.g. index 12 corresponds to 0 (as does
         // 24, 36, ... In practice, it will however probably not be necessary to
@@ -53,31 +54,31 @@ impl PitchClass {
         // This looks clunky but there does not seem to be a better way to
         // turn integers into enum variants without using external crates.
         match v {
-            v if v == Self::C as u8 => Self::C,
-            v if v == Self::CSharp as u8 => Self::CSharp,
-            v if v == Self::D as u8 => Self::D,
-            v if v == Self::DSharp as u8 => Self::DSharp,
-            v if v == Self::E as u8 => Self::E,
-            v if v == Self::F as u8 => Self::F,
-            v if v == Self::FSharp as u8 => Self::FSharp,
-            v if v == Self::G as u8 => Self::G,
-            v if v == Self::GSharp as u8 => Self::GSharp,
-            v if v == Self::A as u8 => Self::A,
-            v if v == Self::ASharp as u8 => Self::ASharp,
-            v if v == Self::B as u8 => Self::B,
+            v if v == Self::C as Frets => Self::C,
+            v if v == Self::CSharp as Frets => Self::CSharp,
+            v if v == Self::D as Frets => Self::D,
+            v if v == Self::DSharp as Frets => Self::DSharp,
+            v if v == Self::E as Frets => Self::E,
+            v if v == Self::F as Frets => Self::F,
+            v if v == Self::FSharp as Frets => Self::FSharp,
+            v if v == Self::G as Frets => Self::G,
+            v if v == Self::GSharp as Frets => Self::GSharp,
+            v if v == Self::A as Frets => Self::A,
+            v if v == Self::ASharp as Frets => Self::ASharp,
+            v if v == Self::B as Frets => Self::B,
             // Because of the modulo, `v` will always be in the correct range.
             _ => unreachable!(),
         }
     }
 }
 
-impl Add<u8> for PitchClass {
+impl Add<Frets> for PitchClass {
     type Output = Self;
 
     /// Get the pitch class that is `n` semitones higher than the current
     /// pitch class.
-    fn add(self, n: u8) -> Self {
-        let v = self as u8 + n;
+    fn add(self, n: Frets) -> Self {
+        let v = self as Frets + n;
         Self::from_int(v)
     }
 }
@@ -140,25 +141,17 @@ impl FromStr for Note {
     }
 }
 
-impl From<u8> for Note {
-    fn from(n: u8) -> Self {
-        Self {
-            pitch_class: PitchClass::from_int(n),
-        }
-    }
-}
-
 impl From<PitchClass> for Note {
     fn from(pitch_class: PitchClass) -> Self {
         Self { pitch_class }
     }
 }
 
-impl Add<u8> for Note {
+impl Add<Frets> for Note {
     type Output = Self;
 
     /// Get the note that is `n` semitones higher than the current note.
-    fn add(self, n: u8) -> Self {
+    fn add(self, n: Frets) -> Self {
         let pc = self.pitch_class + n;
         Note::from(pc)
     }
@@ -215,10 +208,8 @@ mod tests {
         case(24, PitchClass::C),
         case(255, PitchClass::DSharp)
     )]
-    fn test_from_int(n: u8, pitch_class: PitchClass) {
-        let note = Note::from(n);
+    fn test_pitch_class_from_int(n: Frets, pitch_class: PitchClass) {
         assert_eq!(PitchClass::from_int(n), pitch_class);
-        assert_eq!(note.pitch_class, pitch_class);
     }
 
     #[rstest_parametrize(
@@ -273,7 +264,7 @@ mod tests {
         case(PitchClass::C, 13, PitchClass::CSharp),
         case(PitchClass::C, 24, PitchClass::C)
     )]
-    fn test_add_int(pitch_class: PitchClass, n: u8, result: PitchClass) {
+    fn test_add_int(pitch_class: PitchClass, n: Frets, result: PitchClass) {
         let note = Note::from(pitch_class);
         assert_eq!(note + n, Note::from(result));
     }
@@ -289,7 +280,7 @@ mod tests {
         case(PitchClass::C, 13, PitchClass::CSharp),
         case(PitchClass::C, 24, PitchClass::C)
     )]
-    fn test_pitch_class_add_int(pitch_class: PitchClass, n: u8, result: PitchClass) {
+    fn test_pitch_class_add_int(pitch_class: PitchClass, n: Frets, result: PitchClass) {
         assert_eq!(pitch_class + n, result);
     }
 }

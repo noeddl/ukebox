@@ -1,10 +1,11 @@
 use crate::chord::Chord;
 use crate::note::Note;
+use crate::Frets;
 use std::fmt;
 use std::str::FromStr;
 
 /// Number of frets shown on the fretboard chart.
-const CHART_WIDTH: u8 = 4;
+const CHART_WIDTH: Frets = 4;
 
 /// A string of a ukulele (or potentially another string instrument).
 /// We use the Danish word `streng` to avoid name clashes and confusion
@@ -15,7 +16,7 @@ pub struct Streng {
     /// The note played on the string.
     note: Option<Note>,
     /// The fret pressed to play `note`.
-    fret: Option<u8>,
+    fret: Option<Frets>,
 }
 
 impl Streng {
@@ -23,7 +24,7 @@ impl Streng {
     /// from fret number `min_fret`.
     /// Return `true` if a note from `chord` can be played on the string under
     /// the given conditions, return `false` otherwise.
-    pub fn play_note(&mut self, chord: &Chord, min_fret: u8) -> bool {
+    pub fn play_note(&mut self, chord: &Chord, min_fret: Frets) -> bool {
         let open_string = Note::from_str(&self.name).unwrap();
 
         let max_fret = min_fret + CHART_WIDTH;
@@ -111,9 +112,9 @@ mod tests {
     fn test_play_note(
         string: &str,
         chord: &str,
-        min_fret: u8,
+        min_fret: Frets,
         note: Option<&str>,
-        fret: Option<u8>,
+        fret: Option<Frets>,
         played: bool,
         display: &str,
     ) {

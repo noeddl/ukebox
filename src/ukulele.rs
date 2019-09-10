@@ -1,5 +1,6 @@
 use crate::chord::Chord;
 use crate::streng::Streng;
+use crate::Frets;
 use std::fmt;
 
 const STRING_COUNT: usize = 4;
@@ -22,7 +23,7 @@ impl Ukulele {
     }
 
     /// Play `chord` starting from fret number `min_fret`.
-    pub fn play(&mut self, chord: &Chord, min_fret: u8) {
+    pub fn play(&mut self, chord: &Chord, min_fret: Frets) {
         for s in &mut self.strings {
             s.play_note(chord, min_fret);
         }
@@ -67,7 +68,7 @@ mod tests {
             ")
         ),
     )]
-    fn test_play_and_display(chord: &str, min_fret: u8, display: &str) {
+    fn test_play_and_display(chord: &str, min_fret: Frets, display: &str) {
         let mut uke = Ukulele::new();
         uke.play(&Chord::from_str(chord).unwrap(), min_fret);
         assert_eq!(format!("{}", uke), display);
