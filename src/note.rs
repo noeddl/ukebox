@@ -57,6 +57,8 @@ impl PitchClass {
     /// ...   C   C#    D  ...  Bb   B   C   C#  D  ...  Bb   B   C  ...
     /// ... -12  -11  -10  ...  -2  -1   0   1   2  ...  10  11  12  ...
     fn from_int(n: Frets) -> Self {
+        use PitchClass::*;
+
         let modulo = n % PITCH_CLASS_COUNT;
 
         let v = match modulo {
@@ -66,21 +68,22 @@ impl PitchClass {
             _ => modulo + PITCH_CLASS_COUNT,
         };
 
-        // This looks clunky but there does not seem to be a better way to
-        // turn integers into enum variants without using external crates.
+        // There does not seem to be a good way to turn integers into enum
+        // variants without using external crates. Hardcoding the mapping
+        // is not so elegant but at least readable.
         match v {
-            v if v == Self::C as Frets => Self::C,
-            v if v == Self::CSharp as Frets => Self::CSharp,
-            v if v == Self::D as Frets => Self::D,
-            v if v == Self::DSharp as Frets => Self::DSharp,
-            v if v == Self::E as Frets => Self::E,
-            v if v == Self::F as Frets => Self::F,
-            v if v == Self::FSharp as Frets => Self::FSharp,
-            v if v == Self::G as Frets => Self::G,
-            v if v == Self::GSharp as Frets => Self::GSharp,
-            v if v == Self::A as Frets => Self::A,
-            v if v == Self::ASharp as Frets => Self::ASharp,
-            v if v == Self::B as Frets => Self::B,
+            0 => C,
+            1 => CSharp,
+            2 => D,
+            3 => DSharp,
+            4 => E,
+            5 => F,
+            6 => FSharp,
+            7 => G,
+            8 => GSharp,
+            9 => A,
+            10 => ASharp,
+            11 => B,
             // Because of the modulo, `v` will always be in the correct range.
             _ => unreachable!(),
         }
