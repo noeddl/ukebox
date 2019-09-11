@@ -1,6 +1,8 @@
+#![allow(clippy::suspicious_arithmetic_impl)]
 use crate::Frets;
 use std::fmt;
 use std::ops::Add;
+use std::ops::Sub;
 use std::str::FromStr;
 
 /// Number of pitch classes.
@@ -101,6 +103,28 @@ impl Add<Frets> for PitchClass {
     }
 }
 
+impl Sub for PitchClass {
+    type Output = Frets;
+
+    /// Get the difference between two pitch classes in number of frets
+    /// or semitones.
+    ///
+    /// `self` is assumed to always be higher as `other` with a difference
+    /// of at most one octave.
+    ///
+    /// Examples:
+    /// * D - C: both pitch classes are assumed to be in the same octave, D being
+    ///          higher than C. The difference is 2.
+    /// * D - A: D is higher than A, the difference is 5.
+    fn sub(self, other: Self) -> Frets {
+        let diff = self as Frets - other as Frets;
+        match diff {
+            diff if diff >= 0 => diff,
+            _ => diff + PITCH_CLASS_COUNT,
+        }
+    }
+}
+
 /// A note such a C, C# and so on.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Note {
@@ -172,6 +196,16 @@ impl Add<Frets> for Note {
     fn add(self, n: Frets) -> Self {
         let pc = self.pitch_class + n;
         Note::from(pc)
+    }
+}
+
+impl Sub for Note {
+    type Output = Frets;
+
+    /// Get the difference between two notes in number of frets
+    /// or semitones.
+    fn sub(self, other: Self) -> Frets {
+        self.pitch_class - other.pitch_class
     }
 }
 
@@ -315,5 +349,21 @@ mod tests {
     )]
     fn test_pitch_class_add_int(pitch_class: PitchClass, n: Frets, result: PitchClass) {
         assert_eq!(pitch_class + n, result);
+    }
+
+    #[rstest_parametrize(
+        pc1,
+        pc2,
+        n,
+        case(PitchClass::C, PitchClass::C, 0),
+        case(PitchClass::D, PitchClass::C, 2),
+        case(PitchClass::D, PitchClass::A, 5),
+        case(PitchClass::C, PitchClass::CSharp, 11)
+    )]
+    fn test_sub_int(pc1: PitchClass, pc2: PitchClass, n: Frets) {
+        let note1 = Note::from(pc1);
+        let note2 = Note::from(pc2);
+        assert_eq!(pc1 - pc2, n);
+        assert_eq!(note1 - note2, n);
     }
 }
