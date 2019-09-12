@@ -1,4 +1,5 @@
 use crate::note::Note;
+use crate::Frets;
 use regex::Regex;
 use std::fmt;
 use std::str::FromStr;
@@ -17,14 +18,14 @@ impl fmt::Display for ParseChordError {
 
 /// Chord quality.
 /// https://en.wikipedia.org/wiki/Chord_names_and_symbols_(popular_music)#Chord_quality
-#[derive(Debug, PartialEq)]
-enum ChordQuality {
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum ChordQuality {
     Major,
     Minor,
 }
 
 impl ChordQuality {
-    fn get_intervals(&self) -> Vec<u8> {
+    fn get_intervals(self) -> Vec<Frets> {
         match self {
             Self::Major => vec![0, 4, 7],
             Self::Minor => vec![0, 3, 7],
@@ -46,7 +47,8 @@ impl fmt::Display for ChordQuality {
 /// A chord such as C, Cm and so on.
 pub struct Chord {
     name: String,
-    quality: ChordQuality,
+    pub quality: ChordQuality,
+    pub root: Note,
     notes: Vec<Note>,
 }
 
@@ -98,6 +100,7 @@ impl FromStr for Chord {
 
         Ok(Self {
             name,
+            root,
             quality,
             notes,
         })

@@ -1,9 +1,12 @@
+#![allow(clippy::suspicious_arithmetic_impl)]
+use crate::Frets;
 use std::fmt;
 use std::ops::Add;
+use std::ops::Sub;
 use std::str::FromStr;
 
 /// Number of pitch classes.
-const PITCH_CLASS_COUNT: u8 = 12;
+const PITCH_CLASS_COUNT: Frets = 12;
 
 /// Custom error for strings that cannot be parsed into notes.
 #[derive(Debug)]
@@ -27,7 +30,7 @@ impl fmt::Display for ParseNoteError {
 /// For example, pitch class 12 is the same as pitch class 0 and corresponds
 /// to the pitch class of C.
 #[derive(Debug, Clone, Copy, PartialEq)]
-enum PitchClass {
+pub enum PitchClass {
     C,
     CSharp,
     D,
@@ -43,42 +46,73 @@ enum PitchClass {
 }
 
 impl PitchClass {
-    fn from_int(n: u8) -> Self {
-        // If n > 11, cycle the list of notes as often as necessary to retrieve
-        // a note in a higher octave, e.g. index 12 corresponds to 0 (as does
-        // 24, 36, ... In practice, it will however probably not be necessary to
-        // go so far.)
+    /// Convert an integer into a pitch class.
+    ///
+    /// To model the fact that e.g. all instances of the note `C` in different
+    /// octaves belong to the same pitch class, each integer is placed in the
+    /// range of potential pitch classes (between 0 and 11).
+    /// For example, 12, 24, 36, etc. all correspond to pitch class 0.
+    fn from_int(n: Frets) -> Self {
+        use PitchClass::*;
+
+        // Make sure we get a value between 0 and 11.
         let v = n % PITCH_CLASS_COUNT;
 
-        // This looks clunky but there does not seem to be a better way to
-        // turn integers into enum variants without using external crates.
+        // There does not seem to be a good way to turn integers into enum
+        // variants without using external crates. Hardcoding the mapping
+        // is not so elegant but at least readable.
         match v {
-            v if v == Self::C as u8 => Self::C,
-            v if v == Self::CSharp as u8 => Self::CSharp,
-            v if v == Self::D as u8 => Self::D,
-            v if v == Self::DSharp as u8 => Self::DSharp,
-            v if v == Self::E as u8 => Self::E,
-            v if v == Self::F as u8 => Self::F,
-            v if v == Self::FSharp as u8 => Self::FSharp,
-            v if v == Self::G as u8 => Self::G,
-            v if v == Self::GSharp as u8 => Self::GSharp,
-            v if v == Self::A as u8 => Self::A,
-            v if v == Self::ASharp as u8 => Self::ASharp,
-            v if v == Self::B as u8 => Self::B,
+            0 => C,
+            1 => CSharp,
+            2 => D,
+            3 => DSharp,
+            4 => E,
+            5 => F,
+            6 => FSharp,
+            7 => G,
+            8 => GSharp,
+            9 => A,
+            10 => ASharp,
+            11 => B,
             // Because of the modulo, `v` will always be in the correct range.
             _ => unreachable!(),
         }
     }
 }
 
-impl Add<u8> for PitchClass {
+impl Add<Frets> for PitchClass {
     type Output = Self;
 
     /// Get the pitch class that is `n` semitones higher than the current
     /// pitch class.
-    fn add(self, n: u8) -> Self {
-        let v = self as u8 + n;
+    fn add(self, n: Frets) -> Self {
+        let v = self as Frets + n;
         Self::from_int(v)
+    }
+}
+
+impl Sub for PitchClass {
+    type Output = Frets;
+
+    /// Get the difference between two pitch classes in number of frets
+    /// or semitones.
+    ///
+    /// `self` is assumed to always be higher as `other` with a difference
+    /// of at most one octave.
+    ///
+    /// Examples:
+    /// * D - C: both pitch classes are assumed to be in the same octave, D being
+    ///          higher than C. The difference is 2.
+    /// * D - A: D is higher than A, the difference is 5.
+    fn sub(self, other: Self) -> Frets {
+        let d = self as i8 - other as i8;
+
+        let diff = match d {
+            d if d >= 0 => d,
+            _ => d + PITCH_CLASS_COUNT as i8,
+        };
+
+        diff as Frets
     }
 }
 
@@ -140,27 +174,29 @@ impl FromStr for Note {
     }
 }
 
-impl From<u8> for Note {
-    fn from(n: u8) -> Self {
-        Self {
-            pitch_class: PitchClass::from_int(n),
-        }
-    }
-}
-
 impl From<PitchClass> for Note {
     fn from(pitch_class: PitchClass) -> Self {
         Self { pitch_class }
     }
 }
 
-impl Add<u8> for Note {
+impl Add<Frets> for Note {
     type Output = Self;
 
     /// Get the note that is `n` semitones higher than the current note.
-    fn add(self, n: u8) -> Self {
+    fn add(self, n: Frets) -> Self {
         let pc = self.pitch_class + n;
         Note::from(pc)
+    }
+}
+
+impl Sub for Note {
+    type Output = Frets;
+
+    /// Get the difference between two notes in number of frets
+    /// or semitones.
+    fn sub(self, other: Self) -> Frets {
+        self.pitch_class - other.pitch_class
     }
 }
 
@@ -213,12 +249,11 @@ mod tests {
         case(12, PitchClass::C),
         case(13, PitchClass::CSharp),
         case(24, PitchClass::C),
+        case(127, PitchClass::G),
         case(255, PitchClass::DSharp)
     )]
-    fn test_from_int(n: u8, pitch_class: PitchClass) {
-        let note = Note::from(n);
+    fn test_pitch_class_from_int(n: Frets, pitch_class: PitchClass) {
         assert_eq!(PitchClass::from_int(n), pitch_class);
-        assert_eq!(note.pitch_class, pitch_class);
     }
 
     #[rstest_parametrize(
@@ -273,7 +308,7 @@ mod tests {
         case(PitchClass::C, 13, PitchClass::CSharp),
         case(PitchClass::C, 24, PitchClass::C)
     )]
-    fn test_add_int(pitch_class: PitchClass, n: u8, result: PitchClass) {
+    fn test_add_int(pitch_class: PitchClass, n: Frets, result: PitchClass) {
         let note = Note::from(pitch_class);
         assert_eq!(note + n, Note::from(result));
     }
@@ -289,7 +324,23 @@ mod tests {
         case(PitchClass::C, 13, PitchClass::CSharp),
         case(PitchClass::C, 24, PitchClass::C)
     )]
-    fn test_pitch_class_add_int(pitch_class: PitchClass, n: u8, result: PitchClass) {
+    fn test_pitch_class_add_int(pitch_class: PitchClass, n: Frets, result: PitchClass) {
         assert_eq!(pitch_class + n, result);
+    }
+
+    #[rstest_parametrize(
+        pc1,
+        pc2,
+        n,
+        case(PitchClass::C, PitchClass::C, 0),
+        case(PitchClass::D, PitchClass::C, 2),
+        case(PitchClass::D, PitchClass::A, 5),
+        case(PitchClass::C, PitchClass::CSharp, 11)
+    )]
+    fn test_sub_int(pc1: PitchClass, pc2: PitchClass, n: Frets) {
+        let note1 = Note::from(pc1);
+        let note2 = Note::from(pc2);
+        assert_eq!(pc1 - pc2, n);
+        assert_eq!(note1 - note2, n);
     }
 }
