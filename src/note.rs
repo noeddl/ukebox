@@ -52,23 +52,11 @@ impl PitchClass {
     /// octaves belong to the same pitch class, each integer is placed in the
     /// range of potential pitch classes (between 0 and 11).
     /// For example, 12, 24, 36, etc. all correspond to pitch class 0.
-    /// This also works in the negative direction with -12, -24, -36, etc.
-    ///
-    /// The mapping between pitch classes and integers is as follows:
-    ///
-    /// ...   C   C#    D  ...  Bb   B   C   C#  D  ...  Bb   B   C  ...
-    /// ... -12  -11  -10  ...  -2  -1   0   1   2  ...  10  11  12  ...
     fn from_int(n: Frets) -> Self {
         use PitchClass::*;
 
-        let modulo = n % PITCH_CLASS_COUNT;
-
-        let v = match modulo {
-            m if m >= 0 => modulo,
-            // For negative values, we have to go backwards along the scale,
-            // e.g. the corresponding values for `B` are -1, -13, -25, etc.
-            _ => modulo + PITCH_CLASS_COUNT,
-        };
+        // Make sure we get a value between 0 and 11.
+        let v = n % PITCH_CLASS_COUNT;
 
         // There does not seem to be a good way to turn integers into enum
         // variants without using external crates. Hardcoding the mapping
@@ -117,11 +105,14 @@ impl Sub for PitchClass {
     ///          higher than C. The difference is 2.
     /// * D - A: D is higher than A, the difference is 5.
     fn sub(self, other: Self) -> Frets {
-        let diff = self as Frets - other as Frets;
-        match diff {
-            diff if diff >= 0 => diff,
-            _ => diff + PITCH_CLASS_COUNT,
-        }
+        let d = self as i8 - other as i8;
+
+        let diff = match d {
+            d if d >= 0 => d,
+            _ => d + PITCH_CLASS_COUNT as i8,
+        };
+
+        diff as Frets
     }
 }
 
@@ -259,21 +250,7 @@ mod tests {
         case(13, PitchClass::CSharp),
         case(24, PitchClass::C),
         case(127, PitchClass::G),
-        case(-1, PitchClass::B),
-        case(-2, PitchClass::ASharp),
-        case(-3, PitchClass::A),
-        case(-4, PitchClass::GSharp),
-        case(-5, PitchClass::G),
-        case(-6, PitchClass::FSharp),
-        case(-7, PitchClass::F),
-        case(-8, PitchClass::E),
-        case(-9, PitchClass::DSharp),
-        case(-10, PitchClass::D),
-        case(-11, PitchClass::CSharp),
-        case(-12, PitchClass::C),
-        case(-13, PitchClass::B),
-        case(-24, PitchClass::C),
-        case(-127, PitchClass::F),
+        case(255, PitchClass::DSharp)
     )]
     fn test_pitch_class_from_int(n: Frets, pitch_class: PitchClass) {
         assert_eq!(PitchClass::from_int(n), pitch_class);
