@@ -30,7 +30,7 @@ impl fmt::Display for ParseNoteError {
 /// For example, pitch class 12 is the same as pitch class 0 and corresponds
 /// to the pitch class of C.
 #[derive(Debug, Clone, Copy, PartialEq)]
-enum PitchClass {
+pub enum PitchClass {
     C,
     CSharp,
     D,

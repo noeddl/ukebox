@@ -1,4 +1,3 @@
-use crate::chord::Chord;
 use crate::note::Note;
 use crate::Frets;
 use std::fmt;
@@ -20,28 +19,12 @@ pub struct Streng {
 }
 
 impl Streng {
-    /// Play the note from `chord` which is the next on the string, starting
-    /// from fret number `min_fret`.
-    /// Return `true` if a note from `chord` can be played on the string under
-    /// the given conditions, return `false` otherwise.
-    pub fn play_note(&mut self, chord: &Chord, min_fret: Frets) -> bool {
+    /// Press the string on `fret`.
+    pub fn play(&mut self, fret: Frets) {
         let open_string = Note::from_str(&self.name).unwrap();
 
-        let max_fret = min_fret + CHART_WIDTH;
-
-        for i in min_fret..=max_fret {
-            // Get the next note on the fretboard.
-            let note = open_string + i;
-
-            // Check if the current note is one of the ones we're looking for.
-            if chord.contains(note) {
-                self.note = Some(note);
-                self.fret = Some(i);
-                return true;
-            }
-        }
-
-        false
+        self.note = Some(open_string + fret);
+        self.fret = Some(fret);
     }
 }
 
@@ -102,34 +85,25 @@ mod tests {
     }
 
     #[rstest_parametrize(
-        string, chord, min_fret, note, fret, played, display,
-        case("C", "C", 0, Some("C"), Some(0), true, "C ○||---+---+---+---+ C"),
-        case("C", "C", 1, Some("E"), Some(4), true, "C  ||---+---+---+-●-+ E"),
-        case("C", "D", 0, Some("D"), Some(2), true, "C  ||---+-●-+---+---+ D"),
-        case("G", "B", 0, Some("B"), Some(4), true, "G  ||---+---+---+-●-+ B"),
+        string, fret, note, display,
+        case("C", 0, Some("C"), "C ○||---+---+---+---+ C"),
+        case("C", 4, Some("E"), "C  ||---+---+---+-●-+ E"),
+        case("C", 2, Some("D"), "C  ||---+-●-+---+---+ D"),
+        case("G", 4, Some("B"), "G  ||---+---+---+-●-+ B"),
         //case("?", "?", 0, None, None, false), // TODO: We need a test for this case ...
     )]
-    fn test_play_note(
-        string: &str,
-        chord: &str,
-        min_fret: Frets,
-        note: Option<&str>,
-        fret: Option<Frets>,
-        played: bool,
-        display: &str,
-    ) {
+    fn test_play(string: &str, fret: Frets, note: Option<&str>, display: &str) {
         let mut s = Streng::from(string);
-        let c = Chord::from_str(chord).unwrap();
+
         let n = match note {
             Some(n) => Some(Note::from_str(n).unwrap()),
             None => None,
         };
 
-        let p = s.play_note(&c, min_fret);
+        s.play(fret);
 
         assert_eq!(s.note, n);
-        assert_eq!(s.fret, fret);
-        assert_eq!(p, played);
+        assert_eq!(s.fret, Some(fret));
         assert_eq!(format!("{}", s), display);
     }
 }

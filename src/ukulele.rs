@@ -1,9 +1,75 @@
 use crate::chord::Chord;
+use crate::chord::ChordQuality;
+use crate::note::Note;
+use crate::note::PitchClass;
 use crate::streng::Streng;
 use crate::Frets;
 use std::fmt;
 
 const STRING_COUNT: usize = 4;
+
+/// A chord shape is a configuration of frets to be pressed to play a
+/// chord with a certain chord quality. The shape can be moved along
+/// the fretboard to derive several chords.
+///
+/// http://play-ukulele.simonplantinga.nl/2014/05/ukulele-chords-iii/
+/// https://newhamukes.wordpress.com/2013/08/30/moveable-chords/
+/// http://kauairainbow.com/Ukulele/Chord%20Magic/cm1.html
+#[derive(Debug, Clone, Copy)]
+struct ChordShape {
+    root: Note,
+    frets: [Frets; STRING_COUNT],
+}
+
+impl ChordShape {
+    fn new(pitch_class: PitchClass, frets: [Frets; STRING_COUNT]) -> Self {
+        Self {
+            root: Note::from(pitch_class),
+            frets,
+        }
+    }
+}
+
+/// A set of chord shapes to be used for a certain instrument -
+/// in our case the ukulele.
+struct ChordShapeSet {
+    chord_shapes: Vec<ChordShape>,
+}
+
+impl ChordShapeSet {
+    fn new(chord_quality: ChordQuality) -> Self {
+        use PitchClass::*;
+
+        let chord_shapes = match chord_quality {
+            ChordQuality::Major => vec![
+                ChordShape::new(C, [0, 0, 0, 3]),
+                ChordShape::new(A, [2, 1, 0, 0]),
+                ChordShape::new(G, [0, 2, 3, 2]),
+                ChordShape::new(F, [2, 0, 1, 0]),
+                ChordShape::new(D, [2, 2, 2, 0]),
+            ],
+            ChordQuality::Minor => vec![
+                ChordShape::new(C, [0, 3, 3, 3]),
+                ChordShape::new(A, [2, 0, 0, 0]),
+                ChordShape::new(G, [0, 2, 3, 1]),
+                ChordShape::new(F, [1, 0, 1, 3]),
+                ChordShape::new(D, [2, 2, 1, 0]),
+            ],
+        };
+
+        Self { chord_shapes }
+    }
+
+    /// Return a configuration (= a chord shape and the number of frets
+    /// to be added) to play `chord`.
+    fn get_config(self, chord: &Chord) -> (ChordShape, Frets) {
+        self.chord_shapes
+            .into_iter()
+            .map(|cs| (cs, chord.root - cs.root))
+            .min_by_key(|&(_cs, diff)| diff)
+            .unwrap()
+    }
+}
 
 /// A ukulele.
 pub struct Ukulele {
@@ -23,10 +89,15 @@ impl Ukulele {
     }
 
     /// Play `chord` starting from fret number `min_fret`.
-    pub fn play(&mut self, chord: &Chord, min_fret: Frets) {
-        for s in &mut self.strings {
-            s.play_note(chord, min_fret);
-        }
+    pub fn play(&mut self, chord: &Chord, _min_fret: Frets) {
+        let chord_shapes = ChordShapeSet::new(chord.quality);
+
+        let (chord_shape, diff) = chord_shapes.get_config(chord);
+
+        self.strings
+            .iter_mut()
+            .zip(&chord_shape.frets)
+            .for_each(|(s, f)| s.play(f + diff));
     }
 }
 
