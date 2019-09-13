@@ -28,6 +28,18 @@ impl ChordShape {
             frets,
         }
     }
+
+    /// Apply the chord shape while moving it `n` frets forward on the fretboard.
+    /// Return the resulting pattern of frets to be pressed on each string.
+    fn apply(self, n: Frets) -> [Frets; STRING_COUNT] {
+        let mut frets = self.frets;
+
+        for f in &mut frets[..] {
+            *f += n;
+        }
+
+        frets
+    }
 }
 
 /// A set of chord shapes to be used for a certain instrument -
@@ -62,7 +74,7 @@ impl ChordShapeSet {
 
     /// Return a configuration (= a chord shape and the number of frets
     /// to be added) to play `chord` starting from fret number `min_fret`.
-    fn get_config(self, chord: &Chord, min_fret: Frets) -> (ChordShape, Frets) {
+    fn get_config(self, chord: &Chord, min_fret: Frets) -> [Frets; STRING_COUNT] {
         let (chord_shape, diff) = self
             .chord_shapes
             .into_iter()
@@ -70,7 +82,7 @@ impl ChordShapeSet {
             .min_by_key(|&(_cs, diff)| diff)
             .unwrap();
 
-        (chord_shape, diff + min_fret)
+        chord_shape.apply(min_fret + diff)
     }
 }
 
@@ -95,12 +107,12 @@ impl Ukulele {
     pub fn play(&mut self, chord: &Chord, min_fret: Frets) {
         let chord_shapes = ChordShapeSet::new(chord.quality);
 
-        let (chord_shape, diff) = chord_shapes.get_config(chord, min_fret);
+        let frets = chord_shapes.get_config(chord, min_fret);
 
         self.strings
             .iter_mut()
-            .zip(&chord_shape.frets)
-            .for_each(|(s, f)| s.play(f + diff));
+            .zip(&frets)
+            .for_each(|(s, f)| s.play(*f));
     }
 }
 
