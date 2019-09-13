@@ -31,7 +31,7 @@ impl ChordShape {
     }
 
     /// Apply the chord shape while moving it `n` frets forward on the fretboard.
-    /// Return the resulting pattern of frets to be pressed on each string.
+    /// Return the resulting fret pattern.
     fn apply(self, n: Frets) -> FretPattern {
         let mut frets = self.frets;
 
@@ -73,8 +73,7 @@ impl ChordShapeSet {
         Self { chord_shapes }
     }
 
-    /// Return a configuration (= a chord shape and the number of frets
-    /// to be added) to play `chord` starting from fret number `min_fret`.
+    /// Return a fret pattern to play `chord` starting from fret number `min_fret`.
     fn get_config(self, chord: &Chord, min_fret: Frets) -> FretPattern {
         let (chord_shape, diff) = self
             .chord_shapes
