@@ -61,13 +61,16 @@ impl ChordShapeSet {
     }
 
     /// Return a configuration (= a chord shape and the number of frets
-    /// to be added) to play `chord`.
-    fn get_config(self, chord: &Chord) -> (ChordShape, Frets) {
-        self.chord_shapes
+    /// to be added) to play `chord` starting from fret number `min_fret`.
+    fn get_config(self, chord: &Chord, min_fret: Frets) -> (ChordShape, Frets) {
+        let (chord_shape, diff) = self
+            .chord_shapes
             .into_iter()
-            .map(|cs| (cs, chord.root - cs.root))
+            .map(|cs| (cs, (chord.root - min_fret) - cs.root))
             .min_by_key(|&(_cs, diff)| diff)
-            .unwrap()
+            .unwrap();
+
+        (chord_shape, diff + min_fret)
     }
 }
 
@@ -89,10 +92,10 @@ impl Ukulele {
     }
 
     /// Play `chord` starting from fret number `min_fret`.
-    pub fn play(&mut self, chord: &Chord, _min_fret: Frets) {
+    pub fn play(&mut self, chord: &Chord, min_fret: Frets) {
         let chord_shapes = ChordShapeSet::new(chord.quality);
 
-        let (chord_shape, diff) = chord_shapes.get_config(chord);
+        let (chord_shape, diff) = chord_shapes.get_config(chord, min_fret);
 
         self.strings
             .iter_mut()
