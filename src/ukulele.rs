@@ -7,6 +7,7 @@ use crate::Frets;
 use std::fmt;
 
 const STRING_COUNT: usize = 4;
+type FretPattern = [Frets; STRING_COUNT];
 
 /// A chord shape is a configuration of frets to be pressed to play a
 /// chord with a certain chord quality. The shape can be moved along
@@ -18,11 +19,11 @@ const STRING_COUNT: usize = 4;
 #[derive(Debug, Clone, Copy)]
 struct ChordShape {
     root: Note,
-    frets: [Frets; STRING_COUNT],
+    frets: FretPattern,
 }
 
 impl ChordShape {
-    fn new(pitch_class: PitchClass, frets: [Frets; STRING_COUNT]) -> Self {
+    fn new(pitch_class: PitchClass, frets: FretPattern) -> Self {
         Self {
             root: Note::from(pitch_class),
             frets,
@@ -31,7 +32,7 @@ impl ChordShape {
 
     /// Apply the chord shape while moving it `n` frets forward on the fretboard.
     /// Return the resulting pattern of frets to be pressed on each string.
-    fn apply(self, n: Frets) -> [Frets; STRING_COUNT] {
+    fn apply(self, n: Frets) -> FretPattern {
         let mut frets = self.frets;
 
         for f in &mut frets[..] {
@@ -74,7 +75,7 @@ impl ChordShapeSet {
 
     /// Return a configuration (= a chord shape and the number of frets
     /// to be added) to play `chord` starting from fret number `min_fret`.
-    fn get_config(self, chord: &Chord, min_fret: Frets) -> [Frets; STRING_COUNT] {
+    fn get_config(self, chord: &Chord, min_fret: Frets) -> FretPattern {
         let (chord_shape, diff) = self
             .chord_shapes
             .into_iter()
