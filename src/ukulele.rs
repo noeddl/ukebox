@@ -3,6 +3,7 @@ use crate::chord::ChordQuality;
 use crate::note::Note;
 use crate::note::PitchClass;
 use crate::streng::Streng;
+use crate::streng::CHART_WIDTH;
 use crate::Frets;
 use std::fmt;
 
@@ -89,6 +90,7 @@ impl ChordShapeSet {
 /// A ukulele.
 pub struct Ukulele {
     strings: [Streng; STRING_COUNT],
+    base_fret: Frets,
 }
 
 impl Ukulele {
@@ -100,6 +102,11 @@ impl Ukulele {
                 Streng::from("E"),
                 Streng::from("A"),
             ],
+            /// The first fret from which to show the fretboard chart.
+            /// Corresponds to the position of the chord if `base_fret == 1`
+            /// or `base_fret > CHART_WIDTH`.
+            /// https://en.wikipedia.org/wiki/Position_(music)
+            base_fret: 1,
         }
     }
 
@@ -109,10 +116,19 @@ impl Ukulele {
 
         let frets = chord_shapes.get_config(chord, min_fret);
 
+        // Determine from which fret to show the fretboard.
+        let mut base_fret = self.base_fret;
+        let max_fret = *frets.iter().max().unwrap();
+
+        if max_fret > CHART_WIDTH {
+            base_fret = *frets.iter().min().unwrap();
+            self.base_fret = base_fret;
+        }
+
         self.strings
             .iter_mut()
             .zip(&frets)
-            .for_each(|(s, f)| s.play(*f));
+            .for_each(|(s, f)| s.play(*f, base_fret));
     }
 }
 
@@ -129,6 +145,12 @@ impl fmt::Display for Ukulele {
 
         for str in self.strings.iter().rev() {
             s.push_str(&format!("{}\n", str));
+        }
+
+        // If the fretboard section shown does not include the nut,
+        // indicate the number of the first fret shown.
+        if self.base_fret > 1 {
+            s.push_str(&format!("      {}\n", self.base_fret))
         }
 
         write!(f, "{}", s)
@@ -151,6 +173,17 @@ mod tests {
                 E ○||---+---+---+---+ E
                 C ○||---+---+---+---+ C
                 G ○||---+---+---+---+ G
+            "),
+        ),
+        case(
+            "C",
+            1,
+            indoc!("
+                A  -+-●-+---+---+---+ C
+                E  -+-●-+---+---+---+ G
+                C  -+---+-●-+---+---+ E
+                G  -+---+---+-●-+---+ C
+                      3
             ")
         ),
     )]

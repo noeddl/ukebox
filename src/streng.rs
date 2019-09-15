@@ -4,7 +4,7 @@ use std::fmt;
 use std::str::FromStr;
 
 /// Number of frets shown on the fretboard chart.
-const CHART_WIDTH: Frets = 4;
+pub const CHART_WIDTH: Frets = 4;
 
 /// A string of a ukulele (or potentially another string instrument).
 /// We use the Danish word `streng` to avoid name clashes and confusion
@@ -16,15 +16,18 @@ pub struct Streng {
     note: Option<Note>,
     /// The fret pressed to play `note`.
     fret: Option<Frets>,
+    /// The first fret from which to show the fretboard chart.
+    base_fret: Frets,
 }
 
 impl Streng {
     /// Press the string on `fret`.
-    pub fn play(&mut self, fret: Frets) {
+    pub fn play(&mut self, fret: Frets, base_fret: Frets) {
         let open_string = Note::from_str(&self.name).unwrap();
 
         self.note = Some(open_string + fret);
         self.fret = Some(fret);
+        self.base_fret = base_fret;
     }
 }
 
@@ -34,6 +37,8 @@ impl From<&str> for Streng {
             name: s.to_string(),
             note: None,
             fret: None,
+            // 0 is the open (unpressed) string, so start at 1 by default.
+            base_fret: 1,
         }
     }
 }
@@ -44,8 +49,17 @@ impl fmt::Display for Streng {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let mut s = "".to_owned();
 
-        // 0 is the open (unpressed) string, so start at 1.
-        for i in 1..=CHART_WIDTH {
+        let base_fret = self.base_fret;
+
+        // Show a symbol for the nut if the chord is played on the lower
+        // end of the fretboard. Indicate ongoing strings otherwise.
+        let nut = match base_fret {
+            1 => "||",
+            _ => "-+",
+        };
+
+        // Create a line representing the string with the fret to be pressed.
+        for i in base_fret..base_fret + CHART_WIDTH {
             let c = match self.fret {
                 Some(fret) if fret == i => "●",
                 _ => "-",
@@ -67,7 +81,7 @@ impl fmt::Display for Streng {
             None => "X".to_owned(),
         };
 
-        write!(f, "{} {}||{} {}", self.name, sym, s, note)
+        write!(f, "{} {}{}{} {}", self.name, sym, nut, s, note)
     }
 }
 
@@ -82,17 +96,19 @@ mod tests {
         assert_eq!(s.name, string);
         assert_eq!(s.note, None);
         assert_eq!(s.fret, None);
+        assert_eq!(s.base_fret, 1);
     }
 
     #[rstest_parametrize(
-        string, fret, note, display,
-        case("C", 0, Some("C"), "C ○||---+---+---+---+ C"),
-        case("C", 4, Some("E"), "C  ||---+---+---+-●-+ E"),
-        case("C", 2, Some("D"), "C  ||---+-●-+---+---+ D"),
-        case("G", 4, Some("B"), "G  ||---+---+---+-●-+ B"),
+        string, fret, base_fret, note, display,
+        case("C", 0, 1, Some("C"), "C ○||---+---+---+---+ C"),
+        case("C", 4, 1, Some("E"), "C  ||---+---+---+-●-+ E"),
+        case("C", 2, 1, Some("D"), "C  ||---+-●-+---+---+ D"),
+        case("G", 4, 1, Some("B"), "G  ||---+---+---+-●-+ B"),
+        case("C", 7, 5, Some("G"), "C  -+---+---+-●-+---+ G"),
         //case("?", "?", 0, None, None, false), // TODO: We need a test for this case ...
     )]
-    fn test_play(string: &str, fret: Frets, note: Option<&str>, display: &str) {
+    fn test_play(string: &str, fret: Frets, base_fret: Frets, note: Option<&str>, display: &str) {
         let mut s = Streng::from(string);
 
         let n = match note {
@@ -100,10 +116,11 @@ mod tests {
             None => None,
         };
 
-        s.play(fret);
+        s.play(fret, base_fret);
 
         assert_eq!(s.note, n);
         assert_eq!(s.fret, Some(fret));
+        assert_eq!(s.base_fret, base_fret);
         assert_eq!(format!("{}", s), display);
     }
 }
