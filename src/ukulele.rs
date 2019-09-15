@@ -3,10 +3,12 @@ use crate::chord::ChordQuality;
 use crate::note::Note;
 use crate::note::PitchClass;
 use crate::streng::Streng;
+use crate::streng::CHART_WIDTH;
 use crate::Frets;
 use std::fmt;
 
 const STRING_COUNT: usize = 4;
+type FretPattern = [Frets; STRING_COUNT];
 
 /// A chord shape is a configuration of frets to be pressed to play a
 /// chord with a certain chord quality. The shape can be moved along
@@ -18,15 +20,27 @@ const STRING_COUNT: usize = 4;
 #[derive(Debug, Clone, Copy)]
 struct ChordShape {
     root: Note,
-    frets: [Frets; STRING_COUNT],
+    frets: FretPattern,
 }
 
 impl ChordShape {
-    fn new(pitch_class: PitchClass, frets: [Frets; STRING_COUNT]) -> Self {
+    fn new(pitch_class: PitchClass, frets: FretPattern) -> Self {
         Self {
             root: Note::from(pitch_class),
             frets,
         }
+    }
+
+    /// Apply the chord shape while moving it `n` frets forward on the fretboard.
+    /// Return the resulting fret pattern.
+    fn apply(self, n: Frets) -> FretPattern {
+        let mut frets = self.frets;
+
+        for f in &mut frets[..] {
+            *f += n;
+        }
+
+        frets
     }
 }
 
@@ -60,20 +74,23 @@ impl ChordShapeSet {
         Self { chord_shapes }
     }
 
-    /// Return a configuration (= a chord shape and the number of frets
-    /// to be added) to play `chord`.
-    fn get_config(self, chord: &Chord) -> (ChordShape, Frets) {
-        self.chord_shapes
+    /// Return a fret pattern to play `chord` starting from fret number `min_fret`.
+    fn get_config(self, chord: &Chord, min_fret: Frets) -> FretPattern {
+        let (chord_shape, diff) = self
+            .chord_shapes
             .into_iter()
-            .map(|cs| (cs, chord.root - cs.root))
+            .map(|cs| (cs, (chord.root - min_fret) - cs.root))
             .min_by_key(|&(_cs, diff)| diff)
-            .unwrap()
+            .unwrap();
+
+        chord_shape.apply(min_fret + diff)
     }
 }
 
 /// A ukulele.
 pub struct Ukulele {
     strings: [Streng; STRING_COUNT],
+    base_fret: Frets,
 }
 
 impl Ukulele {
@@ -85,19 +102,33 @@ impl Ukulele {
                 Streng::from("E"),
                 Streng::from("A"),
             ],
+            /// The first fret from which to show the fretboard chart.
+            /// Corresponds to the position of the chord if `base_fret == 1`
+            /// or `base_fret > CHART_WIDTH`.
+            /// https://en.wikipedia.org/wiki/Position_(music)
+            base_fret: 1,
         }
     }
 
     /// Play `chord` starting from fret number `min_fret`.
-    pub fn play(&mut self, chord: &Chord, _min_fret: Frets) {
+    pub fn play(&mut self, chord: &Chord, min_fret: Frets) {
         let chord_shapes = ChordShapeSet::new(chord.quality);
 
-        let (chord_shape, diff) = chord_shapes.get_config(chord);
+        let frets = chord_shapes.get_config(chord, min_fret);
+
+        // Determine from which fret to show the fretboard.
+        let mut base_fret = self.base_fret;
+        let max_fret = *frets.iter().max().unwrap();
+
+        if max_fret > CHART_WIDTH {
+            base_fret = *frets.iter().min().unwrap();
+            self.base_fret = base_fret;
+        }
 
         self.strings
             .iter_mut()
-            .zip(&chord_shape.frets)
-            .for_each(|(s, f)| s.play(f + diff));
+            .zip(&frets)
+            .for_each(|(s, f)| s.play(*f, base_fret));
     }
 }
 
@@ -114,6 +145,12 @@ impl fmt::Display for Ukulele {
 
         for str in self.strings.iter().rev() {
             s.push_str(&format!("{}\n", str));
+        }
+
+        // If the fretboard section shown does not include the nut,
+        // indicate the number of the first fret shown.
+        if self.base_fret > 1 {
+            s.push_str(&format!("      {}\n", self.base_fret))
         }
 
         write!(f, "{}", s)
@@ -136,6 +173,17 @@ mod tests {
                 E ○||---+---+---+---+ E
                 C ○||---+---+---+---+ C
                 G ○||---+---+---+---+ G
+            "),
+        ),
+        case(
+            "C",
+            1,
+            indoc!("
+                A  -+-●-+---+---+---+ C
+                E  -+-●-+---+---+---+ G
+                C  -+---+-●-+---+---+ E
+                G  -+---+---+-●-+---+ C
+                      3
             ")
         ),
     )]

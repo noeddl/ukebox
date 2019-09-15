@@ -116,6 +116,16 @@ impl Sub for PitchClass {
     }
 }
 
+impl Sub<Frets> for PitchClass {
+    type Output = Self;
+
+    /// Get the pitch class that is `n` semitones lower than the current
+    /// pitch class.
+    fn sub(self, n: Frets) -> Self {
+        Self::from_int(self - Self::from_int(n))
+    }
+}
+
 /// A note such a C, C# and so on.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Note {
@@ -197,6 +207,16 @@ impl Sub for Note {
     /// or semitones.
     fn sub(self, other: Self) -> Frets {
         self.pitch_class - other.pitch_class
+    }
+}
+
+impl Sub<Frets> for Note {
+    type Output = Self;
+
+    /// Get the note that is `n` semitones lower than the current note.
+    fn sub(self, n: Frets) -> Self {
+        let pitch_class = self.pitch_class - n;
+        Self { pitch_class }
     }
 }
 
@@ -337,10 +357,28 @@ mod tests {
         case(PitchClass::D, PitchClass::A, 5),
         case(PitchClass::C, PitchClass::CSharp, 11)
     )]
-    fn test_sub_int(pc1: PitchClass, pc2: PitchClass, n: Frets) {
+    fn test_sub_self(pc1: PitchClass, pc2: PitchClass, n: Frets) {
         let note1 = Note::from(pc1);
         let note2 = Note::from(pc2);
         assert_eq!(pc1 - pc2, n);
         assert_eq!(note1 - note2, n);
+    }
+
+    #[rstest_parametrize(
+        pc1,
+        n,
+        pc2,
+        case(PitchClass::C, 0, PitchClass::C),
+        case(PitchClass::D, 2, PitchClass::C),
+        case(PitchClass::D, 5, PitchClass::A),
+        case(PitchClass::C, 11, PitchClass::CSharp),
+        case(PitchClass::C, 12, PitchClass::C),
+        case(PitchClass::C, 13, PitchClass::B)
+    )]
+    fn test_sub_int(pc1: PitchClass, n: Frets, pc2: PitchClass) {
+        let note1 = Note::from(pc1);
+        let note2 = Note::from(pc2);
+        assert_eq!(pc1 - n, pc2);
+        assert_eq!(note1 - n, note2);
     }
 }
