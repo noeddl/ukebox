@@ -1,6 +1,7 @@
 pub mod chord;
 mod chord_shape;
 mod note;
+mod pitch_class;
 mod streng;
 pub mod ukulele;
 
