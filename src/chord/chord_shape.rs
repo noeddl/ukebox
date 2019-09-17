@@ -1,9 +1,9 @@
 use crate::chord::Chord;
 use crate::chord::ChordQuality;
 use crate::note::Note;
-use crate::note::PitchClass;
 use crate::Frets;
 use crate::STRING_COUNT;
+use std::str::FromStr;
 
 type FretPattern = [Frets; STRING_COUNT];
 
@@ -21,9 +21,9 @@ pub struct ChordShape {
 }
 
 impl ChordShape {
-    fn new(pitch_class: PitchClass, frets: FretPattern) -> Self {
+    fn new(note_name: &str, frets: FretPattern) -> Self {
         Self {
-            root: Note::from(pitch_class),
+            root: Note::from_str(note_name).unwrap(),
             frets,
         }
     }
@@ -49,22 +49,20 @@ pub struct ChordShapeSet {
 
 impl ChordShapeSet {
     pub fn new(chord_quality: ChordQuality) -> Self {
-        use PitchClass::*;
-
         let chord_shapes = match chord_quality {
             ChordQuality::Major => vec![
-                ChordShape::new(C, [0, 0, 0, 3]),
-                ChordShape::new(A, [2, 1, 0, 0]),
-                ChordShape::new(G, [0, 2, 3, 2]),
-                ChordShape::new(F, [2, 0, 1, 0]),
-                ChordShape::new(D, [2, 2, 2, 0]),
+                ChordShape::new("C", [0, 0, 0, 3]),
+                ChordShape::new("A", [2, 1, 0, 0]),
+                ChordShape::new("G", [0, 2, 3, 2]),
+                ChordShape::new("F", [2, 0, 1, 0]),
+                ChordShape::new("D", [2, 2, 2, 0]),
             ],
             ChordQuality::Minor => vec![
-                ChordShape::new(C, [0, 3, 3, 3]),
-                ChordShape::new(A, [2, 0, 0, 0]),
-                ChordShape::new(G, [0, 2, 3, 1]),
-                ChordShape::new(F, [1, 0, 1, 3]),
-                ChordShape::new(D, [2, 2, 1, 0]),
+                ChordShape::new("C", [0, 3, 3, 3]),
+                ChordShape::new("A", [2, 0, 0, 0]),
+                ChordShape::new("G", [0, 2, 3, 1]),
+                ChordShape::new("F", [1, 0, 1, 3]),
+                ChordShape::new("D", [2, 2, 1, 0]),
             ],
         };
 
