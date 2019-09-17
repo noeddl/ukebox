@@ -1,10 +1,8 @@
 use crate::note::Note;
+use crate::ukulele::CHART_WIDTH;
 use crate::Frets;
 use std::fmt;
 use std::str::FromStr;
-
-/// Number of frets shown on the fretboard chart.
-pub const CHART_WIDTH: Frets = 4;
 
 /// A string of a ukulele (or potentially another string instrument).
 /// We use the Danish word `streng` to avoid name clashes and confusion
