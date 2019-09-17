@@ -1,7 +1,7 @@
 use crate::chord::Chord;
-use crate::chord_shape::ChordShapeSet;
-use crate::streng::Streng;
-use crate::streng::CHART_WIDTH;
+use crate::chord::ChordShapeSet;
+use crate::ukulele::Streng;
+use crate::ukulele::CHART_WIDTH;
 use crate::Frets;
 use crate::STRING_COUNT;
 use std::fmt;

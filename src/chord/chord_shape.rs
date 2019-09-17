@@ -1,7 +1,7 @@
 use crate::chord::Chord;
 use crate::chord::ChordQuality;
 use crate::note::Note;
-use crate::pitch_class::PitchClass;
+use crate::note::PitchClass;
 use crate::Frets;
 use crate::STRING_COUNT;
 

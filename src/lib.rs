@@ -1,8 +1,5 @@
 pub mod chord;
-mod chord_shape;
 mod note;
-mod pitch_class;
-mod streng;
 pub mod ukulele;
 
 /// Type for the number of frets (corresponds to the number of semitones)

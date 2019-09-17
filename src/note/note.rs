@@ -1,4 +1,4 @@
-use crate::pitch_class::PitchClass;
+use crate::note::PitchClass;
 use crate::Frets;
 use std::fmt;
 use std::ops::Add;
