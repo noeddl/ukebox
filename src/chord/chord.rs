@@ -1,5 +1,5 @@
+use crate::note::Interval;
 use crate::note::Note;
-use crate::Frets;
 use regex::Regex;
 use std::fmt;
 use std::str::FromStr;
@@ -25,10 +25,12 @@ pub enum ChordQuality {
 }
 
 impl ChordQuality {
-    fn get_intervals(self) -> Vec<Frets> {
+    fn get_intervals(self) -> Vec<Interval> {
+        use Interval::*;
+
         match self {
-            Self::Major => vec![0, 4, 7],
-            Self::Minor => vec![0, 3, 7],
+            Self::Major => vec![PerfectUnison, MajorThird, PerfectFifth],
+            Self::Minor => vec![PerfectUnison, MinorThird, PerfectFifth],
         }
     }
 }
@@ -153,7 +155,7 @@ mod tests {
         case("C#m", "C#", "E", "G#"),
         case("Dbm", "Db", "E", "Ab"),
         case("Dm", "D", "F", "A"),
-        case("D#m", "D#", "Gb", "A#"),
+        case("D#m", "D#", "F#", "A#"),
         case("Ebm", "Eb", "Gb", "Bb"),
         case("Em", "E", "G", "B"),
         case("Fm", "F", "Ab", "C"),
@@ -163,7 +165,7 @@ mod tests {
         case("G#m", "G#", "B", "D#"),
         case("Abm", "Ab", "B", "Eb"),
         case("Am", "A", "C", "E"),
-        case("A#m", "A#", "Db", "F"),
+        case("A#m", "A#", "C#", "F"),
         case("Bbm", "Bb", "Db", "F"),
         case("Bm", "B", "D", "F#")
     )]
