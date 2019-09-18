@@ -2,7 +2,6 @@ use crate::note::Note;
 use crate::ukulele::CHART_WIDTH;
 use crate::Frets;
 use std::fmt;
-use std::str::FromStr;
 
 /// A string of a ukulele (or potentially another string instrument).
 /// We use the Danish word `streng` to avoid name clashes and confusion
@@ -20,10 +19,10 @@ pub struct Streng {
 
 impl Streng {
     /// Press the string on `fret`.
-    pub fn play(&mut self, fret: Frets, base_fret: Frets) {
-        let open_string = Note::from_str(&self.name).unwrap();
+    pub fn play(&mut self, fret: Frets, note: Note, base_fret: Frets) {
+        //let open_string = Note::from_str(&self.name).unwrap();
 
-        self.note = Some(open_string + fret);
+        self.note = Some(note);
         self.fret = Some(fret);
         self.base_fret = base_fret;
     }
@@ -87,6 +86,7 @@ impl fmt::Display for Streng {
 mod tests {
     use super::*;
     use rstest::rstest_parametrize;
+    use std::str::FromStr;
 
     #[rstest_parametrize(string, case("C"), case("C#"))]
     fn test_from_str(string: &str) {
@@ -99,24 +99,19 @@ mod tests {
 
     #[rstest_parametrize(
         string, fret, base_fret, note, display,
-        case("C", 0, 1, Some("C"), "C ○||---+---+---+---+ C"),
-        case("C", 4, 1, Some("E"), "C  ||---+---+---+-●-+ E"),
-        case("C", 2, 1, Some("D"), "C  ||---+-●-+---+---+ D"),
-        case("G", 4, 1, Some("B"), "G  ||---+---+---+-●-+ B"),
-        case("C", 7, 5, Some("G"), "C  -+---+---+-●-+---+ G"),
+        case("C", 0, 1, "C", "C ○||---+---+---+---+ C"),
+        case("C", 4, 1, "E", "C  ||---+---+---+-●-+ E"),
+        case("C", 2, 1, "D", "C  ||---+-●-+---+---+ D"),
+        case("G", 4, 1, "B", "G  ||---+---+---+-●-+ B"),
+        case("C", 7, 5, "G", "C  -+---+---+-●-+---+ G"),
         //case("?", "?", 0, None, None, false), // TODO: We need a test for this case ...
     )]
-    fn test_play(string: &str, fret: Frets, base_fret: Frets, note: Option<&str>, display: &str) {
+    fn test_play(string: &str, fret: Frets, base_fret: Frets, note: &str, display: &str) {
         let mut s = Streng::from(string);
+        let n = Note::from_str(note).unwrap();
 
-        let n = match note {
-            Some(n) => Some(Note::from_str(n).unwrap()),
-            None => None,
-        };
+        s.play(fret, n, base_fret);
 
-        s.play(fret, base_fret);
-
-        assert_eq!(s.note, n);
         assert_eq!(s.fret, Some(fret));
         assert_eq!(s.base_fret, base_fret);
         assert_eq!(format!("{}", s), display);

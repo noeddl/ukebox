@@ -1,8 +1,8 @@
+use crate::note::Interval;
 use crate::note::PitchClass;
-use crate::Frets;
+use crate::note::StaffPosition;
 use std::fmt;
 use std::ops::Add;
-use std::ops::Sub;
 use std::str::FromStr;
 
 /// Custom error for strings that cannot be parsed into notes.
@@ -18,26 +18,70 @@ impl fmt::Display for ParseNoteError {
 }
 
 /// A note such a C, C# and so on.
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy)]
 pub struct Note {
-    pitch_class: PitchClass,
+    pub pitch_class: PitchClass,
+    staff_position: StaffPosition,
+}
+
+impl PartialEq for Note {
+    /// Treat two notes as equal if they are represented by the same symbol.
+    /// For example, `B sharp`, `C` and `D double flat` are all casually
+    /// called `C`.
+    fn eq(&self, other: &Self) -> bool {
+        self.to_string() == other.to_string()
+    }
 }
 
 impl fmt::Display for Note {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let s = match self.pitch_class {
-            PitchClass::C => "C",
-            PitchClass::CSharp => "C#/Db",
-            PitchClass::D => "D",
-            PitchClass::DSharp => "D#/Eb",
-            PitchClass::E => "E",
-            PitchClass::F => "F",
-            PitchClass::FSharp => "F#/Gb",
-            PitchClass::G => "G",
-            PitchClass::GSharp => "G#/Ab",
-            PitchClass::A => "A",
-            PitchClass::ASharp => "A#/Bb",
-            PitchClass::B => "B",
+        use PitchClass::*;
+        use StaffPosition::*;
+
+        let s = match (self.staff_position, self.pitch_class) {
+            // Notes on staff position for C.
+            (CPos, ASharp) => "Bb", // C double flat
+            (CPos, B) => "B",       // Cb
+            (CPos, C) => "C",
+            (CPos, CSharp) => "C#",
+            (CPos, D) => "D", // C double sharp
+            // Notes on staff position for D.
+            (DPos, C) => "C", // D double flat
+            (DPos, CSharp) => "Db",
+            (DPos, D) => "D",
+            (DPos, DSharp) => "D#",
+            (DPos, E) => "E", // D double sharp
+            // Notes on staff position for E.
+            (EPos, D) => "D", // E double flat
+            (EPos, DSharp) => "Eb",
+            (EPos, E) => "E",
+            (EPos, F) => "F",       // E#
+            (EPos, FSharp) => "F#", // E double sharp
+            // Notes on staff position for F.
+            (FPos, DSharp) => "Eb", // F double flat
+            (FPos, E) => "E",       // Fb
+            (FPos, F) => "F",
+            (FPos, FSharp) => "F#",
+            (FPos, G) => "G", // F double sharp
+            // Notes on staff position for G.
+            (GPos, F) => "F", // G double flat
+            (GPos, FSharp) => "Gb",
+            (GPos, G) => "G",
+            (GPos, GSharp) => "G#",
+            (GPos, A) => "A", // G double sharp
+            // Notes on staff position for A.
+            (APos, G) => "G", // A double flat
+            (APos, GSharp) => "Ab",
+            (APos, A) => "A",
+            (APos, ASharp) => "A#",
+            (APos, B) => "B", // A double sharp
+            // Notes on staff position for B.
+            (BPos, A) => "A", // B double flat
+            (BPos, ASharp) => "Bb",
+            (BPos, B) => "B",
+            (BPos, C) => "C",       // B#
+            (BPos, CSharp) => "C#", // B double sharp
+            _ => panic!("Impossible combination of PitchClass and StaffPosition"),
         };
 
         write!(f, "{}", s)
@@ -48,66 +92,50 @@ impl FromStr for Note {
     type Err = ParseNoteError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
+        use PitchClass::*;
+        use StaffPosition::*;
+
         let name = s.to_string();
 
-        let pitch_class = match s {
-            "C" => PitchClass::C,
-            "C#" => PitchClass::CSharp,
-            "Db" => PitchClass::CSharp,
-            "D" => PitchClass::D,
-            "D#" => PitchClass::DSharp,
-            "Eb" => PitchClass::DSharp,
-            "E" => PitchClass::E,
-            "F" => PitchClass::F,
-            "F#" => PitchClass::FSharp,
-            "Gb" => PitchClass::FSharp,
-            "G" => PitchClass::G,
-            "G#" => PitchClass::GSharp,
-            "Ab" => PitchClass::GSharp,
-            "A" => PitchClass::A,
-            "A#" => PitchClass::ASharp,
-            "Bb" => PitchClass::ASharp,
-            "B" => PitchClass::B,
+        let (pitch_class, staff_position) = match s {
+            "C" => (C, CPos),
+            "C#" => (CSharp, CPos),
+            "Db" => (CSharp, DPos),
+            "D" => (D, DPos),
+            "D#" => (DSharp, DPos),
+            "Eb" => (DSharp, EPos),
+            "E" => (E, EPos),
+            "F" => (F, FPos),
+            "F#" => (FSharp, FPos),
+            "Gb" => (FSharp, GPos),
+            "G" => (G, GPos),
+            "G#" => (GSharp, GPos),
+            "Ab" => (GSharp, APos),
+            "A" => (A, APos),
+            "A#" => (ASharp, APos),
+            "Bb" => (ASharp, BPos),
+            "B" => (B, BPos),
             _ => return Err(ParseNoteError { name }),
         };
 
-        Ok(Self { pitch_class })
+        Ok(Self {
+            pitch_class,
+            staff_position,
+        })
     }
 }
 
-impl From<PitchClass> for Note {
-    fn from(pitch_class: PitchClass) -> Self {
-        Self { pitch_class }
-    }
-}
-
-impl Add<Frets> for Note {
+impl Add<Interval> for Note {
     type Output = Self;
 
-    /// Get the note that is `n` semitones higher than the current note.
-    fn add(self, n: Frets) -> Self {
-        let pc = self.pitch_class + n;
-        Note::from(pc)
-    }
-}
-
-impl Sub for Note {
-    type Output = Frets;
-
-    /// Get the difference between two notes in number of frets
-    /// or semitones.
-    fn sub(self, other: Self) -> Frets {
-        self.pitch_class - other.pitch_class
-    }
-}
-
-impl Sub<Frets> for Note {
-    type Output = Self;
-
-    /// Get the note that is `n` semitones lower than the current note.
-    fn sub(self, n: Frets) -> Self {
-        let pitch_class = self.pitch_class - n;
-        Self { pitch_class }
+    /// Get the next note when adding `interval` to the current note.
+    fn add(self, interval: Interval) -> Self {
+        let pitch_class = self.pitch_class + interval.to_semitones();
+        let staff_position = self.staff_position + (interval.to_number() - 1);
+        Self {
+            pitch_class,
+            staff_position,
+        }
     }
 }
 
@@ -115,119 +143,46 @@ impl Sub<Frets> for Note {
 mod tests {
     use super::*;
     use rstest::rstest_parametrize;
+    use Interval::*;
 
     #[rstest_parametrize(
         s,
-        pitch_class,
-        case("C", PitchClass::C),
-        case("C#", PitchClass::CSharp),
-        case("Db", PitchClass::CSharp),
-        case("D", PitchClass::D),
-        case("D#", PitchClass::DSharp),
-        case("Eb", PitchClass::DSharp),
-        case("E", PitchClass::E),
-        case("F", PitchClass::F),
-        case("F#", PitchClass::FSharp),
-        case("Gb", PitchClass::FSharp),
-        case("G", PitchClass::G),
-        case("G#", PitchClass::GSharp),
-        case("Ab", PitchClass::GSharp),
-        case("A", PitchClass::A),
-        case("A#", PitchClass::ASharp),
-        case("Bb", PitchClass::ASharp),
-        case("B", PitchClass::B)
+        case("C"),
+        case("C#"),
+        case("Db"),
+        case("D"),
+        case("D#"),
+        case("Eb"),
+        case("E"),
+        case("F"),
+        case("F#"),
+        case("Gb"),
+        case("G"),
+        case("G#"),
+        case("Ab"),
+        case("A"),
+        case("A#"),
+        case("Bb"),
+        case("B")
     )]
-    fn test_from_str(s: &str, pitch_class: PitchClass) {
+    fn test_from_and_to_str(s: &str) {
         let note = Note::from_str(s).unwrap();
-        assert_eq!(note.pitch_class, pitch_class);
-    }
-
-    #[rstest_parametrize(
-        pitch_class,
-        case(PitchClass::C),
-        case(PitchClass::CSharp),
-        case(PitchClass::D),
-        case(PitchClass::DSharp),
-        case(PitchClass::E),
-        case(PitchClass::F),
-        case(PitchClass::FSharp),
-        case(PitchClass::G),
-        case(PitchClass::GSharp),
-        case(PitchClass::A),
-        case(PitchClass::ASharp),
-        case(PitchClass::B)
-    )]
-    fn test_from_pitch_class(pitch_class: PitchClass) {
-        let note = Note::from(pitch_class);
-        assert_eq!(note.pitch_class, pitch_class);
-    }
-
-    #[rstest_parametrize(
-        pitch_class,
-        s,
-        case(PitchClass::C, "C"),
-        case(PitchClass::CSharp, "C#/Db"),
-        case(PitchClass::D, "D"),
-        case(PitchClass::DSharp, "D#/Eb"),
-        case(PitchClass::E, "E"),
-        case(PitchClass::F, "F"),
-        case(PitchClass::FSharp, "F#/Gb"),
-        case(PitchClass::G, "G"),
-        case(PitchClass::GSharp, "G#/Ab"),
-        case(PitchClass::A, "A"),
-        case(PitchClass::ASharp, "A#/Bb"),
-        case(PitchClass::B, "B")
-    )]
-    fn test_display(pitch_class: PitchClass, s: &str) {
-        let note = Note::from(pitch_class);
         assert_eq!(format!("{}", note), s);
     }
 
     #[rstest_parametrize(
-        pitch_class,
-        n,
-        result,
-        case(PitchClass::C, 0, PitchClass::C),
-        case(PitchClass::C, 1, PitchClass::CSharp),
-        case(PitchClass::C, 10, PitchClass::ASharp),
-        case(PitchClass::C, 12, PitchClass::C),
-        case(PitchClass::C, 13, PitchClass::CSharp),
-        case(PitchClass::C, 24, PitchClass::C)
+        note_name,
+        interval,
+        result_name,
+        case("C", PerfectUnison, "C"),
+        case("C", MinorThird, "Eb"),
+        case("C", MajorThird, "E"),
+        case("C", PerfectFifth, "G"),
+        case("C#", PerfectUnison, "C#"),
+        case("C#", MajorThird, "F")
     )]
-    fn test_add_int(pitch_class: PitchClass, n: Frets, result: PitchClass) {
-        let note = Note::from(pitch_class);
-        assert_eq!(note + n, Note::from(result));
-    }
-
-    #[rstest_parametrize(
-        pc1,
-        pc2,
-        n,
-        case(PitchClass::C, PitchClass::C, 0),
-        case(PitchClass::D, PitchClass::C, 2),
-        case(PitchClass::D, PitchClass::A, 5),
-        case(PitchClass::C, PitchClass::CSharp, 11)
-    )]
-    fn test_sub_self(pc1: PitchClass, pc2: PitchClass, n: Frets) {
-        let note1 = Note::from(pc1);
-        let note2 = Note::from(pc2);
-        assert_eq!(note1 - note2, n);
-    }
-
-    #[rstest_parametrize(
-        pc1,
-        n,
-        pc2,
-        case(PitchClass::C, 0, PitchClass::C),
-        case(PitchClass::D, 2, PitchClass::C),
-        case(PitchClass::D, 5, PitchClass::A),
-        case(PitchClass::C, 11, PitchClass::CSharp),
-        case(PitchClass::C, 12, PitchClass::C),
-        case(PitchClass::C, 13, PitchClass::B)
-    )]
-    fn test_sub_int(pc1: PitchClass, n: Frets, pc2: PitchClass) {
-        let note1 = Note::from(pc1);
-        let note2 = Note::from(pc2);
-        assert_eq!(note1 - n, note2);
+    fn test_add_interval(note_name: &str, interval: Interval, result_name: &str) {
+        let note = Note::from_str(note_name).unwrap();
+        assert_eq!(note + interval, Note::from_str(result_name).unwrap());
     }
 }
