@@ -1,4 +1,5 @@
 use crate::chord::Chord;
+use crate::chord::StringDiagram;
 use crate::note::Note;
 use crate::ukulele::CHART_WIDTH;
 use crate::FretPattern;
@@ -45,51 +46,23 @@ impl ChordDiagram {
             _ => *self.frets.iter().min().unwrap(),
         }
     }
-
-    /// Format a line of the diagram which represents a string of the ukulele.
-    fn format_line(&self, root: Note, base_fret: Frets, fret: Frets, note: Note) -> String {
-        // Show a symbol for the nut if the chord is played on the lower
-        // end of the fretboard. Indicate ongoing strings otherwise.
-        let nut = match base_fret {
-            1 => "||",
-            _ => "-+",
-        };
-
-        // Mark open strings with a special symbol.
-        let sym = match fret {
-            0 => "○",
-            _ => " ",
-        };
-
-        // Create a line representing the string with the fret to be pressed.
-        let mut string = "".to_owned();
-
-        for i in base_fret..base_fret + CHART_WIDTH {
-            let c = match fret {
-                fret if fret == i => "●",
-                _ => "-",
-            };
-
-            string.push_str(&format!("-{}-+", c));
-        }
-
-        format!("{} {}{}{} {}", root, sym, nut, string, note)
-    }
 }
 
 impl fmt::Display for ChordDiagram {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        // Display the name of the chord shown.
         let mut s = format!("[{}]\n\n", self.chord);
 
         // Determine from which fret to show the fretboard.
         let base_fret = self.get_base_fret();
 
+        // Create a diagram for each ukulele string.
         for i in (0..STRING_COUNT).rev() {
             let root = self.roots[i];
             let fret = self.frets[i];
             let note = self.notes[i];
-            let line = self.format_line(root, base_fret, fret, note);
-            s.push_str(&format!("{}\n", line));
+            let sd = StringDiagram::new(root, base_fret, fret, note);
+            s.push_str(&format!("{}\n", sd.to_string()));
         }
 
         // If the fretboard section shown does not include the nut,
