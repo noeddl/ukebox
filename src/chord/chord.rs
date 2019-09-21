@@ -1,5 +1,9 @@
+use crate::chord::ChordShapeSet;
+use crate::diagram::ChordDiagram;
 use crate::note::Interval;
 use crate::note::Note;
+use crate::Frets;
+use crate::STRING_COUNT;
 use regex::Regex;
 use std::fmt;
 use std::str::FromStr;
@@ -57,6 +61,20 @@ pub struct Chord {
 impl Chord {
     pub fn contains(&self, note: Note) -> bool {
         self.notes.contains(&note)
+    }
+
+    pub fn get_diagram(self, min_fret: Frets) -> ChordDiagram {
+        let chord_shapes = ChordShapeSet::new(self.quality);
+
+        let (frets, intervals) = chord_shapes.get_config(self.root, min_fret);
+
+        let mut notes = [self.root; STRING_COUNT];
+
+        for (i, interval) in intervals.iter().enumerate() {
+            notes[i] = notes[i] + *interval;
+        }
+
+        ChordDiagram::new(self, frets, notes)
     }
 }
 
