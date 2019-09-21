@@ -1,5 +1,5 @@
-use crate::chord::ChordDiagram;
 use crate::chord::ChordShapeSet;
+use crate::diagram::ChordDiagram;
 use crate::note::Interval;
 use crate::note::Note;
 use crate::Frets;

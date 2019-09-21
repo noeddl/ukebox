@@ -1,4 +1,5 @@
 pub mod chord;
+mod diagram;
 mod note;
 pub mod ukulele;
 

@@ -1,5 +1,5 @@
 use crate::chord::Chord;
-use crate::chord::StringDiagram;
+use crate::diagram::StringDiagram;
 use crate::note::Note;
 use crate::ukulele::CHART_WIDTH;
 use crate::FretPattern;
