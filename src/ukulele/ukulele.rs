@@ -33,7 +33,7 @@ impl Ukulele {
     pub fn play(&mut self, chord: &Chord, min_fret: Frets) {
         let chord_shapes = ChordShapeSet::new(chord.quality);
 
-        let (frets, intervals) = chord_shapes.get_config(chord, min_fret);
+        let (frets, intervals) = chord_shapes.get_config(chord.root, min_fret);
 
         // Determine from which fret to show the fretboard.
         let mut base_fret = self.base_fret;

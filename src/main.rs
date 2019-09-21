@@ -1,6 +1,5 @@
 use structopt::StructOpt;
 use ukebox::chord::Chord;
-use ukebox::ukulele::Ukulele;
 use ukebox::Frets;
 
 #[derive(StructOpt)]
@@ -13,9 +12,6 @@ struct Cmd {
 
 fn main() {
     let args = Cmd::from_args();
-    let mut uke = Ukulele::new();
-    uke.play(&args.chord, args.min_fret);
-
-    println!("[{}]\n", args.chord);
-    println!("{}", uke);
+    let diagram = args.chord.get_diagram(args.min_fret);
+    println!("{}", diagram);
 }

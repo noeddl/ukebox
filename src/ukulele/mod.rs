@@ -8,4 +8,4 @@ pub use self::ukulele::Ukulele;
 use crate::Frets;
 
 /// Number of frets shown on the fretboard chart.
-const CHART_WIDTH: Frets = 4;
+pub const CHART_WIDTH: Frets = 4;
