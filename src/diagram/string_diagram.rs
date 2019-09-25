@@ -28,12 +28,12 @@ impl fmt::Display for StringDiagram {
         // end of the fretboard. Indicate ongoing strings otherwise.
         let nut = match self.base_fret {
             1 => "||",
-            _ => "-+",
+            _ => "-|",
         };
 
         // Mark open strings with a special symbol.
         let sym = match self.fret {
-            0 => "○",
+            0 => "o",
             _ => " ",
         };
 
@@ -42,14 +42,14 @@ impl fmt::Display for StringDiagram {
 
         for i in self.base_fret..self.base_fret + CHART_WIDTH {
             let c = match self.fret {
-                fret if fret == i => "●",
+                fret if fret == i => "o",
                 _ => "-",
             };
 
-            string.push_str(&format!("-{}-+", c));
+            string.push_str(&format!("-{}-|", c));
         }
 
-        write!(f, "{} {}{}{} {}", self.root, sym, nut, string, self.note)
+        write!(f, "{} {}{}{}- {}", self.root, sym, nut, string, self.note)
     }
 }
 
