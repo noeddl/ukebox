@@ -4,6 +4,55 @@ use std::fmt;
 use std::process::Command; // Run programs
 use ukebox::Frets;
 
+struct TestConfig {
+    frets: [Frets; 4],
+    note_indices: [usize; 4],
+    base_fret: Frets,
+    min_fret: Frets,
+    lower_min_fret: Frets,
+}
+
+impl TestConfig {
+    fn new(frets: [Frets; 4], note_indices: [usize; 4]) -> Self {
+        let min_fret = *frets.iter().min().unwrap();
+        let base_fret = match min_fret {
+            fret if fret < 2 => 1,
+            _ => min_fret,
+        };
+
+        // Distance to the previous chord_shape.
+        let shape_dist = 1;
+
+        let lower_min_fret = match min_fret {
+            fret if fret < shape_dist => 0,
+            _ => min_fret - shape_dist,
+        };
+
+        Self {
+            frets,
+            note_indices,
+            base_fret,
+            min_fret,
+            lower_min_fret,
+        }
+    }
+
+    /// Move all frets and notes one fret/semitone higher.
+    fn next(&mut self) -> Self {
+        let mut frets = self.frets;
+        for f in frets.iter_mut() {
+            *f += 1;
+        }
+
+        let mut note_indices = self.note_indices;
+        for n in note_indices.iter_mut() {
+            *n += 1;
+        }
+
+        Self::new(frets, note_indices)
+    }
+}
+
 struct Test {
     chord: String,
     min_fret: Frets,
@@ -68,7 +117,7 @@ fn generate_diagram(chord: &str, base_fret: Frets, frets: &[Frets], notes: &[&st
     diagram
 }
 
-fn generate_tests(frets: &mut [Frets], note_indices: &mut [usize]) -> Vec<Test> {
+fn generate_tests(test_config: &mut TestConfig) -> Vec<Test> {
     let note_names = [
         "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B",
     ];
@@ -80,29 +129,16 @@ fn generate_tests(frets: &mut [Frets], note_indices: &mut [usize]) -> Vec<Test> 
 
     // Move upwards the fretboard using the given chord shape.
     for i in 0..12 {
-        let min_fret = *frets.iter().min().unwrap();
-        let base_fret = match min_fret {
-            fret if fret < 2 => 1,
-            _ => min_fret,
-        };
-
-        // Distance to the previous chord_shape.
-        let shape_dist = 1;
-
-        let lower_min_fret = match min_fret {
-            fret if fret < shape_dist => 0,
-            _ => min_fret - shape_dist,
-        };
-
         let root = note_names[i];
 
-        let notes: Vec<&str> = note_indices
+        let notes: Vec<&str> = test_config
+            .note_indices
             .iter()
             .map(|j| *note_names.iter().cycle().nth(*j).unwrap())
             .collect();
 
-        for j in lower_min_fret..min_fret + 1 {
-            let diagram = generate_diagram(root, base_fret, &frets, &notes);
+        for j in test_config.lower_min_fret..test_config.min_fret + 1 {
+            let diagram = generate_diagram(root, test_config.base_fret, &test_config.frets, &notes);
             let test = Test {
                 chord: root.to_string(),
                 min_fret: j,
@@ -114,13 +150,15 @@ fn generate_tests(frets: &mut [Frets], note_indices: &mut [usize]) -> Vec<Test> 
         if root.ends_with("#") {
             let root = alt_names[i];
 
-            let notes: Vec<&str> = note_indices
+            let notes: Vec<&str> = test_config
+                .note_indices
                 .iter()
                 .map(|j| *alt_names.iter().cycle().nth(*j).unwrap())
                 .collect();
 
-            for j in lower_min_fret..min_fret + 1 {
-                let diagram = generate_diagram(root, base_fret, &frets, &notes);
+            for j in test_config.lower_min_fret..test_config.min_fret + 1 {
+                let diagram =
+                    generate_diagram(root, test_config.base_fret, &test_config.frets, &notes);
                 let test = Test {
                     chord: root.to_string(),
                     min_fret: j,
@@ -130,14 +168,7 @@ fn generate_tests(frets: &mut [Frets], note_indices: &mut [usize]) -> Vec<Test> 
             }
         }
 
-        // Move all frets and notes one fret/semitone higher for the next iteration of the loop.
-        for f in frets.iter_mut() {
-            *f += 1;
-        }
-
-        for n in note_indices.iter_mut() {
-            *n += 1;
-        }
+        *test_config = test_config.next();
     }
 
     tests
@@ -155,10 +186,9 @@ fn test_no_args() -> Result<(), Box<dyn std::error::Error>> {
 
 #[test]
 fn test_major_chords() -> Result<(), Box<dyn std::error::Error>> {
-    let mut frets = [0, 0, 0, 3];
-    let mut note_indices = [7, 0, 4, 0];
+    let mut test_config = TestConfig::new([0, 0, 0, 3], [7, 0, 4, 0]);
 
-    for test in generate_tests(&mut frets, &mut note_indices) {
+    for test in generate_tests(&mut test_config) {
         // Run `cargo test -- --nocapture` to print all tests run.
         println!("{}", test);
 
