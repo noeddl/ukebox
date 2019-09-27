@@ -68,15 +68,13 @@ fn generate_diagram(chord: &str, base_fret: Frets, frets: &[Frets], notes: &[&st
     diagram
 }
 
-fn generate_tests() -> Vec<Test> {
+fn generate_tests(frets: &mut [Frets], note_indices: &mut [usize]) -> Vec<Test> {
     let note_names = [
         "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B",
     ];
     let alt_names = [
         "C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B",
     ];
-    let mut frets = vec![0, 0, 0, 3];
-    let mut note_indices = vec![7, 0, 4, 0];
 
     let mut tests = Vec::new();
 
@@ -133,8 +131,13 @@ fn generate_tests() -> Vec<Test> {
         }
 
         // Move all frets and notes one fret/semitone higher for the next iteration of the loop.
-        frets = frets.iter().map(|f| *f + 1).collect();
-        note_indices = note_indices.iter().map(|i| *i + 1).collect();
+        for f in frets.iter_mut() {
+            *f += 1;
+        }
+
+        for n in note_indices.iter_mut() {
+            *n += 1;
+        }
     }
 
     tests
@@ -152,7 +155,10 @@ fn test_no_args() -> Result<(), Box<dyn std::error::Error>> {
 
 #[test]
 fn test_major_chords() -> Result<(), Box<dyn std::error::Error>> {
-    for test in generate_tests() {
+    let mut frets = [0, 0, 0, 3];
+    let mut note_indices = [7, 0, 4, 0];
+
+    for test in generate_tests(&mut frets, &mut note_indices) {
         // Run `cargo test -- --nocapture` to print all tests run.
         println!("{}", test);
 
