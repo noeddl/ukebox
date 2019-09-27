@@ -88,6 +88,14 @@ fn generate_tests() -> Vec<Test> {
             _ => min_fret,
         };
 
+        // Distance to the previous chord_shape.
+        let shape_dist = 1;
+
+        let lower_min_fret = match min_fret {
+            fret if fret < shape_dist => 0,
+            _ => min_fret - shape_dist,
+        };
+
         let root = note_names[i];
 
         let notes: Vec<&str> = note_indices
@@ -95,13 +103,15 @@ fn generate_tests() -> Vec<Test> {
             .map(|j| *note_names.iter().cycle().nth(*j).unwrap())
             .collect();
 
-        let diagram = generate_diagram(root, base_fret, &frets, &notes);
-        let test = Test {
-            chord: root.to_string(),
-            min_fret,
-            diagram,
-        };
-        tests.push(test);
+        for j in lower_min_fret..min_fret + 1 {
+            let diagram = generate_diagram(root, base_fret, &frets, &notes);
+            let test = Test {
+                chord: root.to_string(),
+                min_fret: j,
+                diagram,
+            };
+            tests.push(test);
+        }
 
         if root.ends_with("#") {
             let root = alt_names[i];
@@ -111,13 +121,15 @@ fn generate_tests() -> Vec<Test> {
                 .map(|j| *alt_names.iter().cycle().nth(*j).unwrap())
                 .collect();
 
-            let diagram = generate_diagram(root, base_fret, &frets, &notes);
-            let test = Test {
-                chord: root.to_string(),
-                min_fret,
-                diagram,
-            };
-            tests.push(test);
+            for j in lower_min_fret..min_fret + 1 {
+                let diagram = generate_diagram(root, base_fret, &frets, &notes);
+                let test = Test {
+                    chord: root.to_string(),
+                    min_fret: j,
+                    diagram,
+                };
+                tests.push(test);
+            }
         }
 
         // Move all frets and notes one fret/semitone higher for the next iteration of the loop.
