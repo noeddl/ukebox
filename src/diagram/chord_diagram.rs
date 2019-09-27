@@ -1,7 +1,7 @@
 use crate::chord::Chord;
 use crate::diagram::StringDiagram;
-use crate::note::Note;
 use crate::diagram::CHART_WIDTH;
+use crate::note::Note;
 use crate::FretPattern;
 use crate::Frets;
 use crate::NotePattern;

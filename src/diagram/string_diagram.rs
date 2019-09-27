@@ -1,5 +1,5 @@
-use crate::note::Note;
 use crate::diagram::CHART_WIDTH;
+use crate::note::Note;
 use crate::Frets;
 use std::fmt;
 
