@@ -108,7 +108,7 @@ impl TestConfig {
         diagram
     }
 
-    fn generate_tests(&self, i: usize, note_names: &[&str]) -> (String, Vec<Test>) {
+    fn generate_tests_for_chord(&self, i: usize, note_names: &[&str]) -> (String, Vec<Test>) {
         let mut tests = Vec::new();
         let root = note_names.iter().cycle().nth(self.start_index + i).unwrap();
 
@@ -130,6 +130,32 @@ impl TestConfig {
 
         (root.to_string(), tests)
     }
+
+    fn generate_tests(&mut self) -> Vec<Test> {
+        let note_names = [
+            "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B",
+        ];
+        let alt_names = [
+            "C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B",
+        ];
+
+        let mut tests = Vec::new();
+
+        // Move upwards the fretboard using the given chord shape.
+        for i in 0..12 {
+            let (root, subtests) = self.generate_tests_for_chord(i, &note_names);
+            tests.extend(subtests);
+
+            if root.ends_with("#") {
+                let (_root, subtests) = self.generate_tests_for_chord(i, &alt_names);
+                tests.extend(subtests);
+            }
+
+            *self = self.next();
+        }
+
+        tests
+    }
 }
 
 struct Test {
@@ -149,30 +175,26 @@ impl fmt::Display for Test {
     }
 }
 
-fn generate_tests(test_config: &mut TestConfig) -> Vec<Test> {
-    let note_names = [
-        "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B",
-    ];
-    let alt_names = [
-        "C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B",
-    ];
+fn run_tests(test_configs: Vec<TestConfig>) -> Result<(), Box<dyn std::error::Error>> {
+    for mut test_config in test_configs {
+        for test in test_config.generate_tests() {
+            // Run `cargo test -- --nocapture` to print all tests run.
+            println!("{}", test);
 
-    let mut tests = Vec::new();
+            let mut cmd = Command::main_binary()?;
+            cmd.arg(test.chord);
 
-    // Move upwards the fretboard using the given chord shape.
-    for i in 0..12 {
-        let (root, subtests) = test_config.generate_tests(i, &note_names);
-        tests.extend(subtests);
+            if test.min_fret > 0 {
+                cmd.arg("-f").arg(test.min_fret.to_string());
+            }
 
-        if root.ends_with("#") {
-            let (_root, subtests) = test_config.generate_tests(i, &alt_names);
-            tests.extend(subtests);
+            cmd.assert()
+                .success()
+                .stdout(predicate::str::contains(test.diagram));
         }
-
-        *test_config = test_config.next();
     }
 
-    tests
+    Ok(())
 }
 
 #[test]
@@ -195,23 +217,5 @@ fn test_major_chords() -> Result<(), Box<dyn std::error::Error>> {
         TestConfig::new(2, 2, [2, 2, 2, 0], [9, 2, 6, 9]),
     ];
 
-    for mut test_config in test_configs {
-        for test in generate_tests(&mut test_config) {
-            // Run `cargo test -- --nocapture` to print all tests run.
-            println!("{}", test);
-
-            let mut cmd = Command::main_binary()?;
-            cmd.arg(test.chord);
-
-            if test.min_fret > 0 {
-                cmd.arg("-f").arg(test.min_fret.to_string());
-            }
-
-            cmd.assert()
-                .success()
-                .stdout(predicate::str::contains(test.diagram));
-        }
-    }
-
-    Ok(())
+    run_tests(test_configs)
 }
