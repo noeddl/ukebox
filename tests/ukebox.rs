@@ -52,6 +52,53 @@ impl TestConfig {
         Self::new(frets, note_indices)
     }
 
+    fn generate_diagram(&self, chord: &str, notes: &[&str]) -> String {
+        let mut diagram = format!("[{} - {} major]\n\n", chord, chord);
+        let roots = ["G", "C", "E", "A"];
+
+        // Show a symbol for the nut if the chord is played on the lower
+        // end of the fretboard. Indicate ongoing strings otherwise.
+        let nut = match self.base_fret {
+            1 => "||",
+            _ => "-|",
+        };
+
+        for i in (0..4).rev() {
+            let root = roots[i];
+            let fret = self.frets[i];
+            let note = notes[i];
+
+            // Mark open strings with a special symbol.
+            let sym = match fret {
+                0 => "o",
+                _ => " ",
+            };
+
+            // Create a line representing the string with the fret to be pressed.
+            let mut string = "".to_owned();
+
+            for i in self.base_fret..self.base_fret + 4 {
+                let c = match fret {
+                    fret if fret == i => "o",
+                    _ => "-",
+                };
+
+                string.push_str(&format!("-{}-|", c));
+            }
+
+            let line = format!("{} {}{}{}- {}", root, sym, nut, string, note);
+            diagram.push_str(&format!("{}\n", line));
+        }
+
+        // If the fretboard section shown does not include the nut,
+        // indicate the number of the first fret shown.
+        if self.base_fret > 1 {
+            diagram.push_str(&format!("      {}\n", self.base_fret))
+        }
+
+        diagram
+    }
+
     fn generate_tests(&self, i: usize, note_names: &[&str]) -> (String, Vec<Test>) {
         let mut tests = Vec::new();
         let root = note_names[i];
@@ -63,7 +110,7 @@ impl TestConfig {
             .collect();
 
         for j in self.lower_min_fret..self.min_fret + 1 {
-            let diagram = generate_diagram(root, self.base_fret, &self.frets, &notes);
+            let diagram = self.generate_diagram(root, &notes);
             let test = Test {
                 chord: root.to_string(),
                 min_fret: j,
@@ -91,53 +138,6 @@ impl fmt::Display for Test {
 
         write!(f, "{}", s)
     }
-}
-
-fn generate_diagram(chord: &str, base_fret: Frets, frets: &[Frets], notes: &[&str]) -> String {
-    let mut diagram = format!("[{} - {} major]\n\n", chord, chord);
-    let roots = ["G", "C", "E", "A"];
-
-    // Show a symbol for the nut if the chord is played on the lower
-    // end of the fretboard. Indicate ongoing strings otherwise.
-    let nut = match base_fret {
-        1 => "||",
-        _ => "-|",
-    };
-
-    for i in (0..4).rev() {
-        let root = roots[i];
-        let fret = frets[i];
-        let note = notes[i];
-
-        // Mark open strings with a special symbol.
-        let sym = match fret {
-            0 => "o",
-            _ => " ",
-        };
-
-        // Create a line representing the string with the fret to be pressed.
-        let mut string = "".to_owned();
-
-        for i in base_fret..base_fret + 4 {
-            let c = match fret {
-                fret if fret == i => "o",
-                _ => "-",
-            };
-
-            string.push_str(&format!("-{}-|", c));
-        }
-
-        let line = format!("{} {}{}{}- {}", root, sym, nut, string, note);
-        diagram.push_str(&format!("{}\n", line));
-    }
-
-    // If the fretboard section shown does not include the nut,
-    // indicate the number of the first fret shown.
-    if base_fret > 1 {
-        diagram.push_str(&format!("      {}\n", base_fret))
-    }
-
-    diagram
 }
 
 fn generate_tests(test_config: &mut TestConfig) -> Vec<Test> {
