@@ -5,6 +5,9 @@ use std::process::Command; // Run programs
 use ukebox::Frets;
 
 struct TestConfig {
+    start_index: usize,
+    /// Distance to the previous chord shape.
+    shape_dist: Frets,
     frets: [Frets; 4],
     note_indices: [usize; 4],
     base_fret: Frets,
@@ -13,15 +16,19 @@ struct TestConfig {
 }
 
 impl TestConfig {
-    fn new(frets: [Frets; 4], note_indices: [usize; 4]) -> Self {
+    fn new(
+        start_index: usize,
+        shape_dist: Frets,
+        frets: [Frets; 4],
+        note_indices: [usize; 4],
+    ) -> Self {
         let min_fret = *frets.iter().min().unwrap();
-        let base_fret = match min_fret {
-            fret if fret < 2 => 1,
+        let max_fret = *frets.iter().max().unwrap();
+
+        let base_fret = match max_fret {
+            max_fret if max_fret <= 4 => 1,
             _ => min_fret,
         };
-
-        // Distance to the previous chord_shape.
-        let shape_dist = 1;
 
         let lower_min_fret = match min_fret {
             fret if fret < shape_dist => 0,
@@ -29,6 +36,8 @@ impl TestConfig {
         };
 
         Self {
+            start_index,
+            shape_dist,
             frets,
             note_indices,
             base_fret,
@@ -49,7 +58,7 @@ impl TestConfig {
             *n += 1;
         }
 
-        Self::new(frets, note_indices)
+        Self::new(self.start_index, self.shape_dist, frets, note_indices)
     }
 
     fn generate_diagram(&self, chord: &str, notes: &[&str]) -> String {
@@ -101,7 +110,7 @@ impl TestConfig {
 
     fn generate_tests(&self, i: usize, note_names: &[&str]) -> (String, Vec<Test>) {
         let mut tests = Vec::new();
-        let root = note_names[i];
+        let root = note_names.iter().cycle().nth(self.start_index + i).unwrap();
 
         let notes: Vec<&str> = self
             .note_indices
@@ -178,22 +187,30 @@ fn test_no_args() -> Result<(), Box<dyn std::error::Error>> {
 
 #[test]
 fn test_major_chords() -> Result<(), Box<dyn std::error::Error>> {
-    let mut test_config = TestConfig::new([0, 0, 0, 3], [7, 0, 4, 0]);
+    let test_configs = vec![
+        TestConfig::new(0, 1, [0, 0, 0, 3], [7, 0, 4, 0]),
+        TestConfig::new(9, 2, [2, 1, 0, 0], [9, 1, 4, 9]),
+        TestConfig::new(7, 1, [0, 2, 3, 2], [7, 2, 7, 11]),
+        TestConfig::new(5, 1, [2, 0, 1, 0], [9, 0, 5, 9]),
+        TestConfig::new(2, 2, [2, 2, 2, 0], [9, 2, 6, 9]),
+    ];
 
-    for test in generate_tests(&mut test_config) {
-        // Run `cargo test -- --nocapture` to print all tests run.
-        println!("{}", test);
+    for mut test_config in test_configs {
+        for test in generate_tests(&mut test_config) {
+            // Run `cargo test -- --nocapture` to print all tests run.
+            println!("{}", test);
 
-        let mut cmd = Command::main_binary()?;
-        cmd.arg(test.chord);
+            let mut cmd = Command::main_binary()?;
+            cmd.arg(test.chord);
 
-        if test.min_fret > 0 {
-            cmd.arg("-f").arg(test.min_fret.to_string());
+            if test.min_fret > 0 {
+                cmd.arg("-f").arg(test.min_fret.to_string());
+            }
+
+            cmd.assert()
+                .success()
+                .stdout(predicate::str::contains(test.diagram));
         }
-
-        cmd.assert()
-            .success()
-            .stdout(predicate::str::contains(test.diagram));
     }
 
     Ok(())
