@@ -2,9 +2,11 @@ use assert_cmd::prelude::*; // Add methods on commands
 use predicates::prelude::*; // Used for writing assertions
 use std::fmt;
 use std::process::Command; // Run programs
+use ukebox::chord::ChordQuality;
 use ukebox::Frets;
 
 struct TestConfig {
+    chord_quality: ChordQuality,
     start_index: usize,
     /// Distance to the previous chord shape.
     shape_dist: Frets,
@@ -17,6 +19,7 @@ struct TestConfig {
 
 impl TestConfig {
     fn new(
+        chord_quality: ChordQuality,
         start_index: usize,
         shape_dist: Frets,
         frets: [Frets; 4],
@@ -36,6 +39,7 @@ impl TestConfig {
         };
 
         Self {
+            chord_quality,
             start_index,
             shape_dist,
             frets,
@@ -58,11 +62,17 @@ impl TestConfig {
             *n += 1;
         }
 
-        Self::new(self.start_index, self.shape_dist, frets, note_indices)
+        Self::new(
+            self.chord_quality,
+            self.start_index,
+            self.shape_dist,
+            frets,
+            note_indices,
+        )
     }
 
     fn generate_diagram(&self, chord: &str, notes: &[&str]) -> String {
-        let mut diagram = format!("[{} - {} major]\n\n", chord, chord);
+        let mut diagram = format!("[{} - {} {}]\n\n", chord, chord, self.chord_quality);
         let roots = ["G", "C", "E", "A"];
 
         // Show a symbol for the nut if the chord is played on the lower
@@ -209,12 +219,14 @@ fn test_no_args() -> Result<(), Box<dyn std::error::Error>> {
 
 #[test]
 fn test_major_chords() -> Result<(), Box<dyn std::error::Error>> {
+    let cq = ChordQuality::Major;
+
     let test_configs = vec![
-        TestConfig::new(0, 1, [0, 0, 0, 3], [7, 0, 4, 0]),
-        TestConfig::new(9, 2, [2, 1, 0, 0], [9, 1, 4, 9]),
-        TestConfig::new(7, 1, [0, 2, 3, 2], [7, 2, 7, 11]),
-        TestConfig::new(5, 1, [2, 0, 1, 0], [9, 0, 5, 9]),
-        TestConfig::new(2, 2, [2, 2, 2, 0], [9, 2, 6, 9]),
+        TestConfig::new(cq, 0, 1, [0, 0, 0, 3], [7, 0, 4, 0]),
+        TestConfig::new(cq, 9, 2, [2, 1, 0, 0], [9, 1, 4, 9]),
+        TestConfig::new(cq, 7, 1, [0, 2, 3, 2], [7, 2, 7, 11]),
+        TestConfig::new(cq, 5, 1, [2, 0, 1, 0], [9, 0, 5, 9]),
+        TestConfig::new(cq, 2, 2, [2, 2, 2, 0], [9, 2, 6, 9]),
     ];
 
     run_tests(test_configs)
