@@ -51,6 +51,29 @@ impl TestConfig {
 
         Self::new(frets, note_indices)
     }
+
+    fn generate_tests(&self, i: usize, note_names: &[&str]) -> (String, Vec<Test>) {
+        let mut tests = Vec::new();
+        let root = note_names[i];
+
+        let notes: Vec<&str> = self
+            .note_indices
+            .iter()
+            .map(|j| *note_names.iter().cycle().nth(*j).unwrap())
+            .collect();
+
+        for j in self.lower_min_fret..self.min_fret + 1 {
+            let diagram = generate_diagram(root, self.base_fret, &self.frets, &notes);
+            let test = Test {
+                chord: root.to_string(),
+                min_fret: j,
+                diagram,
+            };
+            tests.push(test);
+        }
+
+        (root.to_string(), tests)
+    }
 }
 
 struct Test {
@@ -129,43 +152,12 @@ fn generate_tests(test_config: &mut TestConfig) -> Vec<Test> {
 
     // Move upwards the fretboard using the given chord shape.
     for i in 0..12 {
-        let root = note_names[i];
-
-        let notes: Vec<&str> = test_config
-            .note_indices
-            .iter()
-            .map(|j| *note_names.iter().cycle().nth(*j).unwrap())
-            .collect();
-
-        for j in test_config.lower_min_fret..test_config.min_fret + 1 {
-            let diagram = generate_diagram(root, test_config.base_fret, &test_config.frets, &notes);
-            let test = Test {
-                chord: root.to_string(),
-                min_fret: j,
-                diagram,
-            };
-            tests.push(test);
-        }
+        let (root, subtests) = test_config.generate_tests(i, &note_names);
+        tests.extend(subtests);
 
         if root.ends_with("#") {
-            let root = alt_names[i];
-
-            let notes: Vec<&str> = test_config
-                .note_indices
-                .iter()
-                .map(|j| *alt_names.iter().cycle().nth(*j).unwrap())
-                .collect();
-
-            for j in test_config.lower_min_fret..test_config.min_fret + 1 {
-                let diagram =
-                    generate_diagram(root, test_config.base_fret, &test_config.frets, &notes);
-                let test = Test {
-                    chord: root.to_string(),
-                    min_fret: j,
-                    diagram,
-                };
-                tests.push(test);
-            }
+            let (_root, subtests) = test_config.generate_tests(i, &alt_names);
+            tests.extend(subtests);
         }
 
         *test_config = test_config.next();
