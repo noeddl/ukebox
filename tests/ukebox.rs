@@ -71,8 +71,8 @@ impl TestConfig {
         )
     }
 
-    fn generate_diagram(&self, chord: &str, notes: &[&str]) -> String {
-        let mut diagram = format!("[{} - {} {}]\n\n", chord, chord, self.chord_quality);
+    fn generate_diagram(&self, title: &str, notes: &[&str]) -> String {
+        let mut diagram = title.to_string();
         let roots = ["G", "C", "E", "A"];
 
         // Show a symbol for the nut if the chord is played on the lower
@@ -118,9 +118,9 @@ impl TestConfig {
         diagram
     }
 
-    fn generate_tests_for_chord(&self, i: usize, note_names: &[&str]) -> (String, Vec<Test>) {
+    fn generate_tests_for_chord(&self, index: usize, note_names: &[&str]) -> (String, Vec<Test>) {
         let mut tests = Vec::new();
-        let root = note_names.iter().cycle().nth(self.start_index + i).unwrap();
+        let root = *note_names.iter().cycle().nth(index).unwrap();
 
         let notes: Vec<&str> = self
             .note_indices
@@ -129,9 +129,15 @@ impl TestConfig {
             .collect();
 
         for j in self.lower_min_fret..self.min_fret + 1 {
-            let diagram = self.generate_diagram(root, &notes);
+            let suffix = match self.chord_quality {
+                ChordQuality::Major => "",
+                ChordQuality::Minor => "m",
+            };
+            let chord = format!("{}{}", root, suffix);
+            let title = format!("[{} - {} {}]\n\n", chord, root, self.chord_quality);
+            let diagram = self.generate_diagram(&title, &notes);
             let test = Test {
-                chord: root.to_string(),
+                chord,
                 min_fret: j,
                 diagram,
             };
@@ -153,11 +159,20 @@ impl TestConfig {
 
         // Move upwards the fretboard using the given chord shape.
         for i in 0..12 {
-            let (root, subtests) = self.generate_tests_for_chord(i, &note_names);
+            let index = self.start_index + i;
+            let names = match (index, self.chord_quality) {
+                // Bm has F#.
+                (11, ChordQuality::Minor) => note_names,
+                // All other minor chords have flat notes.
+                (_, ChordQuality::Minor) => alt_names,
+                (_, _) => note_names,
+            };
+
+            let (root, subtests) = self.generate_tests_for_chord(index, &names);
             tests.extend(subtests);
 
             if root.ends_with("#") {
-                let (_root, subtests) = self.generate_tests_for_chord(i, &alt_names);
+                let (_root, subtests) = self.generate_tests_for_chord(index, &alt_names);
                 tests.extend(subtests);
             }
 
@@ -227,6 +242,21 @@ fn test_major_chords() -> Result<(), Box<dyn std::error::Error>> {
         TestConfig::new(cq, 7, 1, [0, 2, 3, 2], [7, 2, 7, 11]),
         TestConfig::new(cq, 5, 1, [2, 0, 1, 0], [9, 0, 5, 9]),
         TestConfig::new(cq, 2, 2, [2, 2, 2, 0], [9, 2, 6, 9]),
+    ];
+
+    run_tests(test_configs)
+}
+
+#[test]
+fn test_minor_chords() -> Result<(), Box<dyn std::error::Error>> {
+    let cq = ChordQuality::Minor;
+
+    let test_configs = vec![
+        TestConfig::new(cq, 0, 1, [0, 3, 3, 3], [7, 3, 7, 0]),
+        TestConfig::new(cq, 9, 2, [2, 0, 0, 0], [9, 0, 4, 9]),
+        TestConfig::new(cq, 7, 1, [0, 2, 3, 1], [7, 2, 7, 10]),
+        TestConfig::new(cq, 5, 1, [1, 0, 1, 3], [8, 0, 5, 0]),
+        TestConfig::new(cq, 2, 2, [2, 2, 1, 0], [9, 2, 5, 9]),
     ];
 
     run_tests(test_configs)
