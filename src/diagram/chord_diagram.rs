@@ -1,7 +1,7 @@
 use crate::chord::Chord;
 use crate::diagram::StringDiagram;
-use crate::note::Note;
 use crate::diagram::CHART_WIDTH;
+use crate::note::Note;
 use crate::FretPattern;
 use crate::Frets;
 use crate::NotePattern;
@@ -89,10 +89,10 @@ mod tests {
             indoc!("
                 [C - C major]
 
-                A  ||---+---+-●-+---+ C
-                E ○||---+---+---+---+ E
-                C ○||---+---+---+---+ C
-                G ○||---+---+---+---+ G
+                A  ||---|---|-o-|---|- C
+                E o||---|---|---|---|- E
+                C o||---|---|---|---|- C
+                G o||---|---|---|---|- G
             "),
         ),
         case(
@@ -101,10 +101,10 @@ mod tests {
             indoc!("
                 [C - C major]
 
-                A  -+-●-+---+---+---+ C
-                E  -+-●-+---+---+---+ G
-                C  -+---+-●-+---+---+ E
-                G  -+---+---+-●-+---+ C
+                A  -|-o-|---|---|---|- C
+                E  -|-o-|---|---|---|- G
+                C  -|---|-o-|---|---|- E
+                G  -|---|---|-o-|---|- C
                       3
             ")
         ),
