@@ -1,3 +1,10 @@
+/// Integration tests to make sure all possible combinations of user input
+/// result in the correct output.
+/// This is done by generating all combinations of command line arguments
+/// and options together with their expected output. The real program is called
+/// using the command line parameters and the actual output is compared to the
+/// expected output.
+
 use assert_cmd::prelude::*; // Add methods on commands
 use predicates::prelude::*; // Used for writing assertions
 use std::fmt;
@@ -5,8 +12,11 @@ use std::process::Command; // Run programs
 use ukebox::chord::ChordQuality;
 use ukebox::Frets;
 
+/// A set of parameters to generate tests for all chords produced
+/// by moving a specific chord shape along the fretboard.
 struct TestConfig {
     chord_quality: ChordQuality,
+    /// Start index in the note vector (= root of the chord shape).
     start_index: usize,
     /// Distance to the previous chord shape.
     shape_dist: Frets,
@@ -158,7 +168,7 @@ impl TestConfig {
         let mut tests = Vec::new();
 
         // Move upwards the fretboard using the given chord shape.
-        for i in 0..12 {
+        for i in 0..13 {
             let index = self.start_index + i;
             let names = match (index, self.chord_quality) {
                 // Bm has F#.
@@ -183,6 +193,8 @@ impl TestConfig {
     }
 }
 
+/// A set of command line arguments and options together with the
+/// expected output (chord diagram) to be shown.
 struct Test {
     chord: String,
     min_fret: Frets,
