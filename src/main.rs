@@ -5,8 +5,9 @@ use ukebox::Frets;
 #[derive(StructOpt)]
 struct Cmd {
     #[structopt(short = "f", long, default_value = "0")]
+    /// Minimal fret (= minimal position) from which to play <chord>
     min_fret: Frets,
-
+    /// Name of the chord to be shown
     chord: Chord,
 }
 

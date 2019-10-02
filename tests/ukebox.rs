@@ -4,7 +4,6 @@
 /// and options together with their expected output. The real program is called
 /// using the command line parameters and the actual output is compared to the
 /// expected output.
-
 use assert_cmd::prelude::*; // Add methods on commands
 use predicates::prelude::*; // Used for writing assertions
 use std::fmt;
@@ -239,6 +238,17 @@ fn test_no_args() -> Result<(), Box<dyn std::error::Error>> {
     let mut cmd = Command::main_binary()?;
     cmd.assert().failure().stderr(predicate::str::contains(
         "error: The following required arguments were not provided",
+    ));
+
+    Ok(())
+}
+
+#[test]
+fn test_unknown_chord() -> Result<(), Box<dyn std::error::Error>> {
+    let mut cmd = Command::main_binary()?;
+    cmd.arg("blafoo");
+    cmd.assert().failure().stderr(predicate::str::contains(
+        "error: Invalid value for '<chord>': Could not parse chord name \"blafoo\"",
     ));
 
     Ok(())

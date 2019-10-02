@@ -116,27 +116,28 @@ impl Sub<Frets> for PitchClass {
 mod tests {
     use super::*;
     use rstest::rstest_parametrize;
+    use PitchClass::*;
 
     #[rstest_parametrize(
         n,
         pitch_class,
-        case(0, PitchClass::C),
-        case(1, PitchClass::CSharp),
-        case(2, PitchClass::D),
-        case(3, PitchClass::DSharp),
-        case(4, PitchClass::E),
-        case(5, PitchClass::F),
-        case(6, PitchClass::FSharp),
-        case(7, PitchClass::G),
-        case(8, PitchClass::GSharp),
-        case(9, PitchClass::A),
-        case(10, PitchClass::ASharp),
-        case(11, PitchClass::B),
-        case(12, PitchClass::C),
-        case(13, PitchClass::CSharp),
-        case(24, PitchClass::C),
-        case(127, PitchClass::G),
-        case(255, PitchClass::DSharp)
+        case(0, C),
+        case(1, CSharp),
+        case(2, D),
+        case(3, DSharp),
+        case(4, E),
+        case(5, F),
+        case(6, FSharp),
+        case(7, G),
+        case(8, GSharp),
+        case(9, A),
+        case(10, ASharp),
+        case(11, B),
+        case(12, C),
+        case(13, CSharp),
+        case(24, C),
+        case(127, G),
+        case(255, DSharp)
     )]
     fn test_from_int(n: Frets, pitch_class: PitchClass) {
         assert_eq!(PitchClass::from(n), pitch_class);
@@ -146,12 +147,12 @@ mod tests {
         pitch_class,
         n,
         result,
-        case(PitchClass::C, 0, PitchClass::C),
-        case(PitchClass::C, 1, PitchClass::CSharp),
-        case(PitchClass::C, 10, PitchClass::ASharp),
-        case(PitchClass::C, 12, PitchClass::C),
-        case(PitchClass::C, 13, PitchClass::CSharp),
-        case(PitchClass::C, 24, PitchClass::C)
+        case(C, 0, C),
+        case(C, 1, CSharp),
+        case(C, 10, ASharp),
+        case(C, 12, C),
+        case(C, 13, CSharp),
+        case(C, 24, C)
     )]
     fn test_add_int(pitch_class: PitchClass, n: Frets, result: PitchClass) {
         assert_eq!(pitch_class + n, result);
@@ -161,10 +162,10 @@ mod tests {
         pc1,
         pc2,
         n,
-        case(PitchClass::C, PitchClass::C, 0),
-        case(PitchClass::D, PitchClass::C, 2),
-        case(PitchClass::D, PitchClass::A, 5),
-        case(PitchClass::C, PitchClass::CSharp, 11)
+        case(C, C, 0),
+        case(D, C, 2),
+        case(D, A, 5),
+        case(C, CSharp, 11)
     )]
     fn test_sub_self(pc1: PitchClass, pc2: PitchClass, n: Frets) {
         assert_eq!(pc1 - pc2, n);
@@ -174,12 +175,12 @@ mod tests {
         pc1,
         n,
         pc2,
-        case(PitchClass::C, 0, PitchClass::C),
-        case(PitchClass::D, 2, PitchClass::C),
-        case(PitchClass::D, 5, PitchClass::A),
-        case(PitchClass::C, 11, PitchClass::CSharp),
-        case(PitchClass::C, 12, PitchClass::C),
-        case(PitchClass::C, 13, PitchClass::B)
+        case(C, 0, C),
+        case(D, 2, C),
+        case(D, 5, A),
+        case(C, 11, CSharp),
+        case(C, 12, C),
+        case(C, 13, B)
     )]
     fn test_sub_int(pc1: PitchClass, n: Frets, pc2: PitchClass) {
         assert_eq!(pc1 - n, pc2);
