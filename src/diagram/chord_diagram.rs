@@ -108,6 +108,66 @@ mod tests {
                       3
             ")
         ),
+        case(
+            "C#",
+            0,
+            indoc!("
+                [C# - C# major]
+
+                A  ||---|---|---|-o-|- C#
+                E  ||-o-|---|---|---|- F
+                C  ||-o-|---|---|---|- C#
+                G  ||-o-|---|---|---|- G#
+            ")
+        ),
+        case(
+            "Db",
+            0,
+            indoc!("
+                [Db - Db major]
+
+                A  ||---|---|---|-o-|- Db
+                E  ||-o-|---|---|---|- F
+                C  ||-o-|---|---|---|- Db
+                G  ||-o-|---|---|---|- Ab
+            ")
+        ),
+        case(
+            "Cm",
+            0,
+            indoc!("
+                [Cm - C minor]
+
+                A  ||---|---|-o-|---|- C
+                E  ||---|---|-o-|---|- G
+                C  ||---|---|-o-|---|- Eb
+                G o||---|---|---|---|- G
+            "),
+        ),
+        case(
+            "C#m",
+            0,
+            indoc!("
+                [C#m - C# minor]
+
+                A  ||---|---|---|-o-|- C#
+                E  ||---|---|---|-o-|- G#
+                C  ||---|---|---|-o-|- E
+                G  ||-o-|---|---|---|- G#
+            ")
+        ),
+        case(
+            "Dbm",
+            0,
+            indoc!("
+                [Dbm - Db minor]
+
+                A  ||---|---|---|-o-|- Db
+                E  ||---|---|---|-o-|- Ab
+                C  ||---|---|---|-o-|- E
+                G  ||-o-|---|---|---|- Ab
+            ")
+        ),
     )]
     fn test_to_diagram(chord_name: &str, min_fret: Frets, diagram: &str) {
         let chord = Chord::from_str(chord_name).unwrap();
