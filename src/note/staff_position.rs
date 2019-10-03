@@ -1,6 +1,7 @@
+use crate::note::StaffSteps;
 use std::ops::Add;
 
-const STAFF_POSITION_COUNT: u8 = 7;
+const STAFF_POSITION_COUNT: StaffSteps = 7;
 
 /// The vertical position of the notehead on the staff (on a line or in a space).
 /// We use the staff position of an enharmonic note to decide whether it is sharp
@@ -21,8 +22,8 @@ pub enum StaffPosition {
     BPos,
 }
 
-impl From<u8> for StaffPosition {
-    fn from(n: u8) -> Self {
+impl From<StaffSteps> for StaffPosition {
+    fn from(n: StaffSteps) -> Self {
         use StaffPosition::*;
 
         // Make sure we get a value between 0 and 6.
@@ -45,12 +46,12 @@ impl From<u8> for StaffPosition {
     }
 }
 
-impl Add<u8> for StaffPosition {
+impl Add<StaffSteps> for StaffPosition {
     type Output = Self;
 
     /// Get the staff position that is `n` positions higher than the current one.
-    fn add(self, n: u8) -> Self {
-        Self::from(self as u8 + n)
+    fn add(self, n: StaffSteps) -> Self {
+        Self::from(self as StaffSteps + n)
     }
 }
 
@@ -71,7 +72,7 @@ mod tests {
         case(5, APos),
         case(6, BPos)
     )]
-    fn test_from_int(n: u8, staff_position: StaffPosition) {
+    fn test_from_int(n: StaffSteps, staff_position: StaffPosition) {
         assert_eq!(StaffPosition::from(n), staff_position);
     }
 
@@ -86,7 +87,11 @@ mod tests {
         case(CPos, 8, DPos),
         case(CPos, 14, CPos)
     )]
-    fn test_pitch_class_add_int(staff_position: StaffPosition, n: u8, result: StaffPosition) {
+    fn test_pitch_class_add_int(
+        staff_position: StaffPosition,
+        n: StaffSteps,
+        result: StaffPosition,
+    ) {
         assert_eq!(staff_position + n, result);
     }
 }

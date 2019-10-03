@@ -1,4 +1,5 @@
-use crate::Frets;
+use crate::note::Semitones;
+use crate::note::StaffSteps;
 use std::fmt;
 use std::str::FromStr;
 
@@ -26,7 +27,7 @@ pub enum Interval {
 
 impl Interval {
     /// Return the number of semitones that the interval encompasses.
-    pub fn to_semitones(self) -> Frets {
+    pub fn to_semitones(self) -> Semitones {
         use Interval::*;
 
         match self {
@@ -39,7 +40,7 @@ impl Interval {
 
     /// Return the interval's number. It corresponds to the number of
     /// staff positions that the intervall encompasses.
-    pub fn to_number(self) -> u8 {
+    pub fn to_number(self) -> StaffSteps {
         use Interval::*;
 
         match self {

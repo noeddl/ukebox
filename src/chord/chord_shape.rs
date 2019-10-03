@@ -1,6 +1,7 @@
 use crate::chord::ChordQuality;
 use crate::note::Interval;
 use crate::note::Note;
+use crate::note::Semitones;
 use crate::FretPattern;
 use crate::Frets;
 use crate::IntervalPattern;
@@ -38,7 +39,7 @@ impl ChordShape {
 
     /// Apply the chord shape while moving it `n` frets forward on the fretboard.
     /// Return the resulting fret pattern.
-    fn apply(self, n: Frets) -> (FretPattern, IntervalPattern) {
+    fn apply(self, n: Semitones) -> (FretPattern, IntervalPattern) {
         let mut frets = self.frets;
 
         for f in &mut frets[..] {

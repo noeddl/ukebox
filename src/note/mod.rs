@@ -8,3 +8,6 @@ pub use self::interval::Interval;
 pub use self::note::Note;
 pub use self::pitch_class::PitchClass;
 pub use self::staff_position::StaffPosition;
+
+pub type Semitones = u8;
+type StaffSteps = u8;
