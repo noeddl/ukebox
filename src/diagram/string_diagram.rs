@@ -1,18 +1,18 @@
+use crate::chord::FretID;
 use crate::diagram::CHART_WIDTH;
 use crate::note::Note;
-use crate::Frets;
 use std::fmt;
 
 /// A line within a chord diagram which represents a string of a ukulele.
 pub struct StringDiagram {
     root: Note,
-    base_fret: Frets,
-    fret: Frets,
+    base_fret: FretID,
+    fret: FretID,
     note: Note,
 }
 
 impl StringDiagram {
-    pub fn new(root: Note, base_fret: Frets, fret: Frets, note: Note) -> Self {
+    pub fn new(root: Note, base_fret: FretID, fret: FretID, note: Note) -> Self {
         Self {
             root,
             base_fret,
@@ -77,8 +77,8 @@ mod tests {
     )]
     fn test_format_line(
         root_name: &str,
-        base_fret: Frets,
-        fret: Frets,
+        base_fret: FretID,
+        fret: FretID,
         note_name: &str,
         diagram: &str,
     ) {

@@ -1,9 +1,9 @@
 use crate::chord::Chord;
+use crate::chord::FretID;
+use crate::chord::FretPattern;
 use crate::diagram::StringDiagram;
 use crate::diagram::CHART_WIDTH;
 use crate::note::Note;
-use crate::FretPattern;
-use crate::Frets;
 use crate::NotePattern;
 use crate::STRING_COUNT;
 use std::fmt;
@@ -38,7 +38,7 @@ impl ChordDiagram {
     /// If the rightmost fret fits on the diagram, show the fretboard
     /// beginning at the first fret, otherwise use the leftmost fret
     /// needed for the chords to be played.
-    fn get_base_fret(&self) -> Frets {
+    fn get_base_fret(&self) -> FretID {
         let max_fret = *self.frets.iter().max().unwrap();
 
         match max_fret {
@@ -169,7 +169,7 @@ mod tests {
             ")
         ),
     )]
-    fn test_to_diagram(chord_name: &str, min_fret: Frets, diagram: &str) {
+    fn test_to_diagram(chord_name: &str, min_fret: FretID, diagram: &str) {
         let chord = Chord::from_str(chord_name).unwrap();
         let chord_diagram = chord.get_diagram(min_fret);
         assert_eq!(chord_diagram.to_string(), diagram);

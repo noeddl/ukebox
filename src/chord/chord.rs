@@ -1,8 +1,8 @@
 use crate::chord::ChordShapeSet;
+use crate::chord::FretID;
 use crate::diagram::ChordDiagram;
 use crate::note::Interval;
 use crate::note::Note;
-use crate::Frets;
 use crate::STRING_COUNT;
 use regex::Regex;
 use std::fmt;
@@ -63,7 +63,7 @@ impl Chord {
         self.notes.contains(&note)
     }
 
-    pub fn get_diagram(self, min_fret: Frets) -> ChordDiagram {
+    pub fn get_diagram(self, min_fret: FretID) -> ChordDiagram {
         let chord_shapes = ChordShapeSet::new(self.quality);
 
         let (frets, intervals) = chord_shapes.get_config(self.root, min_fret);

@@ -1,9 +1,9 @@
 use crate::chord::ChordQuality;
+use crate::chord::FretID;
+use crate::chord::FretPattern;
 use crate::note::Interval;
 use crate::note::Note;
 use crate::note::Semitones;
-use crate::FretPattern;
-use crate::Frets;
 use crate::IntervalPattern;
 use crate::STRING_COUNT;
 use std::str::FromStr;
@@ -79,7 +79,7 @@ impl ChordShapeSet {
     }
 
     /// Return a fret pattern to play `chord` starting from fret number `min_fret`.
-    pub fn get_config(self, root: Note, min_fret: Frets) -> (FretPattern, IntervalPattern) {
+    pub fn get_config(self, root: Note, min_fret: FretID) -> (FretPattern, IntervalPattern) {
         let (chord_shape, diff) = self
             .chord_shapes
             .into_iter()
