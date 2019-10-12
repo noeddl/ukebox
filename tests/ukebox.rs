@@ -8,14 +8,14 @@ use assert_cmd::prelude::*; // Add methods on commands
 use predicates::prelude::*; // Used for writing assertions
 use std::fmt;
 use std::process::Command; // Run programs
-use ukebox::chord::ChordQuality;
+use ukebox::chord::ChordType;
 use ukebox::chord::FretID;
 use ukebox::note::Semitones;
 
 /// A set of parameters to generate tests for all chords produced
 /// by moving a specific chord shape along the fretboard.
 struct TestConfig {
-    chord_quality: ChordQuality,
+    chord_type: ChordType,
     /// Start index in the note vector (= root of the chord shape).
     start_index: usize,
     /// Distance to the previous chord shape.
@@ -29,7 +29,7 @@ struct TestConfig {
 
 impl TestConfig {
     fn new(
-        chord_quality: ChordQuality,
+        chord_type: ChordType,
         start_index: usize,
         shape_dist: Semitones,
         frets: [FretID; 4],
@@ -49,7 +49,7 @@ impl TestConfig {
         };
 
         Self {
-            chord_quality,
+            chord_type,
             start_index,
             shape_dist,
             frets,
@@ -73,7 +73,7 @@ impl TestConfig {
         }
 
         Self::new(
-            self.chord_quality,
+            self.chord_type,
             self.start_index,
             self.shape_dist,
             frets,
@@ -139,12 +139,14 @@ impl TestConfig {
             .collect();
 
         for j in self.lower_min_fret..self.min_fret + 1 {
-            let suffix = match self.chord_quality {
-                ChordQuality::Major => "",
-                ChordQuality::Minor => "m",
+            let suffix = match self.chord_type {
+                ChordType::Major => "",
+                ChordType::Minor => "m",
+                ChordType::DominantSeventh => "7",
+                ChordType::MinorSeventh => "m7",
             };
             let chord = format!("{}{}", root, suffix);
-            let title = format!("[{} - {} {}]\n\n", chord, root, self.chord_quality);
+            let title = format!("[{} - {} {}]\n\n", chord, root, self.chord_type);
             let diagram = self.generate_diagram(&title, &notes);
             let test = Test {
                 chord,
@@ -158,6 +160,8 @@ impl TestConfig {
     }
 
     fn generate_tests(&mut self) -> Vec<Test> {
+        use ChordType::*;
+
         let note_names = [
             "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B",
         ];
@@ -170,11 +174,18 @@ impl TestConfig {
         // Move upwards the fretboard using the given chord shape.
         for i in 0..13 {
             let index = self.start_index + i;
-            let names = match (index, self.chord_quality) {
+            let names = match (index % 12, self.chord_type) {
                 // Bm has F#.
-                (11, ChordQuality::Minor) => note_names,
+                (11, Minor) => note_names,
                 // All other minor chords have flat notes.
-                (_, ChordQuality::Minor) => alt_names,
+                (_, Minor) => alt_names,
+                // C7, F7.
+                (0, DominantSeventh) => alt_names,
+                (5, DominantSeventh) => alt_names,
+                // Cm7, Fm7, Gm7.
+                (0, MinorSeventh) => alt_names,
+                (5, MinorSeventh) => alt_names,
+                (7, MinorSeventh) => alt_names,
                 (_, _) => note_names,
             };
 
@@ -257,7 +268,7 @@ fn test_unknown_chord() -> Result<(), Box<dyn std::error::Error>> {
 
 #[test]
 fn test_major_chords() -> Result<(), Box<dyn std::error::Error>> {
-    let cq = ChordQuality::Major;
+    let cq = ChordType::Major;
 
     let test_configs = vec![
         TestConfig::new(cq, 0, 1, [0, 0, 0, 3], [7, 0, 4, 0]),
@@ -272,7 +283,7 @@ fn test_major_chords() -> Result<(), Box<dyn std::error::Error>> {
 
 #[test]
 fn test_minor_chords() -> Result<(), Box<dyn std::error::Error>> {
-    let cq = ChordQuality::Minor;
+    let cq = ChordType::Minor;
 
     let test_configs = vec![
         TestConfig::new(cq, 0, 1, [0, 3, 3, 3], [7, 3, 7, 0]),
@@ -280,6 +291,36 @@ fn test_minor_chords() -> Result<(), Box<dyn std::error::Error>> {
         TestConfig::new(cq, 7, 1, [0, 2, 3, 1], [7, 2, 7, 10]),
         TestConfig::new(cq, 5, 1, [1, 0, 1, 3], [8, 0, 5, 0]),
         TestConfig::new(cq, 2, 2, [2, 2, 1, 0], [9, 2, 5, 9]),
+    ];
+
+    run_tests(test_configs)
+}
+
+#[test]
+fn test_dominant_seventh_chords() -> Result<(), Box<dyn std::error::Error>> {
+    let cq = ChordType::DominantSeventh;
+
+    let test_configs = vec![
+        TestConfig::new(cq, 0, 1, [0, 0, 0, 1], [7, 0, 4, 10]),
+        TestConfig::new(cq, 9, 2, [0, 1, 0, 0], [7, 1, 4, 9]),
+        TestConfig::new(cq, 7, 1, [0, 2, 1, 2], [7, 2, 5, 11]),
+        TestConfig::new(cq, 4, 1, [1, 2, 0, 2], [8, 2, 4, 11]),
+        TestConfig::new(cq, 2, 1, [2, 0, 2, 0], [9, 0, 6, 9]),
+    ];
+
+    run_tests(test_configs)
+}
+
+#[test]
+fn test_minor_seventh_chords() -> Result<(), Box<dyn std::error::Error>> {
+    let cq = ChordType::MinorSeventh;
+
+    let test_configs = vec![
+        TestConfig::new(cq, 1, 0, [1, 1, 0, 2], [8, 1, 4, 11]),
+        TestConfig::new(cq, 9, 2, [0, 0, 0, 0], [7, 0, 4, 9]),
+        TestConfig::new(cq, 7, 1, [0, 2, 1, 1], [7, 2, 5, 10]),
+        TestConfig::new(cq, 4, 1, [0, 2, 0, 2], [7, 2, 4, 11]),
+        TestConfig::new(cq, 2, 1, [2, 0, 1, 0], [9, 0, 5, 9]),
     ];
 
     run_tests(test_configs)
