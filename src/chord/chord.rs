@@ -20,15 +20,14 @@ impl fmt::Display for ParseChordError {
     }
 }
 
-/// Chord quality.
-/// https://en.wikipedia.org/wiki/Chord_names_and_symbols_(popular_music)#Chord_quality
+/// The type of the chord depending on the intervals it contains.
 #[derive(Debug, Clone, Copy, PartialEq)]
-pub enum ChordQuality {
+pub enum ChordType {
     Major,
     Minor,
 }
 
-impl ChordQuality {
+impl ChordType {
     fn get_intervals(self) -> Vec<Interval> {
         use Interval::*;
 
@@ -39,7 +38,7 @@ impl ChordQuality {
     }
 }
 
-impl fmt::Display for ChordQuality {
+impl fmt::Display for ChordType {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let s = match self {
             Self::Major => "major",
@@ -53,7 +52,7 @@ impl fmt::Display for ChordQuality {
 /// A chord such as C, Cm and so on.
 pub struct Chord {
     name: String,
-    pub quality: ChordQuality,
+    pub chord_type: ChordType,
     pub root: Note,
     notes: Vec<Note>,
 }
@@ -64,7 +63,7 @@ impl Chord {
     }
 
     pub fn get_diagram(self, min_fret: FretID) -> ChordDiagram {
-        let chord_shapes = ChordShapeSet::new(self.quality);
+        let chord_shapes = ChordShapeSet::new(self.chord_type);
 
         let (frets, intervals) = chord_shapes.get_config(self.root, min_fret);
 
@@ -80,7 +79,7 @@ impl Chord {
 
 impl fmt::Display for Chord {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{} - {} {}", self.name, self.notes[0], self.quality)
+        write!(f, "{} - {} {}", self.name, self.notes[0], self.chord_type)
     }
 }
 
@@ -91,7 +90,7 @@ impl FromStr for Chord {
         let name = s.to_string();
 
         // Regular expression for chord names.
-        let re = Regex::new(r"(?P<root>[CDEFGAB][#b]?)(?P<quality>m?)").unwrap();
+        let re = Regex::new(r"(?P<root>[CDEFGAB][#b]?)(?P<type>m?)").unwrap();
 
         // Match regex.
         let caps = match re.captures(s) {
@@ -105,23 +104,23 @@ impl FromStr for Chord {
             Err(_) => return Err(ParseChordError { name }),
         };
 
-        // Get chord quality.
-        let quality = match &caps["quality"] {
-            "m" => ChordQuality::Minor,
-            _ => ChordQuality::Major,
+        // Get chord type.
+        let chord_type = match &caps["type"] {
+            "m" => ChordType::Minor,
+            _ => ChordType::Major,
         };
 
         // Collect notes of the chord.
         let mut notes = vec![];
 
-        for interval in quality.get_intervals() {
+        for interval in chord_type.get_intervals() {
             notes.push(root + interval);
         }
 
         Ok(Self {
             name,
             root,
-            quality,
+            chord_type,
             notes,
         })
     }
@@ -161,7 +160,7 @@ mod tests {
         let t = Note::from_str(third).unwrap();
         let f = Note::from_str(fifth).unwrap();
         assert_eq!(c.notes, vec![r, t, f]);
-        assert_eq!(c.quality, ChordQuality::Major);
+        assert_eq!(c.chord_type, ChordType::Major);
     }
 
     #[rstest_parametrize(
@@ -193,7 +192,7 @@ mod tests {
         let t = Note::from_str(third).unwrap();
         let f = Note::from_str(fifth).unwrap();
         assert_eq!(c.notes, vec![r, t, f]);
-        assert_eq!(c.quality, ChordQuality::Minor);
+        assert_eq!(c.chord_type, ChordType::Minor);
     }
 
     #[rstest_parametrize(

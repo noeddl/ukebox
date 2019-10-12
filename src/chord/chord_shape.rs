@@ -1,4 +1,4 @@
-use crate::chord::ChordQuality;
+use crate::chord::ChordType;
 use crate::chord::FretID;
 use crate::chord::FretPattern;
 use crate::note::Interval;
@@ -10,8 +10,8 @@ use std::str::FromStr;
 type IntervalPattern = [Interval; STRING_COUNT];
 
 /// A chord shape is a configuration of frets to be pressed to play a
-/// chord with a certain chord quality. The shape can be moved along
-/// the fretboard to derive several chords.
+/// certain type of chord. The shape can be moved along the fretboard
+/// to derive several chords.
 ///
 /// http://play-ukulele.simonplantinga.nl/2014/05/ukulele-chords-iii/
 /// https://newhamukes.wordpress.com/2013/08/30/moveable-chords/
@@ -58,16 +58,16 @@ pub struct ChordShapeSet {
 }
 
 impl ChordShapeSet {
-    pub fn new(chord_quality: ChordQuality) -> Self {
-        let chord_shapes = match chord_quality {
-            ChordQuality::Major => vec![
+    pub fn new(chord_type: ChordType) -> Self {
+        let chord_shapes = match chord_type {
+            ChordType::Major => vec![
                 ChordShape::new("C", [0, 0, 0, 3], ["P5", "P1", "M3", "P1"]),
                 ChordShape::new("A", [2, 1, 0, 0], ["P1", "M3", "P5", "P1"]),
                 ChordShape::new("G", [0, 2, 3, 2], ["P1", "P5", "P1", "M3"]),
                 ChordShape::new("F", [2, 0, 1, 0], ["M3", "P5", "P1", "M3"]),
                 ChordShape::new("D", [2, 2, 2, 0], ["P5", "P1", "M3", "P5"]),
             ],
-            ChordQuality::Minor => vec![
+            ChordType::Minor => vec![
                 ChordShape::new("C", [0, 3, 3, 3], ["P5", "m3", "P5", "P1"]),
                 ChordShape::new("A", [2, 0, 0, 0], ["P1", "m3", "P5", "P1"]),
                 ChordShape::new("G", [0, 2, 3, 1], ["P1", "P5", "P1", "m3"]),
