@@ -142,6 +142,7 @@ impl TestConfig {
             let suffix = match self.chord_type {
                 ChordType::Major => "",
                 ChordType::Minor => "m",
+                ChordType::DominantSeventh => "7",
             };
             let chord = format!("{}{}", root, suffix);
             let title = format!("[{} - {} {}]\n\n", chord, root, self.chord_type);
@@ -158,6 +159,8 @@ impl TestConfig {
     }
 
     fn generate_tests(&mut self) -> Vec<Test> {
+        use ChordType::*;
+
         let note_names = [
             "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B",
         ];
@@ -170,11 +173,16 @@ impl TestConfig {
         // Move upwards the fretboard using the given chord shape.
         for i in 0..13 {
             let index = self.start_index + i;
-            let names = match (index, self.chord_type) {
+            let names = match (index % 12, self.chord_type) {
                 // Bm has F#.
-                (11, ChordType::Minor) => note_names,
+                (11, Minor) => note_names,
                 // All other minor chords have flat notes.
-                (_, ChordType::Minor) => alt_names,
+                (_, Minor) => alt_names,
+                // C7, F7.
+                (0, DominantSeventh) => alt_names,
+                (5, DominantSeventh) => alt_names,
+                // Remaining dominant 7th chords.
+                (_, DominantSeventh) => note_names,
                 (_, _) => note_names,
             };
 
@@ -280,6 +288,21 @@ fn test_minor_chords() -> Result<(), Box<dyn std::error::Error>> {
         TestConfig::new(cq, 7, 1, [0, 2, 3, 1], [7, 2, 7, 10]),
         TestConfig::new(cq, 5, 1, [1, 0, 1, 3], [8, 0, 5, 0]),
         TestConfig::new(cq, 2, 2, [2, 2, 1, 0], [9, 2, 5, 9]),
+    ];
+
+    run_tests(test_configs)
+}
+
+#[test]
+fn test_dominant_seventh_chords() -> Result<(), Box<dyn std::error::Error>> {
+    let cq = ChordType::DominantSeventh;
+
+    let test_configs = vec![
+        TestConfig::new(cq, 0, 1, [0, 0, 0, 1], [7, 0, 4, 10]),
+        TestConfig::new(cq, 9, 2, [0, 1, 0, 0], [7, 1, 4, 9]),
+        TestConfig::new(cq, 7, 1, [0, 2, 1, 2], [7, 2, 5, 11]),
+        TestConfig::new(cq, 4, 1, [1, 2, 0, 2], [8, 2, 4, 11]),
+        TestConfig::new(cq, 2, 1, [2, 0, 2, 0], [9, 0, 6, 9]),
     ];
 
     run_tests(test_configs)
