@@ -143,6 +143,7 @@ impl TestConfig {
                 ChordType::Major => "",
                 ChordType::Minor => "m",
                 ChordType::DominantSeventh => "7",
+                ChordType::MinorSeventh => "m7",
             };
             let chord = format!("{}{}", root, suffix);
             let title = format!("[{} - {} {}]\n\n", chord, root, self.chord_type);
@@ -181,8 +182,10 @@ impl TestConfig {
                 // C7, F7.
                 (0, DominantSeventh) => alt_names,
                 (5, DominantSeventh) => alt_names,
-                // Remaining dominant 7th chords.
-                (_, DominantSeventh) => note_names,
+                // Cm7, Fm7, Gm7.
+                (0, MinorSeventh) => alt_names,
+                (5, MinorSeventh) => alt_names,
+                (7, MinorSeventh) => alt_names,
                 (_, _) => note_names,
             };
 
@@ -303,6 +306,21 @@ fn test_dominant_seventh_chords() -> Result<(), Box<dyn std::error::Error>> {
         TestConfig::new(cq, 7, 1, [0, 2, 1, 2], [7, 2, 5, 11]),
         TestConfig::new(cq, 4, 1, [1, 2, 0, 2], [8, 2, 4, 11]),
         TestConfig::new(cq, 2, 1, [2, 0, 2, 0], [9, 0, 6, 9]),
+    ];
+
+    run_tests(test_configs)
+}
+
+#[test]
+fn test_minor_seventh_chords() -> Result<(), Box<dyn std::error::Error>> {
+    let cq = ChordType::MinorSeventh;
+
+    let test_configs = vec![
+        TestConfig::new(cq, 1, 0, [1, 1, 0, 2], [8, 1, 4, 11]),
+        TestConfig::new(cq, 9, 2, [0, 0, 0, 0], [7, 0, 4, 9]),
+        TestConfig::new(cq, 7, 1, [0, 2, 1, 1], [7, 2, 5, 10]),
+        TestConfig::new(cq, 4, 1, [0, 2, 0, 2], [7, 2, 4, 11]),
+        TestConfig::new(cq, 2, 1, [2, 0, 1, 0], [9, 0, 5, 9]),
     ];
 
     run_tests(test_configs)
