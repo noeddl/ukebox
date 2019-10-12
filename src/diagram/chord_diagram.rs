@@ -4,10 +4,11 @@ use crate::chord::FretPattern;
 use crate::diagram::StringDiagram;
 use crate::diagram::CHART_WIDTH;
 use crate::note::Note;
-use crate::NotePattern;
 use crate::STRING_COUNT;
 use std::fmt;
 use std::str::FromStr;
+
+type NotePattern = [Note; STRING_COUNT];
 
 pub struct ChordDiagram {
     chord: Chord,

@@ -4,9 +4,10 @@ use crate::chord::FretPattern;
 use crate::note::Interval;
 use crate::note::Note;
 use crate::note::Semitones;
-use crate::IntervalPattern;
 use crate::STRING_COUNT;
 use std::str::FromStr;
+
+type IntervalPattern = [Interval; STRING_COUNT];
 
 /// A chord shape is a configuration of frets to be pressed to play a
 /// chord with a certain chord quality. The shape can be moved along
