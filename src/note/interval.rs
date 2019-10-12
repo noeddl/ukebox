@@ -23,6 +23,7 @@ pub enum Interval {
     MinorThird,
     MajorThird,
     PerfectFifth,
+    MinorSeventh,
 }
 
 impl Interval {
@@ -35,6 +36,7 @@ impl Interval {
             MinorThird => 3,
             MajorThird => 4,
             PerfectFifth => 7,
+            MinorSeventh => 10,
         }
     }
 
@@ -48,6 +50,7 @@ impl Interval {
             MinorThird => 3,
             MajorThird => 3,
             PerfectFifth => 5,
+            MinorSeventh => 7,
         }
     }
 }
@@ -65,6 +68,7 @@ impl FromStr for Interval {
             "P5" => PerfectFifth,
             "m3" => MinorThird,
             "M3" => MajorThird,
+            "m7" => MinorSeventh,
             _ => return Err(ParseIntervalError { name }),
         };
 
