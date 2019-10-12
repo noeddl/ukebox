@@ -1,11 +1,13 @@
 use crate::chord::ChordQuality;
+use crate::chord::FretID;
+use crate::chord::FretPattern;
 use crate::note::Interval;
 use crate::note::Note;
-use crate::FretPattern;
-use crate::Frets;
-use crate::IntervalPattern;
+use crate::note::Semitones;
 use crate::STRING_COUNT;
 use std::str::FromStr;
+
+type IntervalPattern = [Interval; STRING_COUNT];
 
 /// A chord shape is a configuration of frets to be pressed to play a
 /// chord with a certain chord quality. The shape can be moved along
@@ -38,7 +40,7 @@ impl ChordShape {
 
     /// Apply the chord shape while moving it `n` frets forward on the fretboard.
     /// Return the resulting fret pattern.
-    fn apply(self, n: Frets) -> (FretPattern, IntervalPattern) {
+    fn apply(self, n: Semitones) -> (FretPattern, IntervalPattern) {
         let mut frets = self.frets;
 
         for f in &mut frets[..] {
@@ -78,7 +80,7 @@ impl ChordShapeSet {
     }
 
     /// Return a fret pattern to play `chord` starting from fret number `min_fret`.
-    pub fn get_config(self, root: Note, min_fret: Frets) -> (FretPattern, IntervalPattern) {
+    pub fn get_config(self, root: Note, min_fret: FretID) -> (FretPattern, IntervalPattern) {
         let (chord_shape, diff) = self
             .chord_shapes
             .into_iter()

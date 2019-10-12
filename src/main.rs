@@ -1,12 +1,12 @@
 use structopt::StructOpt;
 use ukebox::chord::Chord;
-use ukebox::Frets;
+use ukebox::chord::FretID;
 
 #[derive(StructOpt)]
 struct Cmd {
     #[structopt(short = "f", long, default_value = "0")]
     /// Minimal fret (= minimal position) from which to play <chord>
-    min_fret: Frets,
+    min_fret: FretID,
     /// Name of the chord to be shown
     chord: Chord,
 }

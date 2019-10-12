@@ -9,7 +9,8 @@ use predicates::prelude::*; // Used for writing assertions
 use std::fmt;
 use std::process::Command; // Run programs
 use ukebox::chord::ChordQuality;
-use ukebox::Frets;
+use ukebox::chord::FretID;
+use ukebox::note::Semitones;
 
 /// A set of parameters to generate tests for all chords produced
 /// by moving a specific chord shape along the fretboard.
@@ -18,20 +19,20 @@ struct TestConfig {
     /// Start index in the note vector (= root of the chord shape).
     start_index: usize,
     /// Distance to the previous chord shape.
-    shape_dist: Frets,
-    frets: [Frets; 4],
+    shape_dist: Semitones,
+    frets: [FretID; 4],
     note_indices: [usize; 4],
-    base_fret: Frets,
-    min_fret: Frets,
-    lower_min_fret: Frets,
+    base_fret: FretID,
+    min_fret: FretID,
+    lower_min_fret: FretID,
 }
 
 impl TestConfig {
     fn new(
         chord_quality: ChordQuality,
         start_index: usize,
-        shape_dist: Frets,
-        frets: [Frets; 4],
+        shape_dist: Semitones,
+        frets: [FretID; 4],
         note_indices: [usize; 4],
     ) -> Self {
         let min_fret = *frets.iter().min().unwrap();
@@ -196,7 +197,7 @@ impl TestConfig {
 /// expected output (chord diagram) to be shown.
 struct Test {
     chord: String,
-    min_fret: Frets,
+    min_fret: FretID,
     diagram: String,
 }
 

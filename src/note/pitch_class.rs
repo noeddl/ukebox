@@ -1,10 +1,10 @@
 #![allow(clippy::suspicious_arithmetic_impl)]
-use crate::Frets;
+use crate::note::Semitones;
 use std::ops::Add;
 use std::ops::Sub;
 
 /// Number of pitch classes.
-const PITCH_CLASS_COUNT: Frets = 12;
+const PITCH_CLASS_COUNT: Semitones = 12;
 
 /// A pitch class is "a set of all pitches that are a whole number of octaves
 /// apart, e.g., the pitch class C consists of the Cs in all octaves."
@@ -31,14 +31,14 @@ pub enum PitchClass {
     B,
 }
 
-impl From<Frets> for PitchClass {
+impl From<Semitones> for PitchClass {
     /// Convert an integer into a pitch class.
     ///
     /// To model the fact that e.g. all instances of the note `C` in different
     /// octaves belong to the same pitch class, each integer is placed in the
     /// range of potential pitch classes (between 0 and 11).
     /// For example, 12, 24, 36, etc. all correspond to pitch class 0.
-    fn from(n: Frets) -> Self {
+    fn from(n: Semitones) -> Self {
         use PitchClass::*;
 
         // Make sure we get a value between 0 and 11.
@@ -66,19 +66,19 @@ impl From<Frets> for PitchClass {
     }
 }
 
-impl Add<Frets> for PitchClass {
+impl Add<Semitones> for PitchClass {
     type Output = Self;
 
     /// Get the pitch class that is `n` semitones higher than the current
     /// pitch class.
-    fn add(self, n: Frets) -> Self {
-        let v = self as Frets + n;
+    fn add(self, n: Semitones) -> Self {
+        let v = self as Semitones + n;
         Self::from(v)
     }
 }
 
 impl Sub for PitchClass {
-    type Output = Frets;
+    type Output = Semitones;
 
     /// Get the difference between two pitch classes in number of frets
     /// or semitones.
@@ -90,7 +90,7 @@ impl Sub for PitchClass {
     /// * D - C: both pitch classes are assumed to be in the same octave, D being
     ///          higher than C. The difference is 2.
     /// * D - A: D is higher than A, the difference is 5.
-    fn sub(self, other: Self) -> Frets {
+    fn sub(self, other: Self) -> Semitones {
         let d = self as i8 - other as i8;
 
         let diff = match d {
@@ -98,16 +98,16 @@ impl Sub for PitchClass {
             _ => d + PITCH_CLASS_COUNT as i8,
         };
 
-        diff as Frets
+        diff as Semitones
     }
 }
 
-impl Sub<Frets> for PitchClass {
+impl Sub<Semitones> for PitchClass {
     type Output = Self;
 
     /// Get the pitch class that is `n` semitones lower than the current
     /// pitch class.
-    fn sub(self, n: Frets) -> Self {
+    fn sub(self, n: Semitones) -> Self {
         Self::from(self - Self::from(n))
     }
 }
@@ -139,7 +139,7 @@ mod tests {
         case(127, G),
         case(255, DSharp)
     )]
-    fn test_from_int(n: Frets, pitch_class: PitchClass) {
+    fn test_from_int(n: Semitones, pitch_class: PitchClass) {
         assert_eq!(PitchClass::from(n), pitch_class);
     }
 
@@ -154,7 +154,7 @@ mod tests {
         case(C, 13, CSharp),
         case(C, 24, C)
     )]
-    fn test_add_int(pitch_class: PitchClass, n: Frets, result: PitchClass) {
+    fn test_add_int(pitch_class: PitchClass, n: Semitones, result: PitchClass) {
         assert_eq!(pitch_class + n, result);
     }
 
@@ -167,7 +167,7 @@ mod tests {
         case(D, A, 5),
         case(C, CSharp, 11)
     )]
-    fn test_sub_self(pc1: PitchClass, pc2: PitchClass, n: Frets) {
+    fn test_sub_self(pc1: PitchClass, pc2: PitchClass, n: Semitones) {
         assert_eq!(pc1 - pc2, n);
     }
 
@@ -182,7 +182,7 @@ mod tests {
         case(C, 12, C),
         case(C, 13, B)
     )]
-    fn test_sub_int(pc1: PitchClass, n: Frets, pc2: PitchClass) {
+    fn test_sub_int(pc1: PitchClass, n: Semitones, pc2: PitchClass) {
         assert_eq!(pc1 - n, pc2);
     }
 }
