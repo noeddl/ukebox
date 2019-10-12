@@ -10,7 +10,6 @@ use std::fmt;
 use std::process::Command; // Run programs
 use ukebox::chord::ChordQuality;
 use ukebox::chord::FretID;
-use ukebox::chord::FretPattern;
 use ukebox::note::Semitones;
 
 /// A set of parameters to generate tests for all chords produced
@@ -33,56 +32,53 @@ impl TestConfig {
         chord_quality: ChordQuality,
         start_index: usize,
         shape_dist: Semitones,
-        fret_ids: [u8; 4],
+        frets: [FretID; 4],
         note_indices: [usize; 4],
     ) -> Self {
-        let mut frets: FretPattern = [0.into(); 4];
+        let min_fret = *frets.iter().min().unwrap();
+        let max_fret = *frets.iter().max().unwrap();
 
-        for (i, f) in fret_ids.iter().enumerate() {
-            frets[i] = FretID::from(*f);
-        }
+        let base_fret = match max_fret {
+            max_fret if max_fret <= 4 => 1,
+            _ => min_fret,
+        };
 
-        let mut test_config = Self {
+        let lower_min_fret = match min_fret {
+            fret if fret < shape_dist => 0,
+            _ => min_fret - shape_dist,
+        };
+
+        Self {
             chord_quality,
             start_index,
             shape_dist,
             frets,
             note_indices,
-            base_fret: 0.into(),
-            min_fret: 0.into(),
-            lower_min_fret: 0.into(),
-        };
-
-        test_config.set_boundaries();
-        test_config
-    }
-
-    fn set_boundaries(&mut self) {
-        self.min_fret = *self.frets.iter().min().unwrap();
-        let max_fret = *self.frets.iter().max().unwrap();
-
-        self.base_fret = match max_fret {
-            max_fret if max_fret <= 4 => 1.into(),
-            _ => self.min_fret,
-        };
-
-        self.lower_min_fret = match self.min_fret {
-            fret if fret < self.shape_dist => 0.into(),
-            _ => self.min_fret - self.shape_dist,
-        };
+            base_fret,
+            min_fret,
+            lower_min_fret,
+        }
     }
 
     /// Move all frets and notes one fret/semitone higher.
-    fn update(&mut self) {
-        for f in self.frets.iter_mut() {
-            *f = *f + 1;
+    fn next(&mut self) -> Self {
+        let mut frets = self.frets;
+        for f in frets.iter_mut() {
+            *f += 1;
         }
 
-        for n in self.note_indices.iter_mut() {
+        let mut note_indices = self.note_indices;
+        for n in note_indices.iter_mut() {
             *n += 1;
         }
 
-        self.set_boundaries();
+        Self::new(
+            self.chord_quality,
+            self.start_index,
+            self.shape_dist,
+            frets,
+            note_indices,
+        )
     }
 
     fn generate_diagram(&self, title: &str, notes: &[&str]) -> String {
@@ -92,7 +88,7 @@ impl TestConfig {
         // Show a symbol for the nut if the chord is played on the lower
         // end of the fretboard. Indicate ongoing strings otherwise.
         let nut = match self.base_fret {
-            fret if fret == 1 => "||",
+            1 => "||",
             _ => "-|",
         };
 
@@ -103,24 +99,20 @@ impl TestConfig {
 
             // Mark open strings with a special symbol.
             let sym = match fret {
-                fret if fret == 0 => "o",
+                0 => "o",
                 _ => " ",
             };
 
             // Create a line representing the string with the fret to be pressed.
             let mut string = "".to_owned();
 
-            let mut f = self.base_fret;
-
-            while f < self.base_fret + 4 {
+            for i in self.base_fret..self.base_fret + 4 {
                 let c = match fret {
-                    fret if fret == f => "o",
+                    fret if fret == i => "o",
                     _ => "-",
                 };
 
                 string.push_str(&format!("-{}-|", c));
-
-                f = f + 1;
             }
 
             let line = format!("{} {}{}{}- {}", root, sym, nut, string, note);
@@ -146,9 +138,7 @@ impl TestConfig {
             .map(|j| *note_names.iter().cycle().nth(*j).unwrap())
             .collect();
 
-        let mut f = self.lower_min_fret;
-
-        while f < self.min_fret + 1 {
+        for j in self.lower_min_fret..self.min_fret + 1 {
             let suffix = match self.chord_quality {
                 ChordQuality::Major => "",
                 ChordQuality::Minor => "m",
@@ -158,12 +148,10 @@ impl TestConfig {
             let diagram = self.generate_diagram(&title, &notes);
             let test = Test {
                 chord,
-                min_fret: f,
+                min_fret: j,
                 diagram,
             };
             tests.push(test);
-
-            f = f + 1;
         }
 
         (root.to_string(), tests)
@@ -198,7 +186,7 @@ impl TestConfig {
                 tests.extend(subtests);
             }
 
-            self.update();
+            *self = self.next();
         }
 
         tests

@@ -42,7 +42,7 @@ impl ChordDiagram {
         let max_fret = *self.frets.iter().max().unwrap();
 
         match max_fret {
-            max_fret if max_fret <= CHART_WIDTH => 1.into(),
+            max_fret if max_fret <= CHART_WIDTH => 1,
             _ => *self.frets.iter().min().unwrap(),
         }
     }
@@ -169,9 +169,9 @@ mod tests {
             ")
         ),
     )]
-    fn test_to_diagram(chord_name: &str, min_fret: u8, diagram: &str) {
+    fn test_to_diagram(chord_name: &str, min_fret: FretID, diagram: &str) {
         let chord = Chord::from_str(chord_name).unwrap();
-        let chord_diagram = chord.get_diagram(FretID::from(min_fret));
+        let chord_diagram = chord.get_diagram(min_fret);
         assert_eq!(chord_diagram.to_string(), diagram);
     }
 }

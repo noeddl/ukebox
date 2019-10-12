@@ -27,30 +27,26 @@ impl fmt::Display for StringDiagram {
         // Show a symbol for the nut if the chord is played on the lower
         // end of the fretboard. Indicate ongoing strings otherwise.
         let nut = match self.base_fret {
-            fret if fret == 1 => "||",
+            1 => "||",
             _ => "-|",
         };
 
         // Mark open strings with a special symbol.
         let sym = match self.fret {
-            fret if fret == 0 => "o",
+            0 => "o",
             _ => " ",
         };
 
         // Create a line representing the string with the fret to be pressed.
         let mut string = "".to_owned();
 
-        let mut fret = self.base_fret;
-
-        while fret < self.base_fret + CHART_WIDTH {
+        for i in self.base_fret..self.base_fret + CHART_WIDTH {
             let c = match self.fret {
-                f if f == fret => "o",
+                fret if fret == i => "o",
                 _ => "-",
             };
 
             string.push_str(&format!("-{}-|", c));
-
-            fret = fret + 1;
         }
 
         write!(f, "{} {}{}{}- {}", self.root, sym, nut, string, self.note)
@@ -79,11 +75,17 @@ mod tests {
         case("C", 5, 6, "F#", "C  -|---|-o-|---|---|- F#"),
         case("C", 5, 6, "Gb", "C  -|---|-o-|---|---|- Gb")
     )]
-    fn test_format_line(root_name: &str, base_fret: u8, fret: u8, note_name: &str, diagram: &str) {
+    fn test_format_line(
+        root_name: &str,
+        base_fret: FretID,
+        fret: FretID,
+        note_name: &str,
+        diagram: &str,
+    ) {
         let root = Note::from_str(root_name).unwrap();
         let note = Note::from_str(note_name).unwrap();
 
-        let sd = StringDiagram::new(root, base_fret.into(), fret.into(), note);
+        let sd = StringDiagram::new(root, base_fret, fret, note);
 
         assert_eq!(sd.to_string(), diagram);
     }

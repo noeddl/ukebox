@@ -3,6 +3,7 @@ use crate::chord::FretID;
 use crate::chord::FretPattern;
 use crate::note::Interval;
 use crate::note::Note;
+use crate::note::Semitones;
 use crate::IntervalPattern;
 use crate::STRING_COUNT;
 use std::str::FromStr;
@@ -22,13 +23,7 @@ pub struct ChordShape {
 }
 
 impl ChordShape {
-    fn new(note_name: &str, fret_ids: [u8; STRING_COUNT], int_names: [&str; STRING_COUNT]) -> Self {
-        let mut frets: FretPattern = [0.into(); STRING_COUNT];
-
-        for (i, f) in fret_ids.iter().enumerate() {
-            frets[i] = FretID::from(*f);
-        }
-
+    fn new(note_name: &str, frets: FretPattern, int_names: [&str; STRING_COUNT]) -> Self {
         let mut intervals = [Interval::PerfectUnison; STRING_COUNT];
 
         for (i, s) in int_names.iter().enumerate() {
@@ -44,11 +39,11 @@ impl ChordShape {
 
     /// Apply the chord shape while moving it `n` frets forward on the fretboard.
     /// Return the resulting fret pattern.
-    fn apply(self, n: FretID) -> (FretPattern, IntervalPattern) {
+    fn apply(self, n: Semitones) -> (FretPattern, IntervalPattern) {
         let mut frets = self.frets;
 
         for f in &mut frets[..] {
-            *f = *f + n;
+            *f += n;
         }
 
         (frets, self.intervals)
@@ -88,12 +83,7 @@ impl ChordShapeSet {
         let (chord_shape, diff) = self
             .chord_shapes
             .into_iter()
-            .map(|cs| {
-                (
-                    cs,
-                    (root.pitch_class - min_fret.to_semitones()) - cs.root.pitch_class,
-                )
-            })
+            .map(|cs| (cs, (root.pitch_class - min_fret) - cs.root.pitch_class))
             .min_by_key(|&(_cs, diff)| diff)
             .unwrap();
 
