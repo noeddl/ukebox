@@ -1,6 +1,7 @@
 use crate::chord::Chord;
 use crate::chord::FretID;
 use crate::chord::FretPattern;
+use crate::chord::Tuning;
 use crate::diagram::StringDiagram;
 use crate::diagram::CHART_WIDTH;
 use crate::note::Note;
@@ -18,12 +19,14 @@ pub struct ChordDiagram {
 }
 
 impl ChordDiagram {
-    pub fn new(chord: Chord, frets: FretPattern, notes: NotePattern) -> Self {
+    pub fn new(chord: Chord, frets: FretPattern, notes: NotePattern, tuning: Tuning) -> Self {
+        let interval = tuning.get_interval();
+
         let roots = [
-            Note::from_str("G").unwrap(),
-            Note::from_str("C").unwrap(),
-            Note::from_str("E").unwrap(),
-            Note::from_str("A").unwrap(),
+            Note::from_str("G").unwrap() + interval,
+            Note::from_str("C").unwrap() + interval,
+            Note::from_str("E").unwrap() + interval,
+            Note::from_str("A").unwrap() + interval,
         ];
 
         Self {
@@ -83,10 +86,11 @@ mod tests {
     use rstest::rstest_parametrize;
     use std::str::FromStr;
 
-    #[rstest_parametrize(chord_name, min_fret, diagram,
+    #[rstest_parametrize(chord_name, min_fret, tuning_name, diagram,
         case(
             "C",
             0,
+            "C",
             indoc!("
                 [C - C major]
 
@@ -99,6 +103,7 @@ mod tests {
         case(
             "C",
             1,
+            "C",
             indoc!("
                 [C - C major]
 
@@ -112,6 +117,7 @@ mod tests {
         case(
             "C#",
             0,
+            "C",
             indoc!("
                 [C# - C# major]
 
@@ -124,6 +130,7 @@ mod tests {
         case(
             "Db",
             0,
+            "C",
             indoc!("
                 [Db - Db major]
 
@@ -136,6 +143,7 @@ mod tests {
         case(
             "Cm",
             0,
+            "C",
             indoc!("
                 [Cm - C minor]
 
@@ -148,6 +156,7 @@ mod tests {
         case(
             "C#m",
             0,
+            "C",
             indoc!("
                 [C#m - C# minor]
 
@@ -160,6 +169,7 @@ mod tests {
         case(
             "Dbm",
             0,
+            "C",
             indoc!("
                 [Dbm - Db minor]
 
@@ -169,10 +179,37 @@ mod tests {
                 G  ||-o-|---|---|---|- Ab
             ")
         ),
+        case(
+            "D",
+            0,
+            "D",
+            indoc!("
+                [D - D major]
+
+                B  ||---|---|-o-|---|- D
+                F# o||---|---|---|---|- F#
+                D o||---|---|---|---|- D
+                A o||---|---|---|---|- A
+            "),
+        ),
+        case(
+            "G",
+            0,
+            "G",
+            indoc!("
+                [G - G major]
+
+                E  ||---|---|-o-|---|- G
+                B o||---|---|---|---|- B
+                G o||---|---|---|---|- G
+                D o||---|---|---|---|- D
+            "),
+        ),
     )]
-    fn test_to_diagram(chord_name: &str, min_fret: FretID, diagram: &str) {
+    fn test_to_diagram(chord_name: &str, min_fret: FretID, tuning_name: &str, diagram: &str) {
         let chord = Chord::from_str(chord_name).unwrap();
-        let chord_diagram = chord.get_diagram(min_fret);
+        let tuning = Tuning::from_str(tuning_name).unwrap();
+        let chord_diagram = chord.get_diagram(min_fret, tuning);
         assert_eq!(chord_diagram.to_string(), diagram);
     }
 }

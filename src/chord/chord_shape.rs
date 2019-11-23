@@ -1,6 +1,7 @@
 use crate::chord::ChordType;
 use crate::chord::FretID;
 use crate::chord::FretPattern;
+use crate::chord::Tuning;
 use crate::note::Interval;
 use crate::note::Note;
 use crate::note::Semitones;
@@ -94,11 +95,13 @@ impl ChordShapeSet {
     }
 
     /// Return a fret pattern to play `chord` starting from fret number `min_fret`.
-    pub fn get_config(self, root: Note, min_fret: FretID) -> (FretPattern, IntervalPattern) {
+    pub fn get_config(self, root: Note, min_fret: FretID, tuning: Tuning) -> (FretPattern, IntervalPattern) {
+        let semitones = tuning.get_semitones();
+
         let (chord_shape, diff) = self
             .chord_shapes
             .into_iter()
-            .map(|cs| (cs, (root.pitch_class - min_fret) - cs.root.pitch_class))
+            .map(|cs| (cs, (root.pitch_class - min_fret) - (cs.root.pitch_class + semitones)))
             .min_by_key(|&(_cs, diff)| diff)
             .unwrap();
 
