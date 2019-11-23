@@ -16,6 +16,7 @@ pub struct ChordDiagram {
     roots: NotePattern,
     frets: FretPattern,
     notes: NotePattern,
+    root_width: usize,
 }
 
 impl ChordDiagram {
@@ -34,6 +35,7 @@ impl ChordDiagram {
             chord,
             frets,
             notes,
+            root_width: tuning.get_root_width(),
         }
     }
 
@@ -65,7 +67,7 @@ impl fmt::Display for ChordDiagram {
             let root = self.roots[i];
             let fret = self.frets[i];
             let note = self.notes[i];
-            let sd = StringDiagram::new(root, base_fret, fret, note);
+            let sd = StringDiagram::new(root, base_fret, fret, note, self.root_width);
             s.push_str(&format!("{}\n", sd.to_string()));
         }
 
@@ -186,10 +188,10 @@ mod tests {
             indoc!("
                 [D - D major]
 
-                B  ||---|---|-o-|---|- D
+                B   ||---|---|-o-|---|- D
                 F# o||---|---|---|---|- F#
-                D o||---|---|---|---|- D
-                A o||---|---|---|---|- A
+                D  o||---|---|---|---|- D
+                A  o||---|---|---|---|- A
             "),
         ),
         case(
