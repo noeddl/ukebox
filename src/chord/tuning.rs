@@ -50,6 +50,18 @@ impl Tuning {
     }
 }
 
+impl fmt::Display for Tuning {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let s = match self {
+            Self::C => "C",
+            Self::D => "D",
+            Self::G => "G",
+        };
+
+        write!(f, "{}", s)
+    }
+}
+
 impl FromStr for Tuning {
     type Err = ParseTuningError;
 
