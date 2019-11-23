@@ -20,6 +20,7 @@ impl fmt::Display for ParseIntervalError {
 #[derive(Debug, Clone, Copy)]
 pub enum Interval {
     PerfectUnison,
+    MajorSecond,
     MinorThird,
     MajorThird,
     PerfectFifth,
@@ -33,6 +34,7 @@ impl Interval {
 
         match self {
             PerfectUnison => 0,
+            MajorSecond => 2,
             MinorThird => 3,
             MajorThird => 4,
             PerfectFifth => 7,
@@ -47,6 +49,7 @@ impl Interval {
 
         match self {
             PerfectUnison => 1,
+            MajorSecond => 2,
             MinorThird => 3,
             MajorThird => 3,
             PerfectFifth => 5,
@@ -65,6 +68,7 @@ impl FromStr for Interval {
 
         let interval = match s {
             "P1" => PerfectUnison,
+            "M2" => MajorSecond,
             "P5" => PerfectFifth,
             "m3" => MinorThird,
             "M3" => MajorThird,
