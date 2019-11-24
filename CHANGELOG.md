@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.3.0] - 2019-11-24
+
+* Set up CI for the repo.
+* Add command line option `--tuning` to specify a tuning (`C`, `D` or `G`).
+
 ## [0.2.0] - 2019-10-13
 
 * Add dominant and minor 7th chords.
