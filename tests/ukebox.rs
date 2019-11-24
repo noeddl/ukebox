@@ -290,7 +290,12 @@ fn test_unknown_chord() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-#[rstest_parametrize(tuning, case(Tuning::C), case(Tuning::D), case(Tuning::G))]
+#[rstest_parametrize(
+    tuning,
+    case::c_tuning(Tuning::C),
+    case::d_tuning(Tuning::D),
+    case::g_tuning(Tuning::G)
+)]
 fn test_major_chords(tuning: Tuning) -> Result<(), Box<dyn std::error::Error>> {
     let cq = ChordType::Major;
 
@@ -305,7 +310,12 @@ fn test_major_chords(tuning: Tuning) -> Result<(), Box<dyn std::error::Error>> {
     run_tests(test_configs)
 }
 
-#[rstest_parametrize(tuning, case(Tuning::C), case(Tuning::D), case(Tuning::G))]
+#[rstest_parametrize(
+    tuning,
+    case::c_tuning(Tuning::C),
+    case::d_tuning(Tuning::D),
+    case::g_tuning(Tuning::G)
+)]
 fn test_minor_chords(tuning: Tuning) -> Result<(), Box<dyn std::error::Error>> {
     let cq = ChordType::Minor;
 
@@ -320,7 +330,12 @@ fn test_minor_chords(tuning: Tuning) -> Result<(), Box<dyn std::error::Error>> {
     run_tests(test_configs)
 }
 
-#[rstest_parametrize(tuning, case(Tuning::C), case(Tuning::D), case(Tuning::G))]
+#[rstest_parametrize(
+    tuning,
+    case::c_tuning(Tuning::C),
+    case::d_tuning(Tuning::D),
+    case::g_tuning(Tuning::G)
+)]
 fn test_dominant_seventh_chords(tuning: Tuning) -> Result<(), Box<dyn std::error::Error>> {
     let cq = ChordType::DominantSeventh;
 
@@ -335,7 +350,12 @@ fn test_dominant_seventh_chords(tuning: Tuning) -> Result<(), Box<dyn std::error
     run_tests(test_configs)
 }
 
-#[rstest_parametrize(tuning, case(Tuning::C), case(Tuning::D), case(Tuning::G))]
+#[rstest_parametrize(
+    tuning,
+    case::c_tuning(Tuning::C),
+    case::d_tuning(Tuning::D),
+    case::g_tuning(Tuning::G)
+)]
 fn test_minor_seventh_chords(tuning: Tuning) -> Result<(), Box<dyn std::error::Error>> {
     let cq = ChordType::MinorSeventh;
 
