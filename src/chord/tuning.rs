@@ -23,7 +23,7 @@ pub enum Tuning {
 }
 
 impl Tuning {
-    pub fn get_semitones(&self) -> Semitones {
+    pub fn get_semitones(self) -> Semitones {
         match self {
             Self::C => 0,
             Self::D => 2,
@@ -31,7 +31,7 @@ impl Tuning {
         }
     }
 
-    pub fn get_interval(&self) -> Interval {
+    pub fn get_interval(self) -> Interval {
         match self {
             Self::C => Interval::PerfectUnison,
             Self::D => Interval::MajorSecond,
@@ -41,7 +41,7 @@ impl Tuning {
 
     /// Get the width of the space that we need to print the name
     /// of the root notes (the names of the strings) for this tuning.
-    pub fn get_root_width(&self) -> usize {
+    pub fn get_root_width(self) -> usize {
         match self {
             Self::C => 1,
             Self::D => 2, // We need 2 here because of F#.
