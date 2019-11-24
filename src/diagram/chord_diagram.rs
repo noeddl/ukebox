@@ -1,6 +1,7 @@
 use crate::chord::Chord;
 use crate::chord::FretID;
 use crate::chord::FretPattern;
+use crate::chord::Tuning;
 use crate::diagram::StringDiagram;
 use crate::diagram::CHART_WIDTH;
 use crate::note::Note;
@@ -15,15 +16,18 @@ pub struct ChordDiagram {
     roots: NotePattern,
     frets: FretPattern,
     notes: NotePattern,
+    root_width: usize,
 }
 
 impl ChordDiagram {
-    pub fn new(chord: Chord, frets: FretPattern, notes: NotePattern) -> Self {
+    pub fn new(chord: Chord, frets: FretPattern, notes: NotePattern, tuning: Tuning) -> Self {
+        let interval = tuning.get_interval();
+
         let roots = [
-            Note::from_str("G").unwrap(),
-            Note::from_str("C").unwrap(),
-            Note::from_str("E").unwrap(),
-            Note::from_str("A").unwrap(),
+            Note::from_str("G").unwrap() + interval,
+            Note::from_str("C").unwrap() + interval,
+            Note::from_str("E").unwrap() + interval,
+            Note::from_str("A").unwrap() + interval,
         ];
 
         Self {
@@ -31,6 +35,7 @@ impl ChordDiagram {
             chord,
             frets,
             notes,
+            root_width: tuning.get_root_width(),
         }
     }
 
@@ -62,14 +67,18 @@ impl fmt::Display for ChordDiagram {
             let root = self.roots[i];
             let fret = self.frets[i];
             let note = self.notes[i];
-            let sd = StringDiagram::new(root, base_fret, fret, note);
+            let sd = StringDiagram::new(root, base_fret, fret, note, self.root_width);
             s.push_str(&format!("{}\n", sd.to_string()));
         }
 
         // If the fretboard section shown does not include the nut,
         // indicate the number of the first fret shown.
         if base_fret > 1 {
-            s.push_str(&format!("      {}\n", base_fret))
+            s.push_str(&format!(
+                "{:width$}\n",
+                base_fret,
+                width = self.root_width + 6
+            ))
         }
 
         write!(f, "{}", s)
@@ -83,10 +92,11 @@ mod tests {
     use rstest::rstest_parametrize;
     use std::str::FromStr;
 
-    #[rstest_parametrize(chord_name, min_fret, diagram,
+    #[rstest_parametrize(chord_name, min_fret, tuning, diagram,
         case(
             "C",
             0,
+            Tuning::C,
             indoc!("
                 [C - C major]
 
@@ -99,6 +109,7 @@ mod tests {
         case(
             "C",
             1,
+            Tuning::C,
             indoc!("
                 [C - C major]
 
@@ -112,6 +123,7 @@ mod tests {
         case(
             "C#",
             0,
+            Tuning::C,
             indoc!("
                 [C# - C# major]
 
@@ -124,6 +136,7 @@ mod tests {
         case(
             "Db",
             0,
+            Tuning::C,
             indoc!("
                 [Db - Db major]
 
@@ -136,6 +149,7 @@ mod tests {
         case(
             "Cm",
             0,
+            Tuning::C,
             indoc!("
                 [Cm - C minor]
 
@@ -148,6 +162,7 @@ mod tests {
         case(
             "C#m",
             0,
+            Tuning::C,
             indoc!("
                 [C#m - C# minor]
 
@@ -160,6 +175,7 @@ mod tests {
         case(
             "Dbm",
             0,
+            Tuning::C,
             indoc!("
                 [Dbm - Db minor]
 
@@ -169,10 +185,50 @@ mod tests {
                 G  ||-o-|---|---|---|- Ab
             ")
         ),
+        case(
+            "D",
+            0,
+            Tuning::D,
+            indoc!("
+                [D - D major]
+
+                B   ||---|---|-o-|---|- D
+                F# o||---|---|---|---|- F#
+                D  o||---|---|---|---|- D
+                A  o||---|---|---|---|- A
+            "),
+        ),
+        case(
+            "D",
+            5,
+            Tuning::D,
+            indoc!("
+                [D - D major]
+
+                B   -|---|---|-o-|---|- F#
+                F#  -|---|---|---|-o-|- D
+                D   -|---|---|-o-|---|- A
+                A   -|-o-|---|---|---|- D
+                       5
+            "),
+        ),
+        case(
+            "G",
+            0,
+            Tuning::G,
+            indoc!("
+                [G - G major]
+
+                E  ||---|---|-o-|---|- G
+                B o||---|---|---|---|- B
+                G o||---|---|---|---|- G
+                D o||---|---|---|---|- D
+            "),
+        ),
     )]
-    fn test_to_diagram(chord_name: &str, min_fret: FretID, diagram: &str) {
+    fn test_to_diagram(chord_name: &str, min_fret: FretID, tuning: Tuning, diagram: &str) {
         let chord = Chord::from_str(chord_name).unwrap();
-        let chord_diagram = chord.get_diagram(min_fret);
+        let chord_diagram = chord.get_diagram(min_fret, tuning);
         assert_eq!(chord_diagram.to_string(), diagram);
     }
 }

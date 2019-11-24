@@ -9,21 +9,25 @@ pub struct StringDiagram {
     base_fret: FretID,
     fret: FretID,
     note: Note,
+    root_width: usize,
 }
 
 impl StringDiagram {
-    pub fn new(root: Note, base_fret: FretID, fret: FretID, note: Note) -> Self {
+    pub fn new(root: Note, base_fret: FretID, fret: FretID, note: Note, root_width: usize) -> Self {
         Self {
             root,
             base_fret,
             fret,
             note,
+            root_width,
         }
     }
 }
 
 impl fmt::Display for StringDiagram {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let root = format!("{:width$}", self.root.to_string(), width = self.root_width);
+
         // Show a symbol for the nut if the chord is played on the lower
         // end of the fretboard. Indicate ongoing strings otherwise.
         let nut = match self.base_fret {
@@ -49,7 +53,7 @@ impl fmt::Display for StringDiagram {
             string.push_str(&format!("-{}-|", c));
         }
 
-        write!(f, "{} {}{}{}- {}", self.root, sym, nut, string, self.note)
+        write!(f, "{} {}{}{}- {}", root, sym, nut, string, self.note)
     }
 }
 
@@ -73,7 +77,10 @@ mod tests {
         case("C", 1, 1, "C#", "C  ||-o-|---|---|---|- C#"),
         case("C", 1, 1, "Db", "C  ||-o-|---|---|---|- Db"),
         case("C", 5, 6, "F#", "C  -|---|-o-|---|---|- F#"),
-        case("C", 5, 6, "Gb", "C  -|---|-o-|---|---|- Gb")
+        case("C", 5, 6, "Gb", "C  -|---|-o-|---|---|- Gb"),
+        case("F#", 1, 0, "F#", "F# o||---|---|---|---|- F#"),
+        case("F#", 1, 4, "A#", "F#  ||---|---|---|-o-|- A#"),
+        case("F#", 5, 7, "D", "F#  -|---|---|-o-|---|- D")
     )]
     fn test_format_line(
         root_name: &str,
@@ -85,7 +92,9 @@ mod tests {
         let root = Note::from_str(root_name).unwrap();
         let note = Note::from_str(note_name).unwrap();
 
-        let sd = StringDiagram::new(root, base_fret, fret, note);
+        let root_width = root_name.len();
+
+        let sd = StringDiagram::new(root, base_fret, fret, note, root_width);
 
         assert_eq!(sd.to_string(), diagram);
     }

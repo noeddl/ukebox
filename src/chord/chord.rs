@@ -1,5 +1,6 @@
 use crate::chord::ChordShapeSet;
 use crate::chord::FretID;
+use crate::chord::Tuning;
 use crate::diagram::ChordDiagram;
 use crate::note::Interval;
 use crate::note::Note;
@@ -68,10 +69,10 @@ impl Chord {
         self.notes.contains(&note)
     }
 
-    pub fn get_diagram(self, min_fret: FretID) -> ChordDiagram {
+    pub fn get_diagram(self, min_fret: FretID, tuning: Tuning) -> ChordDiagram {
         let chord_shapes = ChordShapeSet::new(self.chord_type);
 
-        let (frets, intervals) = chord_shapes.get_config(self.root, min_fret);
+        let (frets, intervals) = chord_shapes.get_config(self.root, min_fret, tuning);
 
         let mut notes = [self.root; STRING_COUNT];
 
@@ -79,7 +80,7 @@ impl Chord {
             notes[i] = notes[i] + *interval;
         }
 
-        ChordDiagram::new(self, frets, notes)
+        ChordDiagram::new(self, frets, notes, tuning)
     }
 }
 
