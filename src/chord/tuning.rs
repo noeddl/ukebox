@@ -1,25 +1,16 @@
 use crate::note::Interval;
 use crate::note::Semitones;
-use std::fmt;
-use std::str::FromStr;
+use structopt::clap::arg_enum;
 
-/// Custom error for strings that cannot be parsed into tunings.
-#[derive(Debug)]
-pub struct ParseTuningError {
-    name: String,
-}
-
-impl fmt::Display for ParseTuningError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "Could not parse tuning name \"{}\"", self.name)
+// Using clap's `arg_enum` macro allows the specification of all Tuning
+// variants as `possible_values` for the CLI `--tuning` option.
+arg_enum! {
+    #[derive(Debug, Clone, Copy)]
+    pub enum Tuning {
+        C,
+        D,
+        G,
     }
-}
-
-#[derive(Debug, Clone, Copy)]
-pub enum Tuning {
-    C,
-    D,
-    G,
 }
 
 impl Tuning {
@@ -47,36 +38,5 @@ impl Tuning {
             Self::D => 2, // We need 2 here because of F#.
             Self::G => 1,
         }
-    }
-}
-
-impl fmt::Display for Tuning {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let s = match self {
-            Self::C => "C",
-            Self::D => "D",
-            Self::G => "G",
-        };
-
-        write!(f, "{}", s)
-    }
-}
-
-impl FromStr for Tuning {
-    type Err = ParseTuningError;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let tuning = match s {
-            "C" => Tuning::C,
-            "D" => Tuning::D,
-            "G" => Tuning::G,
-            _ => {
-                return Err(ParseTuningError {
-                    name: s.to_string(),
-                })
-            }
-        };
-
-        Ok(tuning)
     }
 }

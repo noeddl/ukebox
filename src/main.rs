@@ -9,7 +9,7 @@ struct Cmd {
     /// Minimal fret (= minimal position) from which to play <chord>
     min_fret: FretID,
     /// Type of tuning to be used
-    #[structopt(short, long, default_value = "C")]
+    #[structopt(short, long, default_value = "C", possible_values = &Tuning::variants())]
     tuning: Tuning,
     /// Name of the chord to be shown
     chord: Chord,
