@@ -95,13 +95,17 @@ impl ChordShapeSet {
     }
 
     /// Return a fret pattern to play `chord` starting from fret number `min_fret`.
-    pub fn get_config(self, root: Note, min_fret: FretID, tuning: Tuning) -> (FretPattern, IntervalPattern) {
+    pub fn get_config(
+        self,
+        root: Note,
+        min_fret: FretID,
+        tuning: Tuning,
+    ) -> (FretPattern, IntervalPattern) {
         let semitones = tuning.get_semitones();
 
         // Calculate offset of how far to move the chord shape on the fretboard.
-        let get_offset = |cs: ChordShape| {
-            (root.pitch_class - min_fret) - (cs.root.pitch_class + semitones)
-        };
+        let get_offset =
+            |cs: ChordShape| (root.pitch_class - min_fret) - (cs.root.pitch_class + semitones);
 
         let (chord_shape, offset) = self
             .chord_shapes

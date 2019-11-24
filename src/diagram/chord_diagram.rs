@@ -74,7 +74,11 @@ impl fmt::Display for ChordDiagram {
         // If the fretboard section shown does not include the nut,
         // indicate the number of the first fret shown.
         if base_fret > 1 {
-            s.push_str(&format!("{:width$}\n", base_fret, width = self.root_width + 6))
+            s.push_str(&format!(
+                "{:width$}\n",
+                base_fret,
+                width = self.root_width + 6
+            ))
         }
 
         write!(f, "{}", s)

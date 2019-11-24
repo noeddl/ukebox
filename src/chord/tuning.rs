@@ -70,7 +70,11 @@ impl FromStr for Tuning {
             "C" => Tuning::C,
             "D" => Tuning::D,
             "G" => Tuning::G,
-            _ => return Err(ParseTuningError { name: s.to_string() }),
+            _ => {
+                return Err(ParseTuningError {
+                    name: s.to_string(),
+                })
+            }
         };
 
         Ok(tuning)

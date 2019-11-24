@@ -6,15 +6,15 @@
 /// expected output.
 use assert_cmd::prelude::*; // Add methods on commands
 use predicates::prelude::*; // Used for writing assertions
+use rstest::rstest_parametrize;
 use std::fmt;
 use std::process::Command; // Run programs
+use std::str::FromStr;
 use ukebox::chord::ChordType;
 use ukebox::chord::FretID;
 use ukebox::chord::Tuning;
 use ukebox::note::Note;
 use ukebox::note::Semitones;
-use rstest::rstest_parametrize;
-use std::str::FromStr;
 
 /// A set of parameters to generate tests for all chords produced
 /// by moving a specific chord shape along the fretboard.
@@ -134,7 +134,11 @@ impl TestConfig {
         // If the fretboard section shown does not include the nut,
         // indicate the number of the first fret shown.
         if self.base_fret > 1 {
-            diagram.push_str(&format!("{:width$}\n", self.base_fret, width = root_width + 6));
+            diagram.push_str(&format!(
+                "{:width$}\n",
+                self.base_fret,
+                width = root_width + 6
+            ));
         }
 
         diagram
@@ -286,11 +290,7 @@ fn test_unknown_chord() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-#[rstest_parametrize(tuning,
-    case(Tuning::C),
-    case(Tuning::D),
-    case(Tuning::G),
-)]
+#[rstest_parametrize(tuning, case(Tuning::C), case(Tuning::D), case(Tuning::G))]
 fn test_major_chords(tuning: Tuning) -> Result<(), Box<dyn std::error::Error>> {
     let cq = ChordType::Major;
 
@@ -305,11 +305,7 @@ fn test_major_chords(tuning: Tuning) -> Result<(), Box<dyn std::error::Error>> {
     run_tests(test_configs)
 }
 
-#[rstest_parametrize(tuning,
-    case(Tuning::C),
-    case(Tuning::D),
-    case(Tuning::G),
-)]
+#[rstest_parametrize(tuning, case(Tuning::C), case(Tuning::D), case(Tuning::G))]
 fn test_minor_chords(tuning: Tuning) -> Result<(), Box<dyn std::error::Error>> {
     let cq = ChordType::Minor;
 
@@ -324,11 +320,7 @@ fn test_minor_chords(tuning: Tuning) -> Result<(), Box<dyn std::error::Error>> {
     run_tests(test_configs)
 }
 
-#[rstest_parametrize(tuning,
-    case(Tuning::C),
-    case(Tuning::D),
-    case(Tuning::G),
-)]
+#[rstest_parametrize(tuning, case(Tuning::C), case(Tuning::D), case(Tuning::G))]
 fn test_dominant_seventh_chords(tuning: Tuning) -> Result<(), Box<dyn std::error::Error>> {
     let cq = ChordType::DominantSeventh;
 
@@ -343,11 +335,7 @@ fn test_dominant_seventh_chords(tuning: Tuning) -> Result<(), Box<dyn std::error
     run_tests(test_configs)
 }
 
-#[rstest_parametrize(tuning,
-    case(Tuning::C),
-    case(Tuning::D),
-    case(Tuning::G),
-)]
+#[rstest_parametrize(tuning, case(Tuning::C), case(Tuning::D), case(Tuning::G))]
 fn test_minor_seventh_chords(tuning: Tuning) -> Result<(), Box<dyn std::error::Error>> {
     let cq = ChordType::MinorSeventh;
 
