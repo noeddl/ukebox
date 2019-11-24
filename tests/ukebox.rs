@@ -101,6 +101,8 @@ impl TestConfig {
             _ => "-|",
         };
 
+        let root_width = self.tuning.get_root_width();
+
         for i in (0..4).rev() {
             let root = Note::from_str(roots[i]).unwrap() + interval;
             let fret = self.frets[i];
@@ -124,7 +126,7 @@ impl TestConfig {
                 string.push_str(&format!("-{}-|", c));
             }
 
-            let root_str = format!("{:width$}", root.to_string(), width = self.tuning.get_root_width());
+            let root_str = format!("{:width$}", root.to_string(), width = root_width);
             let line = format!("{} {}{}{}- {}", root_str, sym, nut, string, note);
             diagram.push_str(&format!("{}\n", line));
         }
@@ -132,7 +134,7 @@ impl TestConfig {
         // If the fretboard section shown does not include the nut,
         // indicate the number of the first fret shown.
         if self.base_fret > 1 {
-            diagram.push_str(&format!("      {}\n", self.base_fret))
+            diagram.push_str(&format!("{:width$}\n", self.base_fret, width = root_width + 6));
         }
 
         diagram
