@@ -88,11 +88,11 @@ mod tests {
     use rstest::rstest_parametrize;
     use std::str::FromStr;
 
-    #[rstest_parametrize(chord_name, min_fret, tuning_name, diagram,
+    #[rstest_parametrize(chord_name, min_fret, tuning, diagram,
         case(
             "C",
             0,
-            "C",
+            Tuning::C,
             indoc!("
                 [C - C major]
 
@@ -105,7 +105,7 @@ mod tests {
         case(
             "C",
             1,
-            "C",
+            Tuning::C,
             indoc!("
                 [C - C major]
 
@@ -119,7 +119,7 @@ mod tests {
         case(
             "C#",
             0,
-            "C",
+            Tuning::C,
             indoc!("
                 [C# - C# major]
 
@@ -132,7 +132,7 @@ mod tests {
         case(
             "Db",
             0,
-            "C",
+            Tuning::C,
             indoc!("
                 [Db - Db major]
 
@@ -145,7 +145,7 @@ mod tests {
         case(
             "Cm",
             0,
-            "C",
+            Tuning::C,
             indoc!("
                 [Cm - C minor]
 
@@ -158,7 +158,7 @@ mod tests {
         case(
             "C#m",
             0,
-            "C",
+            Tuning::C,
             indoc!("
                 [C#m - C# minor]
 
@@ -171,7 +171,7 @@ mod tests {
         case(
             "Dbm",
             0,
-            "C",
+            Tuning::C,
             indoc!("
                 [Dbm - Db minor]
 
@@ -184,7 +184,7 @@ mod tests {
         case(
             "D",
             0,
-            "D",
+            Tuning::D,
             indoc!("
                 [D - D major]
 
@@ -197,7 +197,7 @@ mod tests {
         case(
             "G",
             0,
-            "G",
+            Tuning::G,
             indoc!("
                 [G - G major]
 
@@ -208,9 +208,8 @@ mod tests {
             "),
         ),
     )]
-    fn test_to_diagram(chord_name: &str, min_fret: FretID, tuning_name: &str, diagram: &str) {
+    fn test_to_diagram(chord_name: &str, min_fret: FretID, tuning: Tuning, diagram: &str) {
         let chord = Chord::from_str(chord_name).unwrap();
-        let tuning = Tuning::from_str(tuning_name).unwrap();
         let chord_diagram = chord.get_diagram(min_fret, tuning);
         assert_eq!(chord_diagram.to_string(), diagram);
     }

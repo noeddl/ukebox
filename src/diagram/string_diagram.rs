@@ -77,7 +77,10 @@ mod tests {
         case("C", 1, 1, "C#", "C  ||-o-|---|---|---|- C#"),
         case("C", 1, 1, "Db", "C  ||-o-|---|---|---|- Db"),
         case("C", 5, 6, "F#", "C  -|---|-o-|---|---|- F#"),
-        case("C", 5, 6, "Gb", "C  -|---|-o-|---|---|- Gb")
+        case("C", 5, 6, "Gb", "C  -|---|-o-|---|---|- Gb"),
+        case("F#", 1, 0, "F#", "F# o||---|---|---|---|- F#"),
+        case("F#", 1, 4, "A#", "F#  ||---|---|---|-o-|- A#"),
+        case("F#", 5, 7, "D", "F#  -|---|---|-o-|---|- D")
     )]
     fn test_format_line(
         root_name: &str,
@@ -89,7 +92,9 @@ mod tests {
         let root = Note::from_str(root_name).unwrap();
         let note = Note::from_str(note_name).unwrap();
 
-        let sd = StringDiagram::new(root, base_fret, fret, note, 1);
+        let root_width = root_name.len();
+
+        let sd = StringDiagram::new(root, base_fret, fret, note, root_width);
 
         assert_eq!(sd.to_string(), diagram);
     }
