@@ -98,13 +98,18 @@ impl ChordShapeSet {
     pub fn get_config(self, root: Note, min_fret: FretID, tuning: Tuning) -> (FretPattern, IntervalPattern) {
         let semitones = tuning.get_semitones();
 
-        let (chord_shape, diff) = self
+        // Calculate offset of how far to move the chord shape on the fretboard.
+        let get_offset = |cs: ChordShape| {
+            (root.pitch_class - min_fret) - (cs.root.pitch_class + semitones)
+        };
+
+        let (chord_shape, offset) = self
             .chord_shapes
             .into_iter()
-            .map(|cs| (cs, (root.pitch_class - min_fret) - (cs.root.pitch_class + semitones)))
-            .min_by_key(|&(_cs, diff)| diff)
+            .map(|cs| (cs, get_offset(cs)))
+            .min_by_key(|&(_cs, offset)| offset)
             .unwrap();
 
-        chord_shape.apply(min_fret + diff)
+        chord_shape.apply(min_fret + offset)
     }
 }
