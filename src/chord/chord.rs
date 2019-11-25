@@ -33,15 +33,15 @@ pub enum ChordType {
 
 impl ChordType {
     fn get_intervals(self) -> Vec<Interval> {
-        use Interval::*;
+        let interval_names = match self {
+            Self::Major => vec!["P1", "M3", "P5"],
+            Self::Minor => vec!["P1", "m3", "P5"],
+            Self::DominantSeventh => vec!["P1", "M3", "P5", "m7"],
+            Self::MinorSeventh => vec!["P1", "m3", "P5", "m7"],
+            Self::MajorSeventh => vec!["P1", "M3", "P5", "M7"],
+        };
 
-        match self {
-            Self::Major => vec![PerfectUnison, MajorThird, PerfectFifth],
-            Self::Minor => vec![PerfectUnison, MinorThird, PerfectFifth],
-            Self::DominantSeventh => vec![PerfectUnison, MajorThird, PerfectFifth, MinorSeventh],
-            Self::MinorSeventh => vec![PerfectUnison, MinorThird, PerfectFifth, MinorSeventh],
-            Self::MajorSeventh => vec![PerfectUnison, MajorThird, PerfectFifth, MajorSeventh],
-        }
+        interval_names.iter().map(|s| Interval::from_str(s).unwrap()).collect()
     }
 }
 
