@@ -26,6 +26,7 @@ impl fmt::Display for ParseChordError {
 pub enum ChordType {
     Major,
     Minor,
+    Augmented,
     DominantSeventh,
     MinorSeventh,
     MajorSeventh,
@@ -36,12 +37,16 @@ impl ChordType {
         let interval_names = match self {
             Self::Major => vec!["P1", "M3", "P5"],
             Self::Minor => vec!["P1", "m3", "P5"],
+            Self::Augmented => vec!["P1", "M3", "A5"],
             Self::DominantSeventh => vec!["P1", "M3", "P5", "m7"],
             Self::MinorSeventh => vec!["P1", "m3", "P5", "m7"],
             Self::MajorSeventh => vec!["P1", "M3", "P5", "M7"],
         };
 
-        interval_names.iter().map(|s| Interval::from_str(s).unwrap()).collect()
+        interval_names
+            .iter()
+            .map(|s| Interval::from_str(s).unwrap())
+            .collect()
     }
 }
 
@@ -50,6 +55,7 @@ impl fmt::Display for ChordType {
         let s = match self {
             Self::Major => "major",
             Self::Minor => "minor",
+            Self::Augmented => "augmented",
             Self::DominantSeventh => "dominant 7th",
             Self::MinorSeventh => "minor 7th",
             Self::MajorSeventh => "major 7th",
@@ -100,7 +106,7 @@ impl FromStr for Chord {
         let name = s.to_string();
 
         // Regular expression for chord names.
-        let re = Regex::new(r"(?P<root>[CDEFGAB][#b]?)(?P<type>maj7|m?7?)").unwrap();
+        let re = Regex::new(r"(?P<root>[CDEFGAB][#b]?)(?P<type>aug|maj7|m?7?)").unwrap();
 
         // Match regex.
         let caps = match re.captures(s) {
@@ -117,6 +123,7 @@ impl FromStr for Chord {
         // Get chord type.
         let chord_type = match &caps["type"] {
             "m" => ChordType::Minor,
+            "aug" => ChordType::Augmented,
             "7" => ChordType::DominantSeventh,
             "m7" => ChordType::MinorSeventh,
             "maj7" => ChordType::MajorSeventh,
@@ -207,6 +214,38 @@ mod tests {
         let f = Note::from_str(fifth).unwrap();
         assert_eq!(c.notes, vec![r, t, f]);
         assert_eq!(c.chord_type, ChordType::Minor);
+    }
+
+    #[rstest_parametrize(
+        chord,
+        root,
+        third,
+        fifth,
+        case("Caug", "C", "E", "G#"),
+        case("C#aug", "C#", "F", "A"),
+        case("Dbaug", "Db", "F", "A"),
+        case("Daug", "D", "F#", "A#"),
+        case("D#aug", "D#", "G", "B"),
+        case("Ebaug", "Eb", "G", "B"),
+        case("Eaug", "E", "G#", "C"),
+        case("Faug", "F", "A", "C#"),
+        case("F#aug", "F#", "A#", "D"),
+        case("Gbaug", "Gb", "Bb", "D"),
+        case("Gaug", "G", "B", "D#"),
+        case("G#aug", "G#", "C", "E"),
+        case("Abaug", "Ab", "C", "E"),
+        case("Aaug", "A", "C#", "F"),
+        case("A#aug", "A#", "D", "F#"),
+        case("Bbaug", "Bb", "D", "F#"),
+        case("Baug", "B", "D#", "G")
+    )]
+    fn test_from_str_augmented(chord: &str, root: &str, third: &str, fifth: &str) {
+        let c = Chord::from_str(chord).unwrap();
+        let r = Note::from_str(root).unwrap();
+        let t = Note::from_str(third).unwrap();
+        let f = Note::from_str(fifth).unwrap();
+        assert_eq!(c.notes, vec![r, t, f]);
+        assert_eq!(c.chord_type, ChordType::Augmented);
     }
 
     #[rstest_parametrize(

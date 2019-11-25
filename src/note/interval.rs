@@ -24,6 +24,7 @@ pub enum Interval {
     MinorThird,
     MajorThird,
     PerfectFifth,
+    AugmentedFifth,
     MinorSeventh,
     MajorSeventh,
 }
@@ -39,6 +40,7 @@ impl Interval {
             MinorThird => 3,
             MajorThird => 4,
             PerfectFifth => 7,
+            AugmentedFifth => 8,
             MinorSeventh => 10,
             MajorSeventh => 11,
         }
@@ -55,6 +57,7 @@ impl Interval {
             MinorThird => 3,
             MajorThird => 3,
             PerfectFifth => 5,
+            AugmentedFifth => 5,
             MinorSeventh => 7,
             MajorSeventh => 7,
         }
@@ -73,6 +76,7 @@ impl FromStr for Interval {
             "P1" => PerfectUnison,
             "M2" => MajorSecond,
             "P5" => PerfectFifth,
+            "A5" => AugmentedFifth,
             "m3" => MinorThird,
             "M3" => MajorThird,
             "m7" => MinorSeventh,

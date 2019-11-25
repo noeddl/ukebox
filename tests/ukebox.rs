@@ -159,6 +159,7 @@ impl TestConfig {
             let suffix = match self.chord_type {
                 ChordType::Major => "",
                 ChordType::Minor => "m",
+                ChordType::Augmented => "aug",
                 ChordType::DominantSeventh => "7",
                 ChordType::MinorSeventh => "m7",
                 ChordType::MajorSeventh => "maj7",
@@ -215,7 +216,17 @@ impl TestConfig {
             tests.extend(subtests);
 
             if root.ends_with("#") {
-                let (_root, subtests) = self.generate_tests_for_chord(index, &alt_names);
+                let names = match (index % 12, self.chord_type) {
+                    // Bbaug has F#.
+                    (10, Augmented) => {
+                        let mut names = note_names;
+                        names[10] = "Bb";
+                        names
+                    }
+                    (_, _) => alt_names,
+                };
+
+                let (_root, subtests) = self.generate_tests_for_chord(index, &names);
                 tests.extend(subtests);
             }
 
@@ -326,6 +337,28 @@ fn test_minor_chords(tuning: Tuning) -> Result<(), Box<dyn std::error::Error>> {
         TestConfig::new(cq, 7, 1, [0, 2, 3, 1], [7, 2, 7, 10], tuning),
         TestConfig::new(cq, 5, 1, [1, 0, 1, 3], [8, 0, 5, 0], tuning),
         TestConfig::new(cq, 2, 2, [2, 2, 1, 0], [9, 2, 5, 9], tuning),
+    ];
+
+    run_tests(test_configs)
+}
+
+#[rstest_parametrize(
+    tuning,
+    case::c_tuning(Tuning::C),
+    case::d_tuning(Tuning::D),
+    case::g_tuning(Tuning::G)
+)]
+fn test_augmented_chords(tuning: Tuning) -> Result<(), Box<dyn std::error::Error>> {
+    let cq = ChordType::Augmented;
+
+    let test_configs = vec![
+        TestConfig::new(cq, 0, 0, [1, 0, 0, 3], [8, 0, 4, 0], tuning),
+        TestConfig::new(cq, 9, 2, [2, 1, 1, 0], [9, 1, 5, 9], tuning),
+        TestConfig::new(cq, 8, 0, [1, 0, 0, 3], [8, 0, 4, 0], tuning),
+        TestConfig::new(cq, 7, 0, [0, 3, 3, 2], [7, 3, 7, 11], tuning),
+        TestConfig::new(cq, 5, 1, [2, 1, 1, 0], [9, 1, 5, 9], tuning),
+        TestConfig::new(cq, 4, 0, [1, 0, 0, 3], [8, 0, 4, 0], tuning),
+        TestConfig::new(cq, 1, 2, [2, 1, 1, 0], [9, 1, 5, 9], tuning),
     ];
 
     run_tests(test_configs)
