@@ -89,6 +89,13 @@ impl ChordShapeSet {
                 ChordShape::new("E", [0, 2, 0, 2], ["m3", "m7", "P1", "P5"]),
                 ChordShape::new("D", [2, 0, 1, 0], ["P5", "m7", "m3", "P5"]),
             ],
+            ChordType::MajorSeventh => vec![
+                ChordShape::new("C", [0, 0, 0, 2], ["P5", "P1", "M3", "M7"]),
+                ChordShape::new("A#", [3, 2, 1, 0], ["P1", "M3", "P5", "M7"]),
+                ChordShape::new("A", [1, 1, 0, 0], ["M7", "M3", "P5", "P1"]),
+                ChordShape::new("G", [0, 2, 2, 2], ["P1", "P5", "M7", "M3"]),
+                ChordShape::new("E", [1, 3, 0, 2], ["M3", "M7", "P1", "P5"]),
+            ],
         };
 
         Self { chord_shapes }

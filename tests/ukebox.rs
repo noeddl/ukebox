@@ -161,6 +161,7 @@ impl TestConfig {
                 ChordType::Minor => "m",
                 ChordType::DominantSeventh => "7",
                 ChordType::MinorSeventh => "m7",
+                ChordType::MajorSeventh => "maj7",
             };
             let chord = format!("{}{}", root, suffix);
             let title = format!("[{} - {} {}]\n\n", chord, root, self.chord_type);
@@ -365,6 +366,26 @@ fn test_minor_seventh_chords(tuning: Tuning) -> Result<(), Box<dyn std::error::E
         TestConfig::new(cq, 7, 1, [0, 2, 1, 1], [7, 2, 5, 10], tuning),
         TestConfig::new(cq, 4, 1, [0, 2, 0, 2], [7, 2, 4, 11], tuning),
         TestConfig::new(cq, 2, 1, [2, 0, 1, 0], [9, 0, 5, 9], tuning),
+    ];
+
+    run_tests(test_configs)
+}
+
+#[rstest_parametrize(
+    tuning,
+    case::c_tuning(Tuning::C),
+    case::d_tuning(Tuning::D),
+    case::g_tuning(Tuning::G)
+)]
+fn test_major_seventh_chords(tuning: Tuning) -> Result<(), Box<dyn std::error::Error>> {
+    let cq = ChordType::MajorSeventh;
+
+    let test_configs = vec![
+        TestConfig::new(cq, 0, 1, [0, 0, 0, 2], [7, 0, 4, 11], tuning),
+        TestConfig::new(cq, 10, 1, [3, 2, 1, 0], [10, 2, 5, 9], tuning),
+        TestConfig::new(cq, 9, 0, [1, 1, 0, 0], [8, 1, 4, 9], tuning),
+        TestConfig::new(cq, 7, 1, [0, 2, 2, 2], [7, 2, 6, 11], tuning),
+        TestConfig::new(cq, 4, 1, [1, 3, 0, 2], [8, 3, 4, 11], tuning),
     ];
 
     run_tests(test_configs)
