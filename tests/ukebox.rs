@@ -309,14 +309,14 @@ fn test_unknown_chord() -> Result<(), Box<dyn std::error::Error>> {
     case::g_tuning(Tuning::G)
 )]
 fn test_major_chords(tuning: Tuning) -> Result<(), Box<dyn std::error::Error>> {
-    let cq = ChordType::Major;
+    let ct = ChordType::Major;
 
     let test_configs = vec![
-        TestConfig::new(cq, 0, 1, [0, 0, 0, 3], [7, 0, 4, 0], tuning),
-        TestConfig::new(cq, 9, 2, [2, 1, 0, 0], [9, 1, 4, 9], tuning),
-        TestConfig::new(cq, 7, 1, [0, 2, 3, 2], [7, 2, 7, 11], tuning),
-        TestConfig::new(cq, 5, 1, [2, 0, 1, 0], [9, 0, 5, 9], tuning),
-        TestConfig::new(cq, 2, 2, [2, 2, 2, 0], [9, 2, 6, 9], tuning),
+        TestConfig::new(ct, 0, 1, [0, 0, 0, 3], [7, 0, 4, 0], tuning),
+        TestConfig::new(ct, 9, 2, [2, 1, 0, 0], [9, 1, 4, 9], tuning),
+        TestConfig::new(ct, 7, 1, [0, 2, 3, 2], [7, 2, 7, 11], tuning),
+        TestConfig::new(ct, 5, 1, [2, 0, 1, 0], [9, 0, 5, 9], tuning),
+        TestConfig::new(ct, 2, 2, [2, 2, 2, 0], [9, 2, 6, 9], tuning),
     ];
 
     run_tests(test_configs)
@@ -329,14 +329,14 @@ fn test_major_chords(tuning: Tuning) -> Result<(), Box<dyn std::error::Error>> {
     case::g_tuning(Tuning::G)
 )]
 fn test_minor_chords(tuning: Tuning) -> Result<(), Box<dyn std::error::Error>> {
-    let cq = ChordType::Minor;
+    let ct = ChordType::Minor;
 
     let test_configs = vec![
-        TestConfig::new(cq, 0, 1, [0, 3, 3, 3], [7, 3, 7, 0], tuning),
-        TestConfig::new(cq, 9, 2, [2, 0, 0, 0], [9, 0, 4, 9], tuning),
-        TestConfig::new(cq, 7, 1, [0, 2, 3, 1], [7, 2, 7, 10], tuning),
-        TestConfig::new(cq, 5, 1, [1, 0, 1, 3], [8, 0, 5, 0], tuning),
-        TestConfig::new(cq, 2, 2, [2, 2, 1, 0], [9, 2, 5, 9], tuning),
+        TestConfig::new(ct, 0, 1, [0, 3, 3, 3], [7, 3, 7, 0], tuning),
+        TestConfig::new(ct, 9, 2, [2, 0, 0, 0], [9, 0, 4, 9], tuning),
+        TestConfig::new(ct, 7, 1, [0, 2, 3, 1], [7, 2, 7, 10], tuning),
+        TestConfig::new(ct, 5, 1, [1, 0, 1, 3], [8, 0, 5, 0], tuning),
+        TestConfig::new(ct, 2, 2, [2, 2, 1, 0], [9, 2, 5, 9], tuning),
     ];
 
     run_tests(test_configs)
@@ -349,16 +349,16 @@ fn test_minor_chords(tuning: Tuning) -> Result<(), Box<dyn std::error::Error>> {
     case::g_tuning(Tuning::G)
 )]
 fn test_augmented_chords(tuning: Tuning) -> Result<(), Box<dyn std::error::Error>> {
-    let cq = ChordType::Augmented;
+    let ct = ChordType::Augmented;
 
     let test_configs = vec![
-        TestConfig::new(cq, 0, 0, [1, 0, 0, 3], [8, 0, 4, 0], tuning),
-        TestConfig::new(cq, 9, 2, [2, 1, 1, 0], [9, 1, 5, 9], tuning),
-        TestConfig::new(cq, 8, 0, [1, 0, 0, 3], [8, 0, 4, 0], tuning),
-        TestConfig::new(cq, 7, 0, [0, 3, 3, 2], [7, 3, 7, 11], tuning),
-        TestConfig::new(cq, 5, 1, [2, 1, 1, 0], [9, 1, 5, 9], tuning),
-        TestConfig::new(cq, 4, 0, [1, 0, 0, 3], [8, 0, 4, 0], tuning),
-        TestConfig::new(cq, 1, 2, [2, 1, 1, 0], [9, 1, 5, 9], tuning),
+        TestConfig::new(ct, 0, 0, [1, 0, 0, 3], [8, 0, 4, 0], tuning),
+        TestConfig::new(ct, 9, 2, [2, 1, 1, 0], [9, 1, 5, 9], tuning),
+        TestConfig::new(ct, 8, 0, [1, 0, 0, 3], [8, 0, 4, 0], tuning),
+        TestConfig::new(ct, 7, 0, [0, 3, 3, 2], [7, 3, 7, 11], tuning),
+        TestConfig::new(ct, 5, 1, [2, 1, 1, 0], [9, 1, 5, 9], tuning),
+        TestConfig::new(ct, 4, 0, [1, 0, 0, 3], [8, 0, 4, 0], tuning),
+        TestConfig::new(ct, 1, 2, [2, 1, 1, 0], [9, 1, 5, 9], tuning),
     ];
 
     run_tests(test_configs)
@@ -371,14 +371,14 @@ fn test_augmented_chords(tuning: Tuning) -> Result<(), Box<dyn std::error::Error
     case::g_tuning(Tuning::G)
 )]
 fn test_dominant_seventh_chords(tuning: Tuning) -> Result<(), Box<dyn std::error::Error>> {
-    let cq = ChordType::DominantSeventh;
+    let ct = ChordType::DominantSeventh;
 
     let test_configs = vec![
-        TestConfig::new(cq, 0, 1, [0, 0, 0, 1], [7, 0, 4, 10], tuning),
-        TestConfig::new(cq, 9, 2, [0, 1, 0, 0], [7, 1, 4, 9], tuning),
-        TestConfig::new(cq, 7, 1, [0, 2, 1, 2], [7, 2, 5, 11], tuning),
-        TestConfig::new(cq, 4, 1, [1, 2, 0, 2], [8, 2, 4, 11], tuning),
-        TestConfig::new(cq, 2, 1, [2, 0, 2, 0], [9, 0, 6, 9], tuning),
+        TestConfig::new(ct, 0, 1, [0, 0, 0, 1], [7, 0, 4, 10], tuning),
+        TestConfig::new(ct, 9, 2, [0, 1, 0, 0], [7, 1, 4, 9], tuning),
+        TestConfig::new(ct, 7, 1, [0, 2, 1, 2], [7, 2, 5, 11], tuning),
+        TestConfig::new(ct, 4, 1, [1, 2, 0, 2], [8, 2, 4, 11], tuning),
+        TestConfig::new(ct, 2, 1, [2, 0, 2, 0], [9, 0, 6, 9], tuning),
     ];
 
     run_tests(test_configs)
@@ -391,14 +391,14 @@ fn test_dominant_seventh_chords(tuning: Tuning) -> Result<(), Box<dyn std::error
     case::g_tuning(Tuning::G)
 )]
 fn test_minor_seventh_chords(tuning: Tuning) -> Result<(), Box<dyn std::error::Error>> {
-    let cq = ChordType::MinorSeventh;
+    let ct = ChordType::MinorSeventh;
 
     let test_configs = vec![
-        TestConfig::new(cq, 1, 0, [1, 1, 0, 2], [8, 1, 4, 11], tuning),
-        TestConfig::new(cq, 9, 2, [0, 0, 0, 0], [7, 0, 4, 9], tuning),
-        TestConfig::new(cq, 7, 1, [0, 2, 1, 1], [7, 2, 5, 10], tuning),
-        TestConfig::new(cq, 4, 1, [0, 2, 0, 2], [7, 2, 4, 11], tuning),
-        TestConfig::new(cq, 2, 1, [2, 0, 1, 0], [9, 0, 5, 9], tuning),
+        TestConfig::new(ct, 1, 0, [1, 1, 0, 2], [8, 1, 4, 11], tuning),
+        TestConfig::new(ct, 9, 2, [0, 0, 0, 0], [7, 0, 4, 9], tuning),
+        TestConfig::new(ct, 7, 1, [0, 2, 1, 1], [7, 2, 5, 10], tuning),
+        TestConfig::new(ct, 4, 1, [0, 2, 0, 2], [7, 2, 4, 11], tuning),
+        TestConfig::new(ct, 2, 1, [2, 0, 1, 0], [9, 0, 5, 9], tuning),
     ];
 
     run_tests(test_configs)
@@ -411,14 +411,14 @@ fn test_minor_seventh_chords(tuning: Tuning) -> Result<(), Box<dyn std::error::E
     case::g_tuning(Tuning::G)
 )]
 fn test_major_seventh_chords(tuning: Tuning) -> Result<(), Box<dyn std::error::Error>> {
-    let cq = ChordType::MajorSeventh;
+    let ct = ChordType::MajorSeventh;
 
     let test_configs = vec![
-        TestConfig::new(cq, 0, 1, [0, 0, 0, 2], [7, 0, 4, 11], tuning),
-        TestConfig::new(cq, 10, 1, [3, 2, 1, 0], [10, 2, 5, 9], tuning),
-        TestConfig::new(cq, 9, 0, [1, 1, 0, 0], [8, 1, 4, 9], tuning),
-        TestConfig::new(cq, 7, 1, [0, 2, 2, 2], [7, 2, 6, 11], tuning),
-        TestConfig::new(cq, 4, 1, [1, 3, 0, 2], [8, 3, 4, 11], tuning),
+        TestConfig::new(ct, 0, 1, [0, 0, 0, 2], [7, 0, 4, 11], tuning),
+        TestConfig::new(ct, 10, 1, [3, 2, 1, 0], [10, 2, 5, 9], tuning),
+        TestConfig::new(ct, 9, 0, [1, 1, 0, 0], [8, 1, 4, 9], tuning),
+        TestConfig::new(ct, 7, 1, [0, 2, 2, 2], [7, 2, 6, 11], tuning),
+        TestConfig::new(ct, 4, 1, [1, 3, 0, 2], [8, 3, 4, 11], tuning),
     ];
 
     run_tests(test_configs)
