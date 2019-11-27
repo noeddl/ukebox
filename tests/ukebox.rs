@@ -160,6 +160,7 @@ impl TestConfig {
                 ChordType::Major => "",
                 ChordType::Minor => "m",
                 ChordType::Augmented => "aug",
+                ChordType::Diminished => "dim",
                 ChordType::DominantSeventh => "7",
                 ChordType::MinorSeventh => "m7",
                 ChordType::MajorSeventh => "maj7",
@@ -202,6 +203,8 @@ impl TestConfig {
                 (11, Minor) => note_names,
                 // All other minor chords have flat notes.
                 (_, Minor) => alt_names,
+                // The default for diminished chords is to have flat notes.
+                (_, Diminished) => alt_names,
                 // C7, F7.
                 (0, DominantSeventh) => alt_names,
                 (5, DominantSeventh) => alt_names,
@@ -359,6 +362,26 @@ fn test_augmented_chords(tuning: Tuning) -> Result<(), Box<dyn std::error::Error
         TestConfig::new(ct, 5, 1, [2, 1, 1, 0], [9, 1, 5, 9], tuning),
         TestConfig::new(ct, 4, 0, [1, 0, 0, 3], [8, 0, 4, 0], tuning),
         TestConfig::new(ct, 1, 2, [2, 1, 1, 0], [9, 1, 5, 9], tuning),
+    ];
+
+    run_tests(test_configs)
+}
+
+#[rstest_parametrize(
+    tuning,
+    case::c_tuning(Tuning::C),
+    case::d_tuning(Tuning::D),
+    case::g_tuning(Tuning::G)
+)]
+fn test_diminished_chords(tuning: Tuning) -> Result<(), Box<dyn std::error::Error>> {
+    let ct = ChordType::Diminished;
+
+    let test_configs = vec![
+        TestConfig::new(ct, 2, 2, [7, 5, 4, 5], [2, 5, 8, 2], tuning),
+        TestConfig::new(ct, 10, 2, [3, 1, 0, 1], [10, 1, 4, 10], tuning),
+        TestConfig::new(ct, 7, 1, [0, 1, 3, 1], [7, 1, 7, 10], tuning),
+        TestConfig::new(ct, 6, 0, [2, 0, 2, 0], [9, 0, 6, 9], tuning),
+        TestConfig::new(ct, 3, 2, [2, 3, 2, 0], [9, 3, 6, 9], tuning),
     ];
 
     run_tests(test_configs)

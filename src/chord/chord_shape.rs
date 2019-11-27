@@ -84,6 +84,17 @@ impl ChordShapeSet {
                 ChordShape::new("E", [1, 0, 0, 3], ["M3", "A5", "P1", "A5"]),
                 ChordShape::new("C#", [2, 1, 1, 0], ["A5", "P1", "M3", "A5"]),
             ],
+            // Yikes, diminished chords are kind of tricky. In the lower positions,
+            // some of them require either that certain strings are not played or to
+            // stretch your fingers across more than 4 frets. So let's stick to the
+            // higher positions in these cases for now.
+            ChordType::Diminished => vec![
+                ChordShape::new("D", [7, 5, 4, 5], ["P1", "m3", "d5", "P1"]),
+                ChordShape::new("A#", [3, 1, 0, 1], ["P1", "m3", "d5", "P1"]),
+                ChordShape::new("G", [0, 1, 3, 1], ["P1", "d5", "P1", "m3"]),
+                ChordShape::new("F#", [2, 0, 2, 0], ["m3", "d5", "P1", "m3"]),
+                ChordShape::new("D#", [2, 3, 2, 0], ["d5", "P1", "m3", "d5"]),
+            ],
             ChordType::DominantSeventh => vec![
                 ChordShape::new("C", [0, 0, 0, 1], ["P5", "P1", "M3", "m7"]),
                 ChordShape::new("A", [0, 1, 0, 0], ["m7", "M3", "P5", "P1"]),
