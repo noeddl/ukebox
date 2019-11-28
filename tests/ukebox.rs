@@ -191,6 +191,12 @@ impl TestConfig {
             "C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B",
         ];
 
+        let rename = |name_list: [&'static str; 12], index, name| {
+            let mut names = name_list;
+            names[index] = name;
+            names
+        };
+
         let mut tests = Vec::new();
 
         let start_index = self.start_index + self.tuning.get_semitones() as usize;
@@ -214,16 +220,8 @@ impl TestConfig {
                 (5, MinorSeventh) => alt_names,
                 (7, MinorSeventh) => alt_names,
                 // Caug7, Faug7
-                (0, AugmentedSeventh) => {
-                    let mut names = note_names;
-                    names[10] = "Bb";
-                    names
-                }
-                (5, AugmentedSeventh) => {
-                    let mut names = note_names;
-                    names[3] = "Eb";
-                    names
-                }
+                (0, AugmentedSeventh) => rename(note_names, 10, "Bb"),
+                (5, AugmentedSeventh) => rename(note_names, 3, "Eb"),
                 (_, _) => note_names,
             };
 
@@ -233,17 +231,9 @@ impl TestConfig {
             if root.ends_with("#") {
                 let names = match (index % 12, self.chord_type) {
                     // Bbaug has F#.
-                    (10, Augmented) => {
-                        let mut names = note_names;
-                        names[10] = "Bb";
-                        names
-                    }
-                    // Bbaug has F#.
-                    (10, AugmentedSeventh) => {
-                        let mut names = alt_names;
-                        names[6] = "F#";
-                        names
-                    }
+                    (10, Augmented) => rename(note_names, 10, "Bb"),
+                    // Bbaug7 has F#.
+                    (10, AugmentedSeventh) => rename(alt_names, 6, "F#"),
                     (_, _) => alt_names,
                 };
 
