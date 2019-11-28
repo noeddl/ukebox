@@ -164,6 +164,7 @@ impl TestConfig {
                 ChordType::DominantSeventh => "7",
                 ChordType::MinorSeventh => "m7",
                 ChordType::MajorSeventh => "maj7",
+                ChordType::AugmentedSeventh => "aug7",
             };
             let chord = format!("{}{}", root, suffix);
             let title = format!("[{} - {} {}]\n\n", chord, root, self.chord_type);
@@ -212,6 +213,17 @@ impl TestConfig {
                 (0, MinorSeventh) => alt_names,
                 (5, MinorSeventh) => alt_names,
                 (7, MinorSeventh) => alt_names,
+                // Caug7, Faug7
+                (0, AugmentedSeventh) => {
+                    let mut names = note_names;
+                    names[10] = "Bb";
+                    names
+                }
+                (5, AugmentedSeventh) => {
+                    let mut names = note_names;
+                    names[3] = "Eb";
+                    names
+                }
                 (_, _) => note_names,
             };
 
@@ -224,6 +236,12 @@ impl TestConfig {
                     (10, Augmented) => {
                         let mut names = note_names;
                         names[10] = "Bb";
+                        names
+                    }
+                    // Bbaug has F#.
+                    (10, AugmentedSeventh) => {
+                        let mut names = alt_names;
+                        names[6] = "F#";
                         names
                     }
                     (_, _) => alt_names,
@@ -442,6 +460,25 @@ fn test_major_seventh_chords(tuning: Tuning) -> Result<(), Box<dyn std::error::E
         TestConfig::new(ct, 9, 0, [1, 1, 0, 0], [8, 1, 4, 9], tuning),
         TestConfig::new(ct, 7, 1, [0, 2, 2, 2], [7, 2, 6, 11], tuning),
         TestConfig::new(ct, 4, 1, [1, 3, 0, 2], [8, 3, 4, 11], tuning),
+    ];
+
+    run_tests(test_configs)
+}
+
+#[rstest_parametrize(
+    tuning,
+    case::c_tuning(Tuning::C),
+    case::d_tuning(Tuning::D),
+    case::g_tuning(Tuning::G)
+)]
+fn test_augmented_seventh_chords(tuning: Tuning) -> Result<(), Box<dyn std::error::Error>> {
+    let ct = ChordType::AugmentedSeventh;
+
+    let test_configs = vec![
+        TestConfig::new(ct, 0, 1, [1, 0, 0, 1], [8, 0, 4, 10], tuning),
+        TestConfig::new(ct, 9, 2, [0, 1, 1, 0], [7, 1, 5, 9], tuning),
+        TestConfig::new(ct, 7, 1, [0, 3, 1, 2], [7, 3, 5, 11], tuning),
+        TestConfig::new(ct, 4, 1, [1, 2, 0, 3], [8, 2, 4, 0], tuning),
     ];
 
     run_tests(test_configs)

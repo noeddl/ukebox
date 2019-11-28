@@ -50,6 +50,7 @@ Currently, `ukebox` can handle the following types of chords:
 * dominant 7th chords, e.g. `C7`, `D#7`, `Eb7`
 * minor 7th chords, e.g. `Cm7`, `D#m7`, `Ebm7`
 * major 7th chords, e.g. `Cmaj7`, `D#maj7`, `Ebmaj7`
+* augmented 7th chords, e.g. `Caug7`, `D#aug7`, `Ebaug7`
 
 More types of chords will be supported in future versions.
 

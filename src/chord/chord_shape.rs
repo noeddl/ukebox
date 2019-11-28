@@ -116,6 +116,15 @@ impl ChordShapeSet {
                 ChordShape::new("G", [0, 2, 2, 2], ["P1", "P5", "M7", "M3"]),
                 ChordShape::new("E", [1, 3, 0, 2], ["M3", "M7", "P1", "P5"]),
             ],
+            // The augmented seventh shape set is (except for the missing D shape)
+            // very similar to the one for dominant seventh chords. All the perfect
+            // fifth become augmented and thus move one fret up. How convenient!
+            ChordType::AugmentedSeventh => vec![
+                ChordShape::new("C", [1, 0, 0, 1], ["A5", "P1", "M3", "m7"]),
+                ChordShape::new("A", [0, 1, 1, 0], ["m7", "M3", "A5", "P1"]),
+                ChordShape::new("G", [0, 3, 1, 2], ["P1", "A5", "m7", "M3"]),
+                ChordShape::new("E", [1, 2, 0, 3], ["M3", "m7", "P1", "A5"]),
+            ],
         };
 
         Self { chord_shapes }
