@@ -165,6 +165,7 @@ impl TestConfig {
                 ChordType::MinorSeventh => "m7",
                 ChordType::MajorSeventh => "maj7",
                 ChordType::AugmentedSeventh => "aug7",
+                ChordType::DiminishedSeventh => "dim7",
             };
             let chord = format!("{}{}", root, suffix);
             let title = format!("[{} - {} {}]\n\n", chord, root, self.chord_type);
@@ -219,9 +220,14 @@ impl TestConfig {
                 (0, MinorSeventh) => alt_names,
                 (5, MinorSeventh) => alt_names,
                 (7, MinorSeventh) => alt_names,
-                // Caug7, Faug7
+                // Caug7, Faug7.
                 (0, AugmentedSeventh) => rename(note_names, 10, "Bb"),
                 (5, AugmentedSeventh) => rename(note_names, 3, "Eb"),
+                // C#dim7, F#dim7.
+                (1, DiminishedSeventh) => rename(note_names, 10, "Bb"),
+                (6, DiminishedSeventh) => rename(note_names, 3, "Eb"),
+                (_, DiminishedSeventh) => alt_names,
+                // Default: Use sharp notes.
                 (_, _) => note_names,
             };
 
@@ -469,6 +475,25 @@ fn test_augmented_seventh_chords(tuning: Tuning) -> Result<(), Box<dyn std::erro
         TestConfig::new(ct, 9, 2, [0, 1, 1, 0], [7, 1, 5, 9], tuning),
         TestConfig::new(ct, 7, 1, [0, 3, 1, 2], [7, 3, 5, 11], tuning),
         TestConfig::new(ct, 4, 1, [1, 2, 0, 3], [8, 2, 4, 0], tuning),
+    ];
+
+    run_tests(test_configs)
+}
+
+#[rstest_parametrize(
+    tuning,
+    case::c_tuning(Tuning::C),
+    case::d_tuning(Tuning::D),
+    case::g_tuning(Tuning::G)
+)]
+fn test_diminished_seventh_chords(tuning: Tuning) -> Result<(), Box<dyn std::error::Error>> {
+    let ct = ChordType::DiminishedSeventh;
+
+    let test_configs = vec![
+        TestConfig::new(ct, 1, 2, [0, 1, 0, 1], [7, 1, 4, 10], tuning),
+        TestConfig::new(ct, 10, 2, [0, 1, 0, 1], [7, 1, 4, 10], tuning),
+        TestConfig::new(ct, 7, 2, [0, 1, 0, 1], [7, 1, 4, 10], tuning),
+        TestConfig::new(ct, 4, 2, [0, 1, 0, 1], [7, 1, 4, 10], tuning),
     ];
 
     run_tests(test_configs)

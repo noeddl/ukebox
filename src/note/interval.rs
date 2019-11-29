@@ -26,6 +26,7 @@ pub enum Interval {
     DiminishedFifth,
     PerfectFifth,
     AugmentedFifth,
+    DiminishedSeventh,
     MinorSeventh,
     MajorSeventh,
 }
@@ -43,6 +44,7 @@ impl Interval {
             DiminishedFifth => 6,
             PerfectFifth => 7,
             AugmentedFifth => 8,
+            DiminishedSeventh => 9,
             MinorSeventh => 10,
             MajorSeventh => 11,
         }
@@ -61,6 +63,7 @@ impl Interval {
             DiminishedFifth => 5,
             PerfectFifth => 5,
             AugmentedFifth => 5,
+            DiminishedSeventh => 7,
             MinorSeventh => 7,
             MajorSeventh => 7,
         }
@@ -78,11 +81,12 @@ impl FromStr for Interval {
         let interval = match s {
             "P1" => PerfectUnison,
             "M2" => MajorSecond,
+            "m3" => MinorThird,
+            "M3" => MajorThird,
             "d5" => DiminishedFifth,
             "P5" => PerfectFifth,
             "A5" => AugmentedFifth,
-            "m3" => MinorThird,
-            "M3" => MajorThird,
+            "d7" => DiminishedSeventh,
             "m7" => MinorSeventh,
             "M7" => MajorSeventh,
             _ => return Err(ParseIntervalError { name }),
