@@ -33,6 +33,7 @@ pub enum ChordType {
     MajorSeventh,
     AugmentedSeventh,
     DiminishedSeventh,
+    HalfDiminishedSeventh,
 }
 
 impl ChordType {
@@ -47,6 +48,7 @@ impl ChordType {
             Self::MajorSeventh => vec!["P1", "M3", "P5", "M7"],
             Self::AugmentedSeventh => vec!["P1", "M3", "A5", "m7"],
             Self::DiminishedSeventh => vec!["P1", "m3", "d5", "d7"],
+            Self::HalfDiminishedSeventh => vec!["P1", "m3", "d5", "m7"],
         };
 
         interval_names
@@ -68,6 +70,7 @@ impl fmt::Display for ChordType {
             Self::MajorSeventh => "major 7th",
             Self::AugmentedSeventh => "augmented 7th",
             Self::DiminishedSeventh => "diminished 7th",
+            Self::HalfDiminishedSeventh => "half-diminished 7th",
         };
 
         write!(f, "{}", s)
@@ -115,7 +118,8 @@ impl FromStr for Chord {
         let name = s.to_string();
 
         // Regular expression for chord names.
-        let re = Regex::new(r"(?P<root>[CDEFGAB][#b]?)(?P<type>aug7?|dim7?|maj7|m?7?)").unwrap();
+        let re =
+            Regex::new(r"(?P<root>[CDEFGAB][#b]?)(?P<type>aug7?|dim7?|maj7|m?(7(b5)?)?)").unwrap();
 
         // Match regex.
         let caps = match re.captures(s) {
@@ -139,6 +143,7 @@ impl FromStr for Chord {
             "maj7" => ChordType::MajorSeventh,
             "aug7" => ChordType::AugmentedSeventh,
             "dim7" => ChordType::DiminishedSeventh,
+            "m7b5" => ChordType::HalfDiminishedSeventh,
             _ => ChordType::Major,
         };
 
@@ -490,6 +495,46 @@ mod tests {
         let s = Note::from_str(seventh).unwrap();
         assert_eq!(c.notes, vec![r, t, f, s]);
         assert_eq!(c.chord_type, ChordType::DiminishedSeventh);
+    }
+
+    #[rstest_parametrize(
+        chord,
+        root,
+        third,
+        fifth,
+        seventh,
+        case("Cm7b5", "C", "Eb", "Gb", "Bb"),
+        case("C#m7b5", "C#", "E", "G", "B"),
+        case("Dbm7b5", "Db", "E", "G", "B"),
+        case("Dm7b5", "D", "F", "Ab", "C"),
+        case("D#m7b5", "D#", "F#", "A", "C#"),
+        case("Ebm7b5", "Eb", "Gb", "A", "Db"),
+        case("Em7b5", "E", "G", "Bb", "D"),
+        case("Fm7b5", "F", "Ab", "B", "Eb"),
+        case("F#m7b5", "F#", "A", "C", "E"),
+        case("Gbm7b5", "Gb", "A", "C", "E"),
+        case("Gm7b5", "G", "Bb", "Db", "F"),
+        case("G#m7b5", "G#", "B", "D", "F#"),
+        case("Abm7b5", "Ab", "B", "D", "Gb"),
+        case("Am7b5", "A", "C", "Eb", "G"),
+        case("A#m7b5", "A#", "C#", "E", "G#"),
+        case("Bbm7b5", "Bb", "Db", "E", "Ab"),
+        case("Bm7b5", "B", "D", "F", "A")
+    )]
+    fn test_from_str_half_diminished_seventh(
+        chord: &str,
+        root: &str,
+        third: &str,
+        fifth: &str,
+        seventh: &str,
+    ) {
+        let c = Chord::from_str(chord).unwrap();
+        let r = Note::from_str(root).unwrap();
+        let t = Note::from_str(third).unwrap();
+        let f = Note::from_str(fifth).unwrap();
+        let s = Note::from_str(seventh).unwrap();
+        assert_eq!(c.notes, vec![r, t, f, s]);
+        assert_eq!(c.chord_type, ChordType::HalfDiminishedSeventh);
     }
 
     #[rstest_parametrize(

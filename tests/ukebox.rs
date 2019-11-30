@@ -166,6 +166,7 @@ impl TestConfig {
                 ChordType::MajorSeventh => "maj7",
                 ChordType::AugmentedSeventh => "aug7",
                 ChordType::DiminishedSeventh => "dim7",
+                ChordType::HalfDiminishedSeventh => "m7b5",
             };
             let chord = format!("{}{}", root, suffix);
             let title = format!("[{} - {} {}]\n\n", chord, root, self.chord_type);
@@ -227,6 +228,8 @@ impl TestConfig {
                 (1, DiminishedSeventh) => rename(note_names, 10, "Bb"),
                 (6, DiminishedSeventh) => rename(note_names, 3, "Eb"),
                 (_, DiminishedSeventh) => alt_names,
+                // Half-diminished chords.
+                (_, HalfDiminishedSeventh) => alt_names,
                 // Default: Use sharp notes.
                 (_, _) => note_names,
             };
@@ -494,6 +497,25 @@ fn test_diminished_seventh_chords(tuning: Tuning) -> Result<(), Box<dyn std::err
         TestConfig::new(ct, 10, 2, [0, 1, 0, 1], [7, 1, 4, 10], tuning),
         TestConfig::new(ct, 7, 2, [0, 1, 0, 1], [7, 1, 4, 10], tuning),
         TestConfig::new(ct, 4, 2, [0, 1, 0, 1], [7, 1, 4, 10], tuning),
+    ];
+
+    run_tests(test_configs)
+}
+
+#[rstest_parametrize(
+    tuning,
+    case::c_tuning(Tuning::C),
+    case::d_tuning(Tuning::D),
+    case::g_tuning(Tuning::G)
+)]
+fn test_half_diminished_seventh_chords(tuning: Tuning) -> Result<(), Box<dyn std::error::Error>> {
+    let ct = ChordType::HalfDiminishedSeventh;
+
+    let test_configs = vec![
+        TestConfig::new(ct, 1, 2, [0, 1, 0, 2], [7, 1, 4, 11], tuning),
+        TestConfig::new(ct, 10, 2, [1, 1, 0, 1], [8, 1, 4, 10], tuning),
+        TestConfig::new(ct, 7, 2, [0, 1, 1, 1], [7, 1, 5, 10], tuning),
+        TestConfig::new(ct, 4, 2, [0, 2, 0, 1], [7, 2, 4, 10], tuning),
     ];
 
     run_tests(test_configs)

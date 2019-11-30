@@ -133,6 +133,14 @@ impl ChordShapeSet {
                 ChordShape::new("G", [0, 1, 0, 1], ["P1", "d5", "d7", "m3"]),
                 ChordShape::new("E", [0, 1, 0, 1], ["m3", "d7", "P1", "d5"]),
             ],
+            // These are the same as for the diminished seventh chords but the sevenths
+            // move one fret up because they are minor instead of diminished.
+            ChordType::HalfDiminishedSeventh => vec![
+                ChordShape::new("C#", [0, 1, 0, 2], ["d5", "P1", "m3", "m7"]),
+                ChordShape::new("A#", [1, 1, 0, 1], ["m7", "m3", "d5", "P1"]),
+                ChordShape::new("G", [0, 1, 1, 1], ["P1", "d5", "m7", "m3"]),
+                ChordShape::new("E", [0, 2, 0, 1], ["m3", "m7", "P1", "d5"]),
+            ],
         };
 
         Self { chord_shapes }
