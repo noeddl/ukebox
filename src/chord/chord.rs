@@ -31,6 +31,7 @@ pub enum ChordType {
     DominantSeventh,
     MinorSeventh,
     MajorSeventh,
+    MinorMajorSeventh,
     AugmentedSeventh,
     DiminishedSeventh,
     HalfDiminishedSeventh,
@@ -48,6 +49,7 @@ impl ChordType {
             DominantSeventh => vec!["P1", "M3", "P5", "m7"],
             MinorSeventh => vec!["P1", "m3", "P5", "m7"],
             MajorSeventh => vec!["P1", "M3", "P5", "M7"],
+            MinorMajorSeventh => vec!["P1", "m3", "P5", "M7"],
             AugmentedSeventh => vec!["P1", "M3", "A5", "m7"],
             DiminishedSeventh => vec!["P1", "m3", "d5", "d7"],
             HalfDiminishedSeventh => vec!["P1", "m3", "d5", "m7"],
@@ -72,6 +74,7 @@ impl fmt::Display for ChordType {
             DominantSeventh => "dominant 7th",
             MinorSeventh => "minor 7th",
             MajorSeventh => "major 7th",
+            MinorMajorSeventh => "minor/major 7th",
             AugmentedSeventh => "augmented 7th",
             DiminishedSeventh => "diminished 7th",
             HalfDiminishedSeventh => "half-diminished 7th",
@@ -126,13 +129,13 @@ impl FromStr for Chord {
         // Regular expression for chord names.
         let re = Regex::new(
             r"(?x)
-                ^                          # match full string
-                (?P<root>[CDEFGAB][\#b]?)  # root note including accidentals
-                (?P<type>                  # chord type
-                      (?:aug|dim)7?        # augmented/diminished chords
-                    | maj7                 # chords with a major 7th
-                    | m?(?:7(?:b5)?)?)     # minor chords + alterations
-                $                          # match full string
+                ^                               # match full string
+                (?P<root>[CDEFGAB][\#b]?)       # root note including accidentals
+                (?P<type>                       # chord type
+                      (?:aug|dim)7?             # augmented/diminished chords
+                    | maj7                      # chords with a major 7th
+                    | m?(?:(?:Maj)?7(?:b5)?)?)  # minor chords + alterations
+                $                               # match full string
             ",
         )
         .unwrap();
@@ -157,6 +160,7 @@ impl FromStr for Chord {
             "7" => DominantSeventh,
             "m7" => MinorSeventh,
             "maj7" => MajorSeventh,
+            "mMaj7" => MinorMajorSeventh,
             "aug7" => AugmentedSeventh,
             "dim7" => DiminishedSeventh,
             "m7b5" => HalfDiminishedSeventh,
@@ -193,7 +197,9 @@ mod tests {
         case("ABC"),
         case("C7b5"),
         case("C#mb5"),
-        case("C#mbla")
+        case("C#mbla"),
+        case("CmMaj"),
+        case("CmMaj7b5")
     )]
     fn test_from_str_fail(chord: &str) {
         assert!(Chord::from_str(chord).is_err())
@@ -445,6 +451,46 @@ mod tests {
         let s = Note::from_str(seventh).unwrap();
         assert_eq!(c.notes, vec![r, t, f, s]);
         assert_eq!(c.chord_type, ChordType::MajorSeventh);
+    }
+
+    #[rstest_parametrize(
+        chord,
+        root,
+        third,
+        fifth,
+        seventh,
+        case("CmMaj7", "C", "Eb", "G", "B"),
+        case("C#mMaj7", "C#", "E", "G#", "C"),
+        case("DbmMaj7", "Db", "E", "Ab", "C"),
+        case("DmMaj7", "D", "F", "A", "C#"),
+        case("D#mMaj7", "D#", "F#", "A#", "D"),
+        case("EbmMaj7", "Eb", "Gb", "Bb", "D"),
+        case("EmMaj7", "E", "G", "B", "D#"),
+        case("FmMaj7", "F", "Ab", "C", "E"),
+        case("F#mMaj7", "F#", "A", "C#", "F"),
+        case("GbmMaj7", "Gb", "A", "Db", "F"),
+        case("GmMaj7", "G", "Bb", "D", "F#"),
+        case("G#mMaj7", "G#", "B", "D#", "G"),
+        case("AbmMaj7", "Ab", "B", "Eb", "G"),
+        case("AmMaj7", "A", "C", "E", "G#"),
+        case("A#mMaj7", "A#", "C#", "F", "A"),
+        case("BbmMaj7", "Bb", "Db", "F", "A"),
+        case("BmMaj7", "B", "D", "F#", "A#")
+    )]
+    fn test_from_str_minor_major_seventh(
+        chord: &str,
+        root: &str,
+        third: &str,
+        fifth: &str,
+        seventh: &str,
+    ) {
+        let c = Chord::from_str(chord).unwrap();
+        let r = Note::from_str(root).unwrap();
+        let t = Note::from_str(third).unwrap();
+        let f = Note::from_str(fifth).unwrap();
+        let s = Note::from_str(seventh).unwrap();
+        assert_eq!(c.notes, vec![r, t, f, s]);
+        assert_eq!(c.chord_type, ChordType::MinorMajorSeventh);
     }
 
     #[rstest_parametrize(

@@ -166,6 +166,7 @@ impl TestConfig {
                 DominantSeventh => "7",
                 MinorSeventh => "m7",
                 MajorSeventh => "maj7",
+                MinorMajorSeventh => "mMaj7",
                 AugmentedSeventh => "aug7",
                 DiminishedSeventh => "dim7",
                 HalfDiminishedSeventh => "m7b5",
@@ -223,6 +224,10 @@ impl TestConfig {
                 (0, MinorSeventh) => alt_names,
                 (5, MinorSeventh) => alt_names,
                 (7, MinorSeventh) => alt_names,
+                // CmMaj7, FmMaj7, GmMaj7.
+                (0, MinorMajorSeventh) => alt_names,
+                (5, MinorMajorSeventh) => alt_names,
+                (7, MinorMajorSeventh) => rename(note_names, 10, "Bb"),
                 // Caug7, Faug7.
                 (0, AugmentedSeventh) => rename(note_names, 10, "Bb"),
                 (5, AugmentedSeventh) => rename(note_names, 3, "Eb"),
@@ -461,6 +466,26 @@ fn test_major_seventh_chords(tuning: Tuning) -> Result<(), Box<dyn std::error::E
         TestConfig::new(ct, 9, 0, [1, 1, 0, 0], [8, 1, 4, 9], tuning),
         TestConfig::new(ct, 7, 1, [0, 2, 2, 2], [7, 2, 6, 11], tuning),
         TestConfig::new(ct, 4, 1, [1, 3, 0, 2], [8, 3, 4, 11], tuning),
+    ];
+
+    run_tests(test_configs)
+}
+
+#[rstest_parametrize(
+    tuning,
+    case::c_tuning(Tuning::C),
+    case::d_tuning(Tuning::D),
+    case::g_tuning(Tuning::G)
+)]
+fn test_minor_major_seventh_chords(tuning: Tuning) -> Result<(), Box<dyn std::error::Error>> {
+    let ct = ChordType::MinorMajorSeventh;
+
+    let test_configs = vec![
+        TestConfig::new(ct, 1, 0, [1, 1, 0, 3], [8, 1, 4, 12], tuning),
+        TestConfig::new(ct, 10, 2, [3, 1, 1, 0], [10, 1, 5, 9], tuning),
+        TestConfig::new(ct, 9, 0, [1, 0, 0, 0], [8, 0, 4, 9], tuning),
+        TestConfig::new(ct, 7, 1, [0, 2, 2, 1], [7, 2, 6, 10], tuning),
+        TestConfig::new(ct, 4, 2, [0, 3, 0, 2], [7, 3, 4, 11], tuning),
     ];
 
     run_tests(test_configs)

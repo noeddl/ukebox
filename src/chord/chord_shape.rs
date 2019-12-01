@@ -118,6 +118,16 @@ impl ChordShapeSet {
                 ChordShape::new("G", [0, 2, 2, 2], ["P1", "P5", "M7", "M3"]),
                 ChordShape::new("E", [1, 3, 0, 2], ["M3", "M7", "P1", "P5"]),
             ],
+            MinorMajorSeventh => vec![
+                ChordShape::new("C#", [1, 1, 0, 3], ["P5", "P1", "m3", "M7"]),
+                ChordShape::new("A#", [3, 1, 1, 0], ["P1", "m3", "P5", "M7"]),
+                ChordShape::new("A", [1, 0, 0, 0], ["M7", "m3", "P5", "P1"]),
+                // The shape for G#mMaj7 would be convenient to play, but not so much when
+                // moving it further along the fretboard (spreads across 5 frets then).
+                //ChordShape::new("G#", [0, 3, 4, 2], ["M7", "P5", "P1", "m3"]),
+                ChordShape::new("G", [0, 2, 2, 1], ["P1", "P5", "M7", "m3"]),
+                ChordShape::new("E", [0, 3, 0, 2], ["m3", "M7", "P1", "P5"]),
+            ],
             // The augmented seventh shape set is (except for the missing D shape)
             // very similar to the one for dominant seventh chords. All the perfect
             // fifth become augmented and thus move one fret up. How convenient!
