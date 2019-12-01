@@ -60,22 +60,24 @@ pub struct ChordShapeSet {
 
 impl ChordShapeSet {
     pub fn new(chord_type: ChordType) -> Self {
+        use ChordType::*;
+
         let chord_shapes = match chord_type {
-            ChordType::Major => vec![
+            Major => vec![
                 ChordShape::new("C", [0, 0, 0, 3], ["P5", "P1", "M3", "P1"]),
                 ChordShape::new("A", [2, 1, 0, 0], ["P1", "M3", "P5", "P1"]),
                 ChordShape::new("G", [0, 2, 3, 2], ["P1", "P5", "P1", "M3"]),
                 ChordShape::new("F", [2, 0, 1, 0], ["M3", "P5", "P1", "M3"]),
                 ChordShape::new("D", [2, 2, 2, 0], ["P5", "P1", "M3", "P5"]),
             ],
-            ChordType::Minor => vec![
+            Minor => vec![
                 ChordShape::new("C", [0, 3, 3, 3], ["P5", "m3", "P5", "P1"]),
                 ChordShape::new("A", [2, 0, 0, 0], ["P1", "m3", "P5", "P1"]),
                 ChordShape::new("G", [0, 2, 3, 1], ["P1", "P5", "P1", "m3"]),
                 ChordShape::new("F", [1, 0, 1, 3], ["m3", "P5", "P1", "P5"]),
                 ChordShape::new("D", [2, 2, 1, 0], ["P5", "P1", "m3", "P5"]),
             ],
-            ChordType::Augmented => vec![
+            Augmented => vec![
                 ChordShape::new("C", [1, 0, 0, 3], ["A5", "P1", "M3", "P1"]),
                 ChordShape::new("A", [2, 1, 1, 0], ["P1", "M3", "A5", "P1"]),
                 ChordShape::new("G#", [1, 0, 0, 3], ["P1", "M3", "A5", "M3"]),
@@ -88,28 +90,28 @@ impl ChordShapeSet {
             // some of them require either that certain strings are not played or to
             // stretch your fingers across more than 4 frets. So let's stick to the
             // higher positions in these cases for now.
-            ChordType::Diminished => vec![
+            Diminished => vec![
                 ChordShape::new("D", [7, 5, 4, 5], ["P1", "m3", "d5", "P1"]),
                 ChordShape::new("A#", [3, 1, 0, 1], ["P1", "m3", "d5", "P1"]),
                 ChordShape::new("G", [0, 1, 3, 1], ["P1", "d5", "P1", "m3"]),
                 ChordShape::new("F#", [2, 0, 2, 0], ["m3", "d5", "P1", "m3"]),
                 ChordShape::new("D#", [2, 3, 2, 0], ["d5", "P1", "m3", "d5"]),
             ],
-            ChordType::DominantSeventh => vec![
+            DominantSeventh => vec![
                 ChordShape::new("C", [0, 0, 0, 1], ["P5", "P1", "M3", "m7"]),
                 ChordShape::new("A", [0, 1, 0, 0], ["m7", "M3", "P5", "P1"]),
                 ChordShape::new("G", [0, 2, 1, 2], ["P1", "P5", "m7", "M3"]),
                 ChordShape::new("E", [1, 2, 0, 2], ["M3", "m7", "P1", "P5"]),
                 ChordShape::new("D", [2, 0, 2, 0], ["P5", "m7", "M3", "P5"]),
             ],
-            ChordType::MinorSeventh => vec![
+            MinorSeventh => vec![
                 ChordShape::new("C#", [1, 1, 0, 2], ["P5", "P1", "m3", "m7"]),
                 ChordShape::new("A", [0, 0, 0, 0], ["m7", "m3", "P5", "P1"]),
                 ChordShape::new("G", [0, 2, 1, 1], ["P1", "P5", "m7", "m3"]),
                 ChordShape::new("E", [0, 2, 0, 2], ["m3", "m7", "P1", "P5"]),
                 ChordShape::new("D", [2, 0, 1, 0], ["P5", "m7", "m3", "P5"]),
             ],
-            ChordType::MajorSeventh => vec![
+            MajorSeventh => vec![
                 ChordShape::new("C", [0, 0, 0, 2], ["P5", "P1", "M3", "M7"]),
                 ChordShape::new("A#", [3, 2, 1, 0], ["P1", "M3", "P5", "M7"]),
                 ChordShape::new("A", [1, 1, 0, 0], ["M7", "M3", "P5", "P1"]),
@@ -119,7 +121,7 @@ impl ChordShapeSet {
             // The augmented seventh shape set is (except for the missing D shape)
             // very similar to the one for dominant seventh chords. All the perfect
             // fifth become augmented and thus move one fret up. How convenient!
-            ChordType::AugmentedSeventh => vec![
+            AugmentedSeventh => vec![
                 ChordShape::new("C", [1, 0, 0, 1], ["A5", "P1", "M3", "m7"]),
                 ChordShape::new("A", [0, 1, 1, 0], ["m7", "M3", "A5", "P1"]),
                 ChordShape::new("G", [0, 3, 1, 2], ["P1", "A5", "m7", "M3"]),
@@ -127,7 +129,7 @@ impl ChordShapeSet {
             ],
             // The coolest shape set of all: The pattern stays the same all the time,
             // only the positions of the intervals change.
-            ChordType::DiminishedSeventh => vec![
+            DiminishedSeventh => vec![
                 ChordShape::new("C#", [0, 1, 0, 1], ["d5", "P1", "m3", "d7"]),
                 ChordShape::new("A#", [0, 1, 0, 1], ["d7", "m3", "d5", "P1"]),
                 ChordShape::new("G", [0, 1, 0, 1], ["P1", "d5", "d7", "m3"]),
@@ -135,7 +137,7 @@ impl ChordShapeSet {
             ],
             // These are the same as for the diminished seventh chords but the sevenths
             // move one fret up because they are minor instead of diminished.
-            ChordType::HalfDiminishedSeventh => vec![
+            HalfDiminishedSeventh => vec![
                 ChordShape::new("C#", [0, 1, 0, 2], ["d5", "P1", "m3", "m7"]),
                 ChordShape::new("A#", [1, 1, 0, 1], ["m7", "m3", "d5", "P1"]),
                 ChordShape::new("G", [0, 1, 1, 1], ["P1", "d5", "m7", "m3"]),

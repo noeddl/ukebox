@@ -38,17 +38,19 @@ pub enum ChordType {
 
 impl ChordType {
     fn get_intervals(self) -> Vec<Interval> {
+        use ChordType::*;
+
         let interval_names = match self {
-            Self::Major => vec!["P1", "M3", "P5"],
-            Self::Minor => vec!["P1", "m3", "P5"],
-            Self::Augmented => vec!["P1", "M3", "A5"],
-            Self::Diminished => vec!["P1", "m3", "d5"],
-            Self::DominantSeventh => vec!["P1", "M3", "P5", "m7"],
-            Self::MinorSeventh => vec!["P1", "m3", "P5", "m7"],
-            Self::MajorSeventh => vec!["P1", "M3", "P5", "M7"],
-            Self::AugmentedSeventh => vec!["P1", "M3", "A5", "m7"],
-            Self::DiminishedSeventh => vec!["P1", "m3", "d5", "d7"],
-            Self::HalfDiminishedSeventh => vec!["P1", "m3", "d5", "m7"],
+            Major => vec!["P1", "M3", "P5"],
+            Minor => vec!["P1", "m3", "P5"],
+            Augmented => vec!["P1", "M3", "A5"],
+            Diminished => vec!["P1", "m3", "d5"],
+            DominantSeventh => vec!["P1", "M3", "P5", "m7"],
+            MinorSeventh => vec!["P1", "m3", "P5", "m7"],
+            MajorSeventh => vec!["P1", "M3", "P5", "M7"],
+            AugmentedSeventh => vec!["P1", "M3", "A5", "m7"],
+            DiminishedSeventh => vec!["P1", "m3", "d5", "d7"],
+            HalfDiminishedSeventh => vec!["P1", "m3", "d5", "m7"],
         };
 
         interval_names
@@ -60,17 +62,19 @@ impl ChordType {
 
 impl fmt::Display for ChordType {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        use ChordType::*;
+
         let s = match self {
-            Self::Major => "major",
-            Self::Minor => "minor",
-            Self::Augmented => "augmented",
-            Self::Diminished => "diminished",
-            Self::DominantSeventh => "dominant 7th",
-            Self::MinorSeventh => "minor 7th",
-            Self::MajorSeventh => "major 7th",
-            Self::AugmentedSeventh => "augmented 7th",
-            Self::DiminishedSeventh => "diminished 7th",
-            Self::HalfDiminishedSeventh => "half-diminished 7th",
+            Major => "major",
+            Minor => "minor",
+            Augmented => "augmented",
+            Diminished => "diminished",
+            DominantSeventh => "dominant 7th",
+            MinorSeventh => "minor 7th",
+            MajorSeventh => "major 7th",
+            AugmentedSeventh => "augmented 7th",
+            DiminishedSeventh => "diminished 7th",
+            HalfDiminishedSeventh => "half-diminished 7th",
         };
 
         write!(f, "{}", s)
@@ -115,6 +119,8 @@ impl FromStr for Chord {
     type Err = ParseChordError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
+        use ChordType::*;
+
         let name = s.to_string();
 
         // Regular expression for chord names.
@@ -145,16 +151,16 @@ impl FromStr for Chord {
 
         // Get chord type.
         let chord_type = match &caps["type"] {
-            "m" => ChordType::Minor,
-            "aug" => ChordType::Augmented,
-            "dim" => ChordType::Diminished,
-            "7" => ChordType::DominantSeventh,
-            "m7" => ChordType::MinorSeventh,
-            "maj7" => ChordType::MajorSeventh,
-            "aug7" => ChordType::AugmentedSeventh,
-            "dim7" => ChordType::DiminishedSeventh,
-            "m7b5" => ChordType::HalfDiminishedSeventh,
-            "" => ChordType::Major,
+            "m" => Minor,
+            "aug" => Augmented,
+            "dim" => Diminished,
+            "7" => DominantSeventh,
+            "m7" => MinorSeventh,
+            "maj7" => MajorSeventh,
+            "aug7" => AugmentedSeventh,
+            "dim7" => DiminishedSeventh,
+            "m7b5" => HalfDiminishedSeventh,
+            "" => Major,
             _ => return Err(ParseChordError { name }),
         };
 

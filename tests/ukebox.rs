@@ -145,6 +145,8 @@ impl TestConfig {
     }
 
     fn generate_tests_for_chord(&self, index: usize, note_names: &[&str]) -> (String, Vec<Test>) {
+        use ChordType::*;
+
         let mut tests = Vec::new();
         let root = *note_names.iter().cycle().nth(index).unwrap();
         let semitones = self.tuning.get_semitones() as usize;
@@ -157,16 +159,16 @@ impl TestConfig {
 
         for j in self.lower_min_fret..self.min_fret + 1 {
             let suffix = match self.chord_type {
-                ChordType::Major => "",
-                ChordType::Minor => "m",
-                ChordType::Augmented => "aug",
-                ChordType::Diminished => "dim",
-                ChordType::DominantSeventh => "7",
-                ChordType::MinorSeventh => "m7",
-                ChordType::MajorSeventh => "maj7",
-                ChordType::AugmentedSeventh => "aug7",
-                ChordType::DiminishedSeventh => "dim7",
-                ChordType::HalfDiminishedSeventh => "m7b5",
+                Major => "",
+                Minor => "m",
+                Augmented => "aug",
+                Diminished => "dim",
+                DominantSeventh => "7",
+                MinorSeventh => "m7",
+                MajorSeventh => "maj7",
+                AugmentedSeventh => "aug7",
+                DiminishedSeventh => "dim7",
+                HalfDiminishedSeventh => "m7b5",
             };
             let chord = format!("{}{}", root, suffix);
             let title = format!("[{} - {} {}]\n\n", chord, root, self.chord_type);
