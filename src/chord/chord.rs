@@ -118,8 +118,18 @@ impl FromStr for Chord {
         let name = s.to_string();
 
         // Regular expression for chord names.
-        let re =
-            Regex::new(r"(?P<root>[CDEFGAB][#b]?)(?P<type>aug7?|dim7?|maj7|m?(7(b5)?)?)").unwrap();
+        let re = Regex::new(
+            r"(?x)
+                ^                          # match full string
+                (?P<root>[CDEFGAB][\#b]?)  # root note including accidentals
+                (?P<type>                  # chord type
+                      (?:aug|dim)7?        # augmented/diminished chords
+                    | maj7                 # chords with a major 7th
+                    | m?(?:7(?:b5)?)?)     # minor chords + alterations
+                $                          # match full string
+            ",
+        )
+        .unwrap();
 
         // Match regex.
         let caps = match re.captures(s) {
@@ -144,7 +154,8 @@ impl FromStr for Chord {
             "aug7" => ChordType::AugmentedSeventh,
             "dim7" => ChordType::DiminishedSeventh,
             "m7b5" => ChordType::HalfDiminishedSeventh,
-            _ => ChordType::Major,
+            "" => ChordType::Major,
+            _ => return Err(ParseChordError { name }),
         };
 
         // Collect notes of the chord.
@@ -168,6 +179,19 @@ mod tests {
     #![allow(clippy::many_single_char_names)]
     use super::*;
     use rstest::rstest_parametrize;
+
+    #[rstest_parametrize(
+        chord,
+        case("Z"),
+        case("c"),
+        case("ABC"),
+        case("C7b5"),
+        case("C#mb5"),
+        case("C#mbla")
+    )]
+    fn test_from_str_fail(chord: &str) {
+        assert!(Chord::from_str(chord).is_err())
+    }
 
     #[rstest_parametrize(
         chord,
