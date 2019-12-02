@@ -33,6 +33,7 @@ pub enum ChordType {
     MajorSeventh,
     MinorMajorSeventh,
     AugmentedSeventh,
+    AugmentedMajorSeventh,
     DiminishedSeventh,
     HalfDiminishedSeventh,
 }
@@ -51,6 +52,7 @@ impl ChordType {
             MajorSeventh => vec!["P1", "M3", "P5", "M7"],
             MinorMajorSeventh => vec!["P1", "m3", "P5", "M7"],
             AugmentedSeventh => vec!["P1", "M3", "A5", "m7"],
+            AugmentedMajorSeventh => vec!["P1", "M3", "A5", "M7"],
             DiminishedSeventh => vec!["P1", "m3", "d5", "d7"],
             HalfDiminishedSeventh => vec!["P1", "m3", "d5", "m7"],
         };
@@ -76,6 +78,7 @@ impl fmt::Display for ChordType {
             MajorSeventh => "major 7th",
             MinorMajorSeventh => "minor/major 7th",
             AugmentedSeventh => "augmented 7th",
+            AugmentedMajorSeventh => "augmented major 7th",
             DiminishedSeventh => "diminished 7th",
             HalfDiminishedSeventh => "half-diminished 7th",
         };
@@ -132,7 +135,8 @@ impl FromStr for Chord {
                 ^                               # match full string
                 (?P<root>[CDEFGAB][\#b]?)       # root note including accidentals
                 (?P<type>                       # chord type
-                      (?:aug|dim)7?             # augmented/diminished chords
+                      aug(?:Maj)?7?             # augmented chords
+                    | dim7?                     # diminished chords
                     | maj7                      # chords with a major 7th
                     | m?(?:(?:Maj)?7(?:b5)?)?)  # minor chords + alterations
                 $                               # match full string
@@ -162,6 +166,7 @@ impl FromStr for Chord {
             "maj7" => MajorSeventh,
             "mMaj7" => MinorMajorSeventh,
             "aug7" => AugmentedSeventh,
+            "augMaj7" => AugmentedMajorSeventh,
             "dim7" => DiminishedSeventh,
             "m7b5" => HalfDiminishedSeventh,
             "" => Major,
@@ -531,6 +536,46 @@ mod tests {
         let s = Note::from_str(seventh).unwrap();
         assert_eq!(c.notes, vec![r, t, f, s]);
         assert_eq!(c.chord_type, ChordType::AugmentedSeventh);
+    }
+
+    #[rstest_parametrize(
+        chord,
+        root,
+        third,
+        fifth,
+        seventh,
+        case("CaugMaj7", "C", "E", "G#", "B"),
+        case("C#augMaj7", "C#", "F", "A", "C"),
+        case("DbaugMaj7", "Db", "F", "A", "C"),
+        case("DaugMaj7", "D", "F#", "A#", "C#"),
+        case("D#augMaj7", "D#", "G", "B", "D"),
+        case("EbaugMaj7", "Eb", "G", "B", "D"),
+        case("EaugMaj7", "E", "G#", "C", "D#"),
+        case("FaugMaj7", "F", "A", "C#", "E"),
+        case("F#augMaj7", "F#", "A#", "D", "F"),
+        case("GbaugMaj7", "Gb", "Bb", "D", "F"),
+        case("GaugMaj7", "G", "B", "D#", "F#"),
+        case("G#augMaj7", "G#", "C", "E", "G"),
+        case("AbaugMaj7", "Ab", "C", "E", "G"),
+        case("AaugMaj7", "A", "C#", "F", "G#"),
+        case("A#augMaj7", "A#", "D", "F#", "A"),
+        case("BbaugMaj7", "Bb", "D", "F#", "A"),
+        case("BaugMaj7", "B", "D#", "G", "A#")
+    )]
+    fn test_from_str_augmented_major_seventh(
+        chord: &str,
+        root: &str,
+        third: &str,
+        fifth: &str,
+        seventh: &str,
+    ) {
+        let c = Chord::from_str(chord).unwrap();
+        let r = Note::from_str(root).unwrap();
+        let t = Note::from_str(third).unwrap();
+        let f = Note::from_str(fifth).unwrap();
+        let s = Note::from_str(seventh).unwrap();
+        assert_eq!(c.notes, vec![r, t, f, s]);
+        assert_eq!(c.chord_type, ChordType::AugmentedMajorSeventh);
     }
 
     #[rstest_parametrize(

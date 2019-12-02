@@ -137,6 +137,13 @@ impl ChordShapeSet {
                 ChordShape::new("G", [0, 3, 1, 2], ["P1", "A5", "m7", "M3"]),
                 ChordShape::new("E", [1, 2, 0, 3], ["M3", "m7", "P1", "A5"]),
             ],
+            AugmentedMajorSeventh => vec![
+                ChordShape::new("C", [1, 0, 0, 2], ["A5", "P1", "M3", "M7"]),
+                ChordShape::new("A#", [3, 2, 2, 0], ["P1", "M3", "A5", "M7"]),
+                ChordShape::new("A", [1, 1, 1, 0], ["M7", "M3", "A5", "P1"]),
+                ChordShape::new("G", [0, 3, 2, 2], ["P1", "A5", "M7", "M3"]),
+                ChordShape::new("E", [1, 3, 0, 3], ["M3", "M7", "P1", "A5"]),
+            ],
             // The coolest shape set of all: The pattern stays the same all the time,
             // only the positions of the intervals change.
             DiminishedSeventh => vec![

@@ -168,6 +168,7 @@ impl TestConfig {
                 MajorSeventh => "maj7",
                 MinorMajorSeventh => "mMaj7",
                 AugmentedSeventh => "aug7",
+                AugmentedMajorSeventh => "augMaj7",
                 DiminishedSeventh => "dim7",
                 HalfDiminishedSeventh => "m7b5",
             };
@@ -247,9 +248,11 @@ impl TestConfig {
             if root.ends_with("#") {
                 let names = match (index % 12, self.chord_type) {
                     // Bbaug has F#.
-                    (10, Augmented) => rename(note_names, 10, "Bb"),
+                    (10, Augmented) => rename(alt_names, 6, "F#"),
                     // Bbaug7 has F#.
                     (10, AugmentedSeventh) => rename(alt_names, 6, "F#"),
+                    // BbaugMaj7 has F#.
+                    (10, AugmentedMajorSeventh) => rename(alt_names, 6, "F#"),
                     (_, _) => alt_names,
                 };
 
@@ -505,6 +508,26 @@ fn test_augmented_seventh_chords(tuning: Tuning) -> Result<(), Box<dyn std::erro
         TestConfig::new(ct, 9, 2, [0, 1, 1, 0], tuning),
         TestConfig::new(ct, 7, 1, [0, 3, 1, 2], tuning),
         TestConfig::new(ct, 4, 1, [1, 2, 0, 3], tuning),
+    ];
+
+    run_tests(test_configs)
+}
+
+#[rstest_parametrize(
+    tuning,
+    case::c_tuning(Tuning::C),
+    case::d_tuning(Tuning::D),
+    case::g_tuning(Tuning::G)
+)]
+fn test_augmented_major_seventh_chords(tuning: Tuning) -> Result<(), Box<dyn std::error::Error>> {
+    let ct = ChordType::AugmentedMajorSeventh;
+
+    let test_configs = vec![
+        TestConfig::new(ct, 0, 1, [1, 0, 0, 2], tuning),
+        TestConfig::new(ct, 10, 1, [3, 2, 2, 0], tuning),
+        TestConfig::new(ct, 9, 0, [1, 1, 1, 0], tuning),
+        TestConfig::new(ct, 7, 1, [0, 3, 2, 2], tuning),
+        TestConfig::new(ct, 4, 2, [1, 3, 0, 3], tuning),
     ];
 
     run_tests(test_configs)
