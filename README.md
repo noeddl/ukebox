@@ -45,6 +45,7 @@ Currently, `ukebox` can handle the following types of chords:
 
 * major chords, e.g. `C`, `D#`, `Eb`
 * minor chords, e.g. `Cm`, `D#m`, `Ebm`
+* suspended second chords, e.g. `Csus2`, `D#sus2`, `Ebsus2`
 * augmented triads, e.g. `Caug`, `D#aug`, `Ebaug`
 * diminished triads, e.g. `Cdim`, `D#dim`, `Ebdim`
 * dominant 7th chords, e.g. `C7`, `D#7`, `Eb7`

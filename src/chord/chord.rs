@@ -26,6 +26,7 @@ impl fmt::Display for ParseChordError {
 pub enum ChordType {
     Major,
     Minor,
+    SuspendedSecond,
     Augmented,
     Diminished,
     DominantSeventh,
@@ -45,6 +46,7 @@ impl ChordType {
         let interval_names = match self {
             Major => vec!["P1", "M3", "P5"],
             Minor => vec!["P1", "m3", "P5"],
+            SuspendedSecond => vec!["P1", "M2", "P5"],
             Augmented => vec!["P1", "M3", "A5"],
             Diminished => vec!["P1", "m3", "d5"],
             DominantSeventh => vec!["P1", "M3", "P5", "m7"],
@@ -71,6 +73,7 @@ impl fmt::Display for ChordType {
         let s = match self {
             Major => "major",
             Minor => "minor",
+            SuspendedSecond => "suspended 2nd",
             Augmented => "augmented",
             Diminished => "diminished",
             DominantSeventh => "dominant 7th",
@@ -135,7 +138,8 @@ impl FromStr for Chord {
                 ^                               # match full string
                 (?P<root>[CDEFGAB][\#b]?)       # root note including accidentals
                 (?P<type>                       # chord type
-                      aug(?:Maj)?7?             # augmented chords
+                      sus(?:2|4)                # suspended chords
+                    | aug(?:Maj)?7?             # augmented chords
                     | dim7?                     # diminished chords
                     | maj7                      # chords with a major 7th
                     | m?(?:(?:Maj)?7(?:b5)?)?)  # minor chords + alterations
@@ -159,6 +163,7 @@ impl FromStr for Chord {
         // Get chord type.
         let chord_type = match &caps["type"] {
             "m" => Minor,
+            "sus2" => SuspendedSecond,
             "aug" => Augmented,
             "dim" => Diminished,
             "7" => DominantSeventh,
@@ -272,6 +277,38 @@ mod tests {
         let f = Note::from_str(fifth).unwrap();
         assert_eq!(c.notes, vec![r, t, f]);
         assert_eq!(c.chord_type, ChordType::Minor);
+    }
+
+    #[rstest_parametrize(
+        chord,
+        root,
+        third,
+        fifth,
+        case("Csus2", "C", "D", "G"),
+        case("C#sus2", "C#", "D#", "G#"),
+        case("Dbsus2", "Db", "Eb", "Ab"),
+        case("Dsus2", "D", "E", "A"),
+        case("D#sus2", "D#", "F", "A#"),
+        case("Ebsus2", "Eb", "F", "Bb"),
+        case("Esus2", "E", "F#", "B"),
+        case("Fsus2", "F", "G", "C"),
+        case("F#sus2", "F#", "G#", "C#"),
+        case("Gbsus2", "Gb", "Ab", "Db"),
+        case("Gsus2", "G", "A", "D"),
+        case("G#sus2", "G#", "A#", "D#"),
+        case("Absus2", "Ab", "Bb", "Eb"),
+        case("Asus2", "A", "B", "E"),
+        case("A#sus2", "A#", "C", "F"),
+        case("Bbsus2", "Bb", "C", "F"),
+        case("Bsus2", "B", "C#", "F#")
+    )]
+    fn test_from_str_suspended_second(chord: &str, root: &str, third: &str, fifth: &str) {
+        let c = Chord::from_str(chord).unwrap();
+        let r = Note::from_str(root).unwrap();
+        let t = Note::from_str(third).unwrap();
+        let f = Note::from_str(fifth).unwrap();
+        assert_eq!(c.notes, vec![r, t, f]);
+        assert_eq!(c.chord_type, ChordType::SuspendedSecond);
     }
 
     #[rstest_parametrize(

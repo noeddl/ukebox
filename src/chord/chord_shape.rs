@@ -77,6 +77,14 @@ impl ChordShapeSet {
                 ChordShape::new("F", [1, 0, 1, 3], ["m3", "P5", "P1", "P5"]),
                 ChordShape::new("D", [2, 2, 1, 0], ["P5", "P1", "m3", "P5"]),
             ],
+            SuspendedSecond => vec![
+                ChordShape::new("C", [0, 2, 3, 3], ["P5", "M2", "P5", "P1"]),
+                ChordShape::new("A#", [3, 0, 1, 1], ["P1", "M2", "P5", "P1"]),
+                //ChordShape::new("A", [2, 4, 0, 2], ["P1", "P5", "P5", "M2"]),
+                ChordShape::new("G", [0, 2, 3, 0], ["P1", "P5", "P1", "M2"]),
+                ChordShape::new("F", [0, 0, 1, 3], ["M2", "P5", "P1", "P5"]),
+                ChordShape::new("D", [2, 2, 0, 0], ["P5", "P1", "M2", "P5"]),
+            ],
             Augmented => vec![
                 ChordShape::new("C", [1, 0, 0, 3], ["A5", "P1", "M3", "P1"]),
                 ChordShape::new("A", [2, 1, 1, 0], ["P1", "M3", "A5", "P1"]),

@@ -161,6 +161,7 @@ impl TestConfig {
             let suffix = match self.chord_type {
                 Major => "",
                 Minor => "m",
+                SuspendedSecond => "sus2",
                 Augmented => "aug",
                 Diminished => "dim",
                 DominantSeventh => "7",
@@ -367,6 +368,26 @@ fn test_minor_chords(tuning: Tuning) -> Result<(), Box<dyn std::error::Error>> {
         TestConfig::new(ct, 7, 1, [0, 2, 3, 1], tuning),
         TestConfig::new(ct, 5, 1, [1, 0, 1, 3], tuning),
         TestConfig::new(ct, 2, 2, [2, 2, 1, 0], tuning),
+    ];
+
+    run_tests(test_configs)
+}
+
+#[rstest_parametrize(
+    tuning,
+    case::c_tuning(Tuning::C),
+    case::d_tuning(Tuning::D),
+    case::g_tuning(Tuning::G)
+)]
+fn test_suspended_second_chords(tuning: Tuning) -> Result<(), Box<dyn std::error::Error>> {
+    let ct = ChordType::SuspendedSecond;
+
+    let test_configs = vec![
+        TestConfig::new(ct, 0, 1, [0, 2, 3, 3], tuning),
+        TestConfig::new(ct, 10, 1, [3, 0, 1, 1], tuning),
+        TestConfig::new(ct, 7, 1, [0, 2, 3, 0], tuning),
+        TestConfig::new(ct, 5, 1, [0, 0, 1, 3], tuning),
+        TestConfig::new(ct, 2, 2, [2, 2, 0, 0], tuning),
     ];
 
     run_tests(test_configs)
