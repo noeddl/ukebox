@@ -15,12 +15,11 @@ pub struct ChordDiagram {
     chord: Chord,
     roots: NotePattern,
     frets: FretPattern,
-    notes: NotePattern,
     root_width: usize,
 }
 
 impl ChordDiagram {
-    pub fn new(chord: Chord, frets: FretPattern, notes: NotePattern, tuning: Tuning) -> Self {
+    pub fn new(chord: Chord, frets: FretPattern, tuning: Tuning) -> Self {
         let interval = tuning.get_interval();
 
         let roots = [
@@ -34,7 +33,6 @@ impl ChordDiagram {
             roots,
             chord,
             frets,
-            notes,
             root_width: tuning.get_root_width(),
         }
     }
@@ -52,6 +50,25 @@ impl ChordDiagram {
             _ => *self.frets.iter().min().unwrap(),
         }
     }
+
+    /// Compute the notes that correspond to the frets shown as pressed
+    /// in the chord diagram.
+    fn get_notes(&self) -> NotePattern {
+        let mut notes = self.roots;
+
+        for (i, fret) in self.frets.iter().enumerate() {
+            let pitch_class = notes[i].pitch_class + *fret;
+            notes[i] = match self.chord.get_note(pitch_class) {
+                Some(note) => *note,
+                _ => panic!(
+                    "No note with pitch class {:?} in chord {}",
+                    pitch_class, self.chord
+                ),
+            }
+        }
+
+        notes
+    }
 }
 
 impl fmt::Display for ChordDiagram {
@@ -62,11 +79,13 @@ impl fmt::Display for ChordDiagram {
         // Determine from which fret to show the fretboard.
         let base_fret = self.get_base_fret();
 
+        let notes = self.get_notes();
+
         // Create a diagram for each ukulele string.
         for i in (0..STRING_COUNT).rev() {
             let root = self.roots[i];
             let fret = self.frets[i];
-            let note = self.notes[i];
+            let note = notes[i];
             let sd = StringDiagram::new(root, base_fret, fret, note, self.root_width);
             s.push_str(&format!("{}\n", sd.to_string()));
         }
