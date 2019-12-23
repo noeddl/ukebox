@@ -60,7 +60,10 @@ impl ChordDiagram {
             let pitch_class = notes[i].pitch_class + *fret;
             notes[i] = match self.chord.get_note(pitch_class) {
                 Some(note) => *note,
-                _ => panic!("No note with pitch class {:?} in chord {}", pitch_class, self.chord),
+                _ => panic!(
+                    "No note with pitch class {:?} in chord {}",
+                    pitch_class, self.chord
+                ),
             }
         }
 
