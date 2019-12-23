@@ -142,10 +142,10 @@ impl Add<Interval> for Note {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use rstest::rstest_parametrize;
+    use rstest::rstest;
     use Interval::*;
 
-    #[rstest_parametrize(
+    #[rstest(
         s,
         case("C"),
         case("C#"),
@@ -170,7 +170,7 @@ mod tests {
         assert_eq!(format!("{}", note), s);
     }
 
-    #[rstest_parametrize(
+    #[rstest(
         note_name,
         interval,
         result_name,

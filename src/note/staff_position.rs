@@ -58,10 +58,10 @@ impl Add<StaffSteps> for StaffPosition {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use rstest::rstest_parametrize;
+    use rstest::rstest;
     use StaffPosition::*;
 
-    #[rstest_parametrize(
+    #[rstest(
         n,
         staff_position,
         case(0, CPos),
@@ -76,7 +76,7 @@ mod tests {
         assert_eq!(StaffPosition::from(n), staff_position);
     }
 
-    #[rstest_parametrize(
+    #[rstest(
         staff_position,
         n,
         result,

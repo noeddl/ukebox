@@ -115,10 +115,10 @@ impl Sub<Semitones> for PitchClass {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use rstest::rstest_parametrize;
+    use rstest::rstest;
     use PitchClass::*;
 
-    #[rstest_parametrize(
+    #[rstest(
         n,
         pitch_class,
         case(0, C),
@@ -143,7 +143,7 @@ mod tests {
         assert_eq!(PitchClass::from(n), pitch_class);
     }
 
-    #[rstest_parametrize(
+    #[rstest(
         pitch_class,
         n,
         result,
@@ -158,7 +158,7 @@ mod tests {
         assert_eq!(pitch_class + n, result);
     }
 
-    #[rstest_parametrize(
+    #[rstest(
         pc1,
         pc2,
         n,
@@ -171,7 +171,7 @@ mod tests {
         assert_eq!(pc1 - pc2, n);
     }
 
-    #[rstest_parametrize(
+    #[rstest(
         pc1,
         n,
         pc2,

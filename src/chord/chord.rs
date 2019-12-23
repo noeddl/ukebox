@@ -202,9 +202,9 @@ impl FromStr for Chord {
 mod tests {
     #![allow(clippy::many_single_char_names)]
     use super::*;
-    use rstest::rstest_parametrize;
+    use rstest::rstest;
 
-    #[rstest_parametrize(
+    #[rstest(
         chord,
         case("Z"),
         case("c"),
@@ -219,7 +219,7 @@ mod tests {
         assert!(Chord::from_str(chord).is_err())
     }
 
-    #[rstest_parametrize(
+    #[rstest(
         chord,
         root,
         third,
@@ -251,7 +251,7 @@ mod tests {
         assert_eq!(c.chord_type, ChordType::Major);
     }
 
-    #[rstest_parametrize(
+    #[rstest(
         chord,
         root,
         third,
@@ -283,7 +283,7 @@ mod tests {
         assert_eq!(c.chord_type, ChordType::Minor);
     }
 
-    #[rstest_parametrize(
+    #[rstest(
         chord,
         root,
         third,
@@ -315,7 +315,7 @@ mod tests {
         assert_eq!(c.chord_type, ChordType::SuspendedSecond);
     }
 
-    #[rstest_parametrize(
+    #[rstest(
         chord,
         root,
         third,
@@ -347,7 +347,7 @@ mod tests {
         assert_eq!(c.chord_type, ChordType::SuspendedFourth);
     }
 
-    #[rstest_parametrize(
+    #[rstest(
         chord,
         root,
         third,
@@ -379,7 +379,7 @@ mod tests {
         assert_eq!(c.chord_type, ChordType::Augmented);
     }
 
-    #[rstest_parametrize(
+    #[rstest(
         chord,
         root,
         third,
@@ -411,7 +411,7 @@ mod tests {
         assert_eq!(c.chord_type, ChordType::Diminished);
     }
 
-    #[rstest_parametrize(
+    #[rstest(
         chord,
         root,
         third,
@@ -451,7 +451,7 @@ mod tests {
         assert_eq!(c.chord_type, ChordType::DominantSeventh);
     }
 
-    #[rstest_parametrize(
+    #[rstest(
         chord,
         root,
         third,
@@ -491,7 +491,7 @@ mod tests {
         assert_eq!(c.chord_type, ChordType::MinorSeventh);
     }
 
-    #[rstest_parametrize(
+    #[rstest(
         chord,
         root,
         third,
@@ -531,7 +531,7 @@ mod tests {
         assert_eq!(c.chord_type, ChordType::MajorSeventh);
     }
 
-    #[rstest_parametrize(
+    #[rstest(
         chord,
         root,
         third,
@@ -571,7 +571,7 @@ mod tests {
         assert_eq!(c.chord_type, ChordType::MinorMajorSeventh);
     }
 
-    #[rstest_parametrize(
+    #[rstest(
         chord,
         root,
         third,
@@ -611,7 +611,7 @@ mod tests {
         assert_eq!(c.chord_type, ChordType::AugmentedSeventh);
     }
 
-    #[rstest_parametrize(
+    #[rstest(
         chord,
         root,
         third,
@@ -651,7 +651,7 @@ mod tests {
         assert_eq!(c.chord_type, ChordType::AugmentedMajorSeventh);
     }
 
-    #[rstest_parametrize(
+    #[rstest(
         chord,
         root,
         third,
@@ -691,7 +691,7 @@ mod tests {
         assert_eq!(c.chord_type, ChordType::DiminishedSeventh);
     }
 
-    #[rstest_parametrize(
+    #[rstest(
         chord,
         root,
         third,
@@ -731,7 +731,7 @@ mod tests {
         assert_eq!(c.chord_type, ChordType::HalfDiminishedSeventh);
     }
 
-    #[rstest_parametrize(
+    #[rstest(
         chord,
         note,
         contains,

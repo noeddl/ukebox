@@ -60,10 +60,10 @@ impl fmt::Display for StringDiagram {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use rstest::rstest_parametrize;
+    use rstest::rstest;
     use std::str::FromStr;
 
-    #[rstest_parametrize(
+    #[rstest(
         root_name,
         base_fret,
         fret,
