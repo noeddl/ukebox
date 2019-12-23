@@ -472,7 +472,6 @@ fn test_dominant_seventh_chords(tuning: Tuning) -> Result<(), Box<dyn std::error
         TestConfig::new(ct, 9, 2, [0, 1, 0, 0], tuning),
         TestConfig::new(ct, 7, 1, [0, 2, 1, 2], tuning),
         TestConfig::new(ct, 4, 1, [1, 2, 0, 2], tuning),
-        TestConfig::new(ct, 2, 1, [2, 0, 2, 0], tuning),
     ];
 
     run_tests(test_configs)
@@ -492,7 +491,6 @@ fn test_minor_seventh_chords(tuning: Tuning) -> Result<(), Box<dyn std::error::E
         TestConfig::new(ct, 9, 2, [0, 0, 0, 0], tuning),
         TestConfig::new(ct, 7, 1, [0, 2, 1, 1], tuning),
         TestConfig::new(ct, 4, 1, [0, 2, 0, 2], tuning),
-        TestConfig::new(ct, 2, 1, [2, 0, 1, 0], tuning),
     ];
 
     run_tests(test_configs)
