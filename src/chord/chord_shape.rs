@@ -2,13 +2,10 @@ use crate::chord::ChordType;
 use crate::chord::FretID;
 use crate::chord::FretPattern;
 use crate::chord::Tuning;
-use crate::note::Interval;
 use crate::note::Note;
 use crate::note::Semitones;
 use crate::STRING_COUNT;
 use std::str::FromStr;
-
-type IntervalPattern = [Interval; STRING_COUNT];
 
 /// A chord shape is a configuration of frets to be pressed to play a
 /// certain type of chord. The shape can be moved along the fretboard
@@ -21,34 +18,26 @@ type IntervalPattern = [Interval; STRING_COUNT];
 pub struct ChordShape {
     root: Note,
     frets: FretPattern,
-    intervals: IntervalPattern,
 }
 
 impl ChordShape {
     fn new(note_name: &str, frets: FretPattern, int_names: [&str; STRING_COUNT]) -> Self {
-        let mut intervals = [Interval::PerfectUnison; STRING_COUNT];
-
-        for (i, s) in int_names.iter().enumerate() {
-            intervals[i] = Interval::from_str(s).unwrap();
-        }
-
         Self {
             root: Note::from_str(note_name).unwrap(),
             frets,
-            intervals,
         }
     }
 
     /// Apply the chord shape while moving it `n` frets forward on the fretboard.
     /// Return the resulting fret pattern.
-    fn apply(self, n: Semitones) -> (FretPattern, IntervalPattern) {
+    fn apply(self, n: Semitones) -> FretPattern {
         let mut frets = self.frets;
 
         for f in &mut frets[..] {
             *f += n;
         }
 
-        (frets, self.intervals)
+        frets
     }
 }
 
@@ -185,7 +174,7 @@ impl ChordShapeSet {
         root: Note,
         min_fret: FretID,
         tuning: Tuning,
-    ) -> (FretPattern, IntervalPattern) {
+    ) -> FretPattern {
         let semitones = tuning.get_semitones();
 
         // Calculate offset of how far to move the chord shape on the fretboard.

@@ -114,7 +114,7 @@ impl Chord {
     pub fn get_diagram(self, min_fret: FretID, tuning: Tuning) -> ChordDiagram {
         let chord_shapes = ChordShapeSet::new(self.chord_type);
 
-        let (frets, intervals) = chord_shapes.get_config(self.root, min_fret, tuning);
+        let frets = chord_shapes.get_config(self.root, min_fret, tuning);
 
         ChordDiagram::new(self, frets, tuning)
     }
