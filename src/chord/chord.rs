@@ -4,7 +4,7 @@ use crate::chord::Tuning;
 use crate::diagram::ChordDiagram;
 use crate::note::Interval;
 use crate::note::Note;
-use crate::STRING_COUNT;
+use crate::note::PitchClass;
 use regex::Regex;
 use std::fmt;
 use std::str::FromStr;
@@ -106,18 +106,17 @@ impl Chord {
         self.notes.contains(&note)
     }
 
+    /// Given `pitch_class` return the matching note in the chord in case one exists.
+    pub fn get_note(&self, pitch_class: PitchClass) -> Option<&Note> {
+        self.notes.iter().find(|n| n.pitch_class == pitch_class)
+    }
+
     pub fn get_diagram(self, min_fret: FretID, tuning: Tuning) -> ChordDiagram {
         let chord_shapes = ChordShapeSet::new(self.chord_type);
 
         let (frets, intervals) = chord_shapes.get_config(self.root, min_fret, tuning);
 
-        let mut notes = [self.root; STRING_COUNT];
-
-        for (i, interval) in intervals.iter().enumerate() {
-            notes[i] = notes[i] + *interval;
-        }
-
-        ChordDiagram::new(self, frets, notes, tuning)
+        ChordDiagram::new(self, frets, tuning)
     }
 }
 
