@@ -297,7 +297,7 @@ fn run_tests(test_configs: Vec<TestConfig>) -> Result<(), Box<dyn std::error::Er
             // Run `cargo test -- --nocapture` to print all tests run.
             println!("{}", test);
 
-            let mut cmd = Command::main_binary()?;
+            let mut cmd = Command::cargo_bin("ukebox")?;
             cmd.arg(test.chord);
 
             cmd.arg("-t").arg(test.tuning.to_string());
@@ -317,7 +317,7 @@ fn run_tests(test_configs: Vec<TestConfig>) -> Result<(), Box<dyn std::error::Er
 
 #[test]
 fn test_no_args() -> Result<(), Box<dyn std::error::Error>> {
-    let mut cmd = Command::main_binary()?;
+    let mut cmd = Command::cargo_bin("ukebox")?;
     cmd.assert().failure().stderr(predicate::str::contains(
         "error: The following required arguments were not provided",
     ));
@@ -327,7 +327,7 @@ fn test_no_args() -> Result<(), Box<dyn std::error::Error>> {
 
 #[test]
 fn test_unknown_chord() -> Result<(), Box<dyn std::error::Error>> {
-    let mut cmd = Command::main_binary()?;
+    let mut cmd = Command::cargo_bin("ukebox")?;
     cmd.arg("blafoo");
     cmd.assert().failure().stderr(predicate::str::contains(
         "error: Invalid value for '<chord>': Could not parse chord name \"blafoo\"",
