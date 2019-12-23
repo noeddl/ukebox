@@ -162,6 +162,7 @@ impl TestConfig {
                 Major => "",
                 Minor => "m",
                 SuspendedSecond => "sus2",
+                SuspendedFourth => "sus4",
                 Augmented => "aug",
                 Diminished => "dim",
                 DominantSeventh => "7",
@@ -219,6 +220,8 @@ impl TestConfig {
                 (_, Minor) => alt_names,
                 // The default for diminished chords is to have flat notes.
                 (_, Diminished) => alt_names,
+                // Fsus4 has Bb.
+                (5, SuspendedFourth) => alt_names,
                 // C7, F7.
                 (0, DominantSeventh) => alt_names,
                 (5, DominantSeventh) => alt_names,
@@ -388,6 +391,26 @@ fn test_suspended_second_chords(tuning: Tuning) -> Result<(), Box<dyn std::error
         TestConfig::new(ct, 7, 1, [0, 2, 3, 0], tuning),
         TestConfig::new(ct, 5, 1, [0, 0, 1, 3], tuning),
         TestConfig::new(ct, 2, 2, [2, 2, 0, 0], tuning),
+    ];
+
+    run_tests(test_configs)
+}
+
+#[rstest_parametrize(
+    tuning,
+    case::c_tuning(Tuning::C),
+    case::d_tuning(Tuning::D),
+    case::g_tuning(Tuning::G)
+)]
+fn test_suspended_fourth_chords(tuning: Tuning) -> Result<(), Box<dyn std::error::Error>> {
+    let ct = ChordType::SuspendedFourth;
+
+    let test_configs = vec![
+        TestConfig::new(ct, 0, 1, [0, 0, 1, 3], tuning),
+        TestConfig::new(ct, 9, 2, [2, 2, 0, 0], tuning),
+        TestConfig::new(ct, 7, 1, [0, 2, 3, 3], tuning),
+        TestConfig::new(ct, 5, 1, [3, 0, 1, 1], tuning),
+        TestConfig::new(ct, 2, 2, [0, 2, 3, 0], tuning),
     ];
 
     run_tests(test_configs)

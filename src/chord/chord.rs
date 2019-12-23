@@ -27,6 +27,7 @@ pub enum ChordType {
     Major,
     Minor,
     SuspendedSecond,
+    SuspendedFourth,
     Augmented,
     Diminished,
     DominantSeventh,
@@ -47,6 +48,7 @@ impl ChordType {
             Major => vec!["P1", "M3", "P5"],
             Minor => vec!["P1", "m3", "P5"],
             SuspendedSecond => vec!["P1", "M2", "P5"],
+            SuspendedFourth => vec!["P1", "P4", "P5"],
             Augmented => vec!["P1", "M3", "A5"],
             Diminished => vec!["P1", "m3", "d5"],
             DominantSeventh => vec!["P1", "M3", "P5", "m7"],
@@ -74,6 +76,7 @@ impl fmt::Display for ChordType {
             Major => "major",
             Minor => "minor",
             SuspendedSecond => "suspended 2nd",
+            SuspendedFourth => "suspended 4th",
             Augmented => "augmented",
             Diminished => "diminished",
             DominantSeventh => "dominant 7th",
@@ -164,6 +167,7 @@ impl FromStr for Chord {
         let chord_type = match &caps["type"] {
             "m" => Minor,
             "sus2" => SuspendedSecond,
+            "sus4" => SuspendedFourth,
             "aug" => Augmented,
             "dim" => Diminished,
             "7" => DominantSeventh,
@@ -309,6 +313,38 @@ mod tests {
         let f = Note::from_str(fifth).unwrap();
         assert_eq!(c.notes, vec![r, t, f]);
         assert_eq!(c.chord_type, ChordType::SuspendedSecond);
+    }
+
+    #[rstest_parametrize(
+        chord,
+        root,
+        third,
+        fifth,
+        case("Csus4", "C", "F", "G"),
+        case("C#sus4", "C#", "F#", "G#"),
+        case("Dbsus4", "Db", "Gb", "Ab"),
+        case("Dsus4", "D", "G", "A"),
+        case("D#sus4", "D#", "G#", "A#"),
+        case("Ebsus4", "Eb", "Ab", "Bb"),
+        case("Esus4", "E", "A", "B"),
+        case("Fsus4", "F", "Bb", "C"),
+        case("F#sus4", "F#", "B", "C#"),
+        case("Gbsus4", "Gb", "B", "Db"),
+        case("Gsus4", "G", "C", "D"),
+        case("G#sus4", "G#", "C#", "D#"),
+        case("Absus4", "Ab", "Db", "Eb"),
+        case("Asus4", "A", "D", "E"),
+        case("A#sus4", "A#", "D#", "F"),
+        case("Bbsus4", "Bb", "Eb", "F"),
+        case("Bsus4", "B", "E", "F#")
+    )]
+    fn test_from_str_suspended_fourth(chord: &str, root: &str, third: &str, fifth: &str) {
+        let c = Chord::from_str(chord).unwrap();
+        let r = Note::from_str(root).unwrap();
+        let t = Note::from_str(third).unwrap();
+        let f = Note::from_str(fifth).unwrap();
+        assert_eq!(c.notes, vec![r, t, f]);
+        assert_eq!(c.chord_type, ChordType::SuspendedFourth);
     }
 
     #[rstest_parametrize(
