@@ -45,10 +45,20 @@ Currently, `ukebox` can handle the following types of chords:
 
 * major chords, e.g. `C`, `D#`, `Eb`
 * minor chords, e.g. `Cm`, `D#m`, `Ebm`
+* suspended second chords, e.g. `Csus2`, `D#sus2`, `Ebsus2`
+* suspended fourth chords, e.g. `Csus4`, `D#sus4`, `Ebsus4`
+* augmented triads, e.g. `Caug`, `D#aug`, `Ebaug`
+* diminished triads, e.g. `Cdim`, `D#dim`, `Ebdim`
 * dominant 7th chords, e.g. `C7`, `D#7`, `Eb7`
 * minor 7th chords, e.g. `Cm7`, `D#m7`, `Ebm7`
+* major 7th chords, e.g. `Cmaj7`, `D#maj7`, `Ebmaj7`
+* minor/major 7th chords, e.g. `CmMaj7`, `D#mMaj7`, `EbmMaj7`
+* augmented 7th chords, e.g. `Caug7`, `D#aug7`, `Ebaug7`
+* augmented major 7th chords, e.g. `CaugMaj7`, `D#augMaj7`, `EbaugMaj7`
+* diminished 7th chords, e.g. `Cdim7`, `D#dim7`, `Ebdim7`
+* half-diminished 7th chords, e.g. `Cm7b5`, `D#m7b5`, `Ebm7b5`
 
-More types of chords will be supported in future versions.
+More types of chords will be supported in future versions (see [#35](https://github.com/noeddl/ukebox/issues/35)).
 
 ## Examples
 
