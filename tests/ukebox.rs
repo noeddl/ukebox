@@ -6,7 +6,7 @@
 /// expected output.
 use assert_cmd::prelude::*; // Add methods on commands
 use predicates::prelude::*; // Used for writing assertions
-use rstest::rstest_parametrize;
+use rstest::rstest;
 use std::fmt;
 use std::process::Command; // Run programs
 use std::str::FromStr;
@@ -297,7 +297,7 @@ fn run_tests(test_configs: Vec<TestConfig>) -> Result<(), Box<dyn std::error::Er
             // Run `cargo test -- --nocapture` to print all tests run.
             println!("{}", test);
 
-            let mut cmd = Command::main_binary()?;
+            let mut cmd = Command::cargo_bin("ukebox")?;
             cmd.arg(test.chord);
 
             cmd.arg("-t").arg(test.tuning.to_string());
@@ -317,7 +317,7 @@ fn run_tests(test_configs: Vec<TestConfig>) -> Result<(), Box<dyn std::error::Er
 
 #[test]
 fn test_no_args() -> Result<(), Box<dyn std::error::Error>> {
-    let mut cmd = Command::main_binary()?;
+    let mut cmd = Command::cargo_bin("ukebox")?;
     cmd.assert().failure().stderr(predicate::str::contains(
         "error: The following required arguments were not provided",
     ));
@@ -327,7 +327,7 @@ fn test_no_args() -> Result<(), Box<dyn std::error::Error>> {
 
 #[test]
 fn test_unknown_chord() -> Result<(), Box<dyn std::error::Error>> {
-    let mut cmd = Command::main_binary()?;
+    let mut cmd = Command::cargo_bin("ukebox")?;
     cmd.arg("blafoo");
     cmd.assert().failure().stderr(predicate::str::contains(
         "error: Invalid value for '<chord>': Could not parse chord name \"blafoo\"",
@@ -336,7 +336,7 @@ fn test_unknown_chord() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-#[rstest_parametrize(
+#[rstest(
     tuning,
     case::c_tuning(Tuning::C),
     case::d_tuning(Tuning::D),
@@ -356,7 +356,7 @@ fn test_major_chords(tuning: Tuning) -> Result<(), Box<dyn std::error::Error>> {
     run_tests(test_configs)
 }
 
-#[rstest_parametrize(
+#[rstest(
     tuning,
     case::c_tuning(Tuning::C),
     case::d_tuning(Tuning::D),
@@ -376,7 +376,7 @@ fn test_minor_chords(tuning: Tuning) -> Result<(), Box<dyn std::error::Error>> {
     run_tests(test_configs)
 }
 
-#[rstest_parametrize(
+#[rstest(
     tuning,
     case::c_tuning(Tuning::C),
     case::d_tuning(Tuning::D),
@@ -396,7 +396,7 @@ fn test_suspended_second_chords(tuning: Tuning) -> Result<(), Box<dyn std::error
     run_tests(test_configs)
 }
 
-#[rstest_parametrize(
+#[rstest(
     tuning,
     case::c_tuning(Tuning::C),
     case::d_tuning(Tuning::D),
@@ -416,7 +416,7 @@ fn test_suspended_fourth_chords(tuning: Tuning) -> Result<(), Box<dyn std::error
     run_tests(test_configs)
 }
 
-#[rstest_parametrize(
+#[rstest(
     tuning,
     case::c_tuning(Tuning::C),
     case::d_tuning(Tuning::D),
@@ -438,7 +438,7 @@ fn test_augmented_chords(tuning: Tuning) -> Result<(), Box<dyn std::error::Error
     run_tests(test_configs)
 }
 
-#[rstest_parametrize(
+#[rstest(
     tuning,
     case::c_tuning(Tuning::C),
     case::d_tuning(Tuning::D),
@@ -458,7 +458,7 @@ fn test_diminished_chords(tuning: Tuning) -> Result<(), Box<dyn std::error::Erro
     run_tests(test_configs)
 }
 
-#[rstest_parametrize(
+#[rstest(
     tuning,
     case::c_tuning(Tuning::C),
     case::d_tuning(Tuning::D),
@@ -477,7 +477,7 @@ fn test_dominant_seventh_chords(tuning: Tuning) -> Result<(), Box<dyn std::error
     run_tests(test_configs)
 }
 
-#[rstest_parametrize(
+#[rstest(
     tuning,
     case::c_tuning(Tuning::C),
     case::d_tuning(Tuning::D),
@@ -496,7 +496,7 @@ fn test_minor_seventh_chords(tuning: Tuning) -> Result<(), Box<dyn std::error::E
     run_tests(test_configs)
 }
 
-#[rstest_parametrize(
+#[rstest(
     tuning,
     case::c_tuning(Tuning::C),
     case::d_tuning(Tuning::D),
@@ -516,7 +516,7 @@ fn test_major_seventh_chords(tuning: Tuning) -> Result<(), Box<dyn std::error::E
     run_tests(test_configs)
 }
 
-#[rstest_parametrize(
+#[rstest(
     tuning,
     case::c_tuning(Tuning::C),
     case::d_tuning(Tuning::D),
@@ -536,7 +536,7 @@ fn test_minor_major_seventh_chords(tuning: Tuning) -> Result<(), Box<dyn std::er
     run_tests(test_configs)
 }
 
-#[rstest_parametrize(
+#[rstest(
     tuning,
     case::c_tuning(Tuning::C),
     case::d_tuning(Tuning::D),
@@ -555,7 +555,7 @@ fn test_augmented_seventh_chords(tuning: Tuning) -> Result<(), Box<dyn std::erro
     run_tests(test_configs)
 }
 
-#[rstest_parametrize(
+#[rstest(
     tuning,
     case::c_tuning(Tuning::C),
     case::d_tuning(Tuning::D),
@@ -575,7 +575,7 @@ fn test_augmented_major_seventh_chords(tuning: Tuning) -> Result<(), Box<dyn std
     run_tests(test_configs)
 }
 
-#[rstest_parametrize(
+#[rstest(
     tuning,
     case::c_tuning(Tuning::C),
     case::d_tuning(Tuning::D),
@@ -594,7 +594,7 @@ fn test_diminished_seventh_chords(tuning: Tuning) -> Result<(), Box<dyn std::err
     run_tests(test_configs)
 }
 
-#[rstest_parametrize(
+#[rstest(
     tuning,
     case::c_tuning(Tuning::C),
     case::d_tuning(Tuning::D),

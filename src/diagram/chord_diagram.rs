@@ -89,10 +89,10 @@ impl fmt::Display for ChordDiagram {
 mod tests {
     use super::*;
     use indoc::indoc;
-    use rstest::rstest_parametrize;
+    use rstest::rstest;
     use std::str::FromStr;
 
-    #[rstest_parametrize(chord_name, min_fret, tuning, diagram,
+    #[rstest(chord_name, min_fret, tuning, diagram,
         case(
             "C",
             0,
