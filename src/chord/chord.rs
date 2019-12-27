@@ -6,6 +6,7 @@ use crate::diagram::ChordDiagram;
 use crate::note::Note;
 use crate::note::PitchClass;
 use regex::Regex;
+use std::convert::TryFrom;
 use std::fmt;
 use std::str::FromStr;
 
@@ -22,6 +23,7 @@ impl fmt::Display for ParseChordError {
 }
 
 /// A chord such as C, Cm and so on.
+#[derive(Debug, PartialEq)]
 pub struct Chord {
     name: String,
     pub chord_type: ChordType,
@@ -125,11 +127,39 @@ impl FromStr for Chord {
     }
 }
 
+impl TryFrom<&[PitchClass]> for Chord {
+    type Error = &'static str;
+
+    /// Determine the chord that is represented by a list of pitch classes.
+    fn try_from(pitches: &[PitchClass]) -> Result<Self, Self::Error> {
+        let chord_type = ChordType::try_from(pitches)?;
+
+        let root = Note::from(pitches[0]);
+
+        // Collect notes of the chord.
+        let mut notes = vec![];
+
+        for interval in chord_type.get_intervals() {
+            notes.push(root + interval);
+        }
+
+        let name = format!("{}{}", root, chord_type.to_symbol());
+
+        Ok(Self {
+            name,
+            root,
+            chord_type,
+            notes,
+        })
+    }
+}
+
 #[cfg(test)]
 mod tests {
     #![allow(clippy::many_single_char_names)]
     use super::*;
     use rstest::rstest;
+    use PitchClass::*;
 
     #[rstest(
         chord,
@@ -656,6 +686,38 @@ mod tests {
         let s = Note::from_str(seventh).unwrap();
         assert_eq!(c.notes, vec![r, t, f, s]);
         assert_eq!(c.chord_type, ChordType::HalfDiminishedSeventh);
+    }
+
+    #[rstest(
+        pitches,
+        chord_name,
+        // Test C-chords.
+        case(vec![C, E, G], "C"),
+        case(vec![C, DSharp, G], "Cm"),
+        case(vec![C, D, G], "Csus2"),
+        case(vec![C, F, G], "Csus4"),
+        case(vec![C, E, GSharp], "Caug"),
+        case(vec![C, DSharp, FSharp], "Cdim"),
+        case(vec![C, E, G, ASharp], "C7"),
+        case(vec![C, DSharp, G, ASharp], "Cm7"),
+        case(vec![C, E, G, B], "Cmaj7"),
+        case(vec![C, DSharp, G, B], "CmMaj7"),
+        case(vec![C, E, GSharp, ASharp], "Caug7"),
+        case(vec![C, E, GSharp, B], "CaugMaj7"),
+        case(vec![C, DSharp, FSharp, A], "Cdim7"),
+        case(vec![C, DSharp, FSharp, ASharp], "Cm7b5"),
+        // Test some chords with other root notes.
+        case(vec![D, FSharp, A], "D"),
+        case(vec![D, F, A], "Dm"),
+        case(vec![D, FSharp, A, C], "D7"),
+        case(vec![G, B, D], "G"),
+        // Test pitch class list in different order.
+        case(vec![C, G, E], "C"),
+    )]
+    fn test_get_chord_type(pitches: Vec<PitchClass>, chord_name: &str) {
+        let chord1 = Chord::try_from(&pitches[..]).unwrap();
+        let chord2 = Chord::from_str(chord_name).unwrap();
+        assert_eq!(chord1, chord2);
     }
 
     #[rstest(
