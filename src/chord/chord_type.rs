@@ -49,6 +49,29 @@ impl ChordType {
             .map(|s| Interval::from_str(s).unwrap())
             .collect()
     }
+
+    pub fn to_symbol(self) -> String {
+        use ChordType::*;
+
+        let s = match self {
+            Major => "",
+            Minor => "m",
+            SuspendedSecond => "sus2",
+            SuspendedFourth => "sus4",
+            Augmented => "aug",
+            Diminished => "dim",
+            DominantSeventh => "7",
+            MinorSeventh => "m7",
+            MajorSeventh => "maj7",
+            MinorMajorSeventh => "mMaj7",
+            AugmentedSeventh => "aug7",
+            AugmentedMajorSeventh => "augMaj7",
+            DiminishedSeventh => "dim7",
+            HalfDiminishedSeventh => "m7b5",
+        };
+
+        s.to_string()
+    }
 }
 
 impl fmt::Display for ChordType {
