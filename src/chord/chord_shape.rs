@@ -1,7 +1,7 @@
 use crate::chord::ChordType;
 use crate::chord::FretID;
-use crate::chord::FretPattern;
 use crate::chord::Tuning;
+use crate::diagram::FretPattern;
 use crate::note::Note;
 use crate::note::Semitones;
 use std::str::FromStr;
@@ -20,23 +20,17 @@ pub struct ChordShape {
 }
 
 impl ChordShape {
-    fn new(note_name: &str, frets: FretPattern) -> Self {
+    fn new(note_name: &str, frets: impl Into<FretPattern>) -> Self {
         Self {
             root: Note::from_str(note_name).unwrap(),
-            frets,
+            frets: frets.into(),
         }
     }
 
     /// Apply the chord shape while moving it `n` frets forward on the fretboard.
     /// Return the resulting fret pattern.
     fn apply(self, n: Semitones) -> FretPattern {
-        let mut frets = self.frets;
-
-        for f in &mut frets[..] {
-            *f += n;
-        }
-
-        frets
+        self.frets + n
     }
 }
 

@@ -1,7 +1,7 @@
 use crate::chord::Chord;
 use crate::chord::FretID;
-use crate::chord::FretPattern;
 use crate::chord::Tuning;
+use crate::diagram::FretPattern;
 use crate::diagram::StringDiagram;
 use crate::diagram::CHART_WIDTH;
 use crate::note::Note;
@@ -19,7 +19,7 @@ pub struct ChordDiagram {
 }
 
 impl ChordDiagram {
-    pub fn new(chord: Chord, frets: FretPattern, tuning: Tuning) -> Self {
+    pub fn new(chord: Chord, frets: impl Into<FretPattern>, tuning: Tuning) -> Self {
         let interval = tuning.get_interval();
 
         let roots = [
@@ -32,7 +32,7 @@ impl ChordDiagram {
         Self {
             roots,
             chord,
-            frets,
+            frets: frets.into(),
             root_width: tuning.get_root_width(),
         }
     }
@@ -43,11 +43,11 @@ impl ChordDiagram {
     /// beginning at the first fret, otherwise use the leftmost fret
     /// needed for the chords to be played.
     fn get_base_fret(&self) -> FretID {
-        let max_fret = *self.frets.iter().max().unwrap();
+        let max_fret = self.frets.get_max_fret();
 
         match max_fret {
             max_fret if max_fret <= CHART_WIDTH => 1,
-            _ => *self.frets.iter().min().unwrap(),
+            _ => self.frets.get_min_fret(),
         }
     }
 
