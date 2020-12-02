@@ -42,9 +42,10 @@ impl ChordDiagram {
     fn get_notes(&self) -> [Note; STRING_COUNT] {
         let mut notes = self.tuning.get_roots();
 
-        for (i, fret) in self.frets.iter().enumerate() {
-            let pitch_class = notes[i].pitch_class + *fret;
-            notes[i] = match self.chord.get_note(pitch_class) {
+        let pitches = self.frets.get_pitch_classes(self.tuning);
+
+        for (i, pitch_class) in pitches.iter().enumerate() {
+            notes[i] = match self.chord.get_note(*pitch_class) {
                 Some(note) => *note,
                 _ => panic!(
                     "No note with pitch class {:?} in chord {}",

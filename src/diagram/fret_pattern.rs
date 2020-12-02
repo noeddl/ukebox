@@ -1,6 +1,7 @@
 use crate::STRING_COUNT;
-use crate::chord::FretID;
-use crate::note::Semitones;
+use crate::chord::{FretID, Tuning};
+use crate::note::{PitchClass, Semitones};
+use std::convert::TryInto;
 use std::ops::{Add, Index};
 use std::slice::Iter;
 
@@ -22,6 +23,13 @@ impl FretPattern {
 
     pub fn get_max_fret(&self) -> FretID {
         *self.iter().max().unwrap()
+    }
+
+    pub fn get_pitch_classes(&self, tuning: Tuning) -> [PitchClass; STRING_COUNT] {
+        let roots = tuning.get_roots();
+        let pitches: Vec<_> = self.iter().zip(roots.iter()).map(|(fret, note)| note.pitch_class + *fret).collect();
+
+        pitches.try_into().unwrap()
     }
 }
 
