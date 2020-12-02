@@ -1,5 +1,8 @@
 use crate::note::Interval;
+use crate::note::Note;
 use crate::note::Semitones;
+use crate::STRING_COUNT;
+use std::str::FromStr;
 use structopt::clap::arg_enum;
 
 // Using clap's `arg_enum` macro allows the specification of all Tuning
@@ -28,6 +31,17 @@ impl Tuning {
             Self::D => Interval::MajorSecond,
             Self::G => Interval::PerfectFifth,
         }
+    }
+
+    pub fn get_roots(self) -> [Note; STRING_COUNT] {
+        let interval = self.get_interval();
+
+        [
+            Note::from_str("G").unwrap() + interval,
+            Note::from_str("C").unwrap() + interval,
+            Note::from_str("E").unwrap() + interval,
+            Note::from_str("A").unwrap() + interval,
+        ]
     }
 
     /// Get the width of the space that we need to print the name

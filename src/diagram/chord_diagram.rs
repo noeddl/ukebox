@@ -7,7 +7,6 @@ use crate::diagram::CHART_WIDTH;
 use crate::note::Note;
 use crate::STRING_COUNT;
 use std::fmt;
-use std::str::FromStr;
 
 type NotePattern = [Note; STRING_COUNT];
 
@@ -20,14 +19,7 @@ pub struct ChordDiagram {
 
 impl ChordDiagram {
     pub fn new(chord: Chord, frets: impl Into<FretPattern>, tuning: Tuning) -> Self {
-        let interval = tuning.get_interval();
-
-        let roots = [
-            Note::from_str("G").unwrap() + interval,
-            Note::from_str("C").unwrap() + interval,
-            Note::from_str("E").unwrap() + interval,
-            Note::from_str("A").unwrap() + interval,
-        ];
+        let roots = tuning.get_roots();
 
         Self {
             roots,
