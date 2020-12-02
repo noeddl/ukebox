@@ -8,24 +8,18 @@ use crate::note::Note;
 use crate::STRING_COUNT;
 use std::fmt;
 
-type NotePattern = [Note; STRING_COUNT];
-
 pub struct ChordDiagram {
     chord: Chord,
-    roots: NotePattern,
     frets: FretPattern,
-    root_width: usize,
+    tuning: Tuning,
 }
 
 impl ChordDiagram {
     pub fn new(chord: Chord, frets: impl Into<FretPattern>, tuning: Tuning) -> Self {
-        let roots = tuning.get_roots();
-
         Self {
-            roots,
             chord,
             frets: frets.into(),
-            root_width: tuning.get_root_width(),
+            tuning,
         }
     }
 
@@ -45,8 +39,8 @@ impl ChordDiagram {
 
     /// Compute the notes that correspond to the frets shown as pressed
     /// in the chord diagram.
-    fn get_notes(&self) -> NotePattern {
-        let mut notes = self.roots;
+    fn get_notes(&self) -> [Note; STRING_COUNT] {
+        let mut notes = self.tuning.get_roots();
 
         for (i, fret) in self.frets.iter().enumerate() {
             let pitch_class = notes[i].pitch_class + *fret;
@@ -71,14 +65,16 @@ impl fmt::Display for ChordDiagram {
         // Determine from which fret to show the fretboard.
         let base_fret = self.get_base_fret();
 
+        let roots = self.tuning.get_roots();
         let notes = self.get_notes();
+        let root_width = self.tuning.get_root_width();
 
         // Create a diagram for each ukulele string.
         for i in (0..STRING_COUNT).rev() {
-            let root = self.roots[i];
+            let root = roots[i];
             let fret = self.frets[i];
             let note = notes[i];
-            let sd = StringDiagram::new(root, base_fret, fret, note, self.root_width);
+            let sd = StringDiagram::new(root, base_fret, fret, note, root_width);
             s.push_str(&format!("{}\n", sd.to_string()));
         }
 
@@ -88,7 +84,7 @@ impl fmt::Display for ChordDiagram {
             s.push_str(&format!(
                 "{:width$}\n",
                 base_fret,
-                width = self.root_width + 6
+                width = root_width + 6
             ))
         }
 
