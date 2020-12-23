@@ -6,6 +6,7 @@ use crate::diagram::StringDiagram;
 use crate::diagram::CHART_WIDTH;
 use crate::note::Note;
 use crate::STRING_COUNT;
+use std::convert::TryInto;
 use std::fmt;
 
 pub struct ChordDiagram {
@@ -40,21 +41,11 @@ impl ChordDiagram {
     /// Compute the notes that correspond to the frets shown as pressed
     /// in the chord diagram.
     fn get_notes(&self) -> [Note; STRING_COUNT] {
-        let mut notes = self.tuning.get_roots();
-
         let pitches = self.frets.get_pitch_classes(self.tuning);
 
-        for (i, pitch_class) in pitches.iter().enumerate() {
-            notes[i] = match self.chord.get_note(*pitch_class) {
-                Some(note) => *note,
-                _ => panic!(
-                    "No note with pitch class {:?} in chord {}",
-                    pitch_class, self.chord
-                ),
-            }
-        }
+        let notes: Vec<_> = pitches.iter().map(|pc| self.chord.get_note(*pc).unwrap()).copied().collect();
 
-        notes
+        notes.try_into().unwrap()
     }
 }
 
