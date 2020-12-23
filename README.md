@@ -4,7 +4,7 @@
 [![Documentation](https://docs.rs/ukebox/badge.svg)](https://docs.rs/ukebox)
 [![travis](https://travis-ci.com/noeddl/ukebox.svg?branch=master)](https://travis-ci.com/noeddl/ukebox)
 [![license](https://img.shields.io/crates/l/ukebox)](#license)
-[![rustc](https://img.shields.io/badge/rustc-1.37+-lightgray.svg)](https://blog.rust-lang.org/2019/08/15/Rust-1.37.0.html)
+[![rustc](https://img.shields.io/badge/rustc-1.48+-lightgray.svg)](https://blog.rust-lang.org/2020/11/19/Rust-1.48.html)
 
 `ukebox` is a command-line tool that shows you how to play a given chord on a ukulele by printing a chord diagram in ASCII art.
 
