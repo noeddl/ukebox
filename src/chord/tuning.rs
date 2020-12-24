@@ -2,6 +2,7 @@ use crate::note::Interval;
 use crate::note::Note;
 use crate::note::Semitones;
 use crate::STRING_COUNT;
+use std::convert::TryInto;
 use std::str::FromStr;
 use structopt::clap::arg_enum;
 
@@ -36,12 +37,7 @@ impl Tuning {
     pub fn get_roots(self) -> [Note; STRING_COUNT] {
         let interval = self.get_interval();
 
-        [
-            Note::from_str("G").unwrap() + interval,
-            Note::from_str("C").unwrap() + interval,
-            Note::from_str("E").unwrap() + interval,
-            Note::from_str("A").unwrap() + interval,
-        ]
+        ["G", "C", "E", "A"].iter().map(|c| Note::from_str(c).unwrap() + interval).collect::<Vec<Note>>().try_into().unwrap()
     }
 
     /// Get the width of the space that we need to print the name
