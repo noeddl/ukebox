@@ -1,7 +1,7 @@
 use crate::STRING_COUNT;
-use crate::chord::{FretID, Tuning};
+use crate::chord::{Chord, FretID, Tuning};
 use crate::note::{PitchClass, Semitones};
-use std::convert::TryInto;
+use std::convert::{TryFrom, TryInto};
 use std::ops::{Add, Index};
 use std::slice::Iter;
 use std::str::FromStr;
@@ -26,11 +26,20 @@ impl FretPattern {
         *self.iter().max().unwrap()
     }
 
-    pub fn get_pitch_classes(&self, tuning: Tuning) -> [PitchClass; STRING_COUNT] {
+    pub fn get_pitch_classes(&self, tuning: Tuning) -> Vec<PitchClass> {
         let roots = tuning.get_roots();
         let pitches: Vec<_> = self.iter().zip(roots.iter()).map(|(fret, note)| note.pitch_class + *fret).collect();
 
-        pitches.try_into().unwrap()
+        pitches
+    }
+
+    pub fn get_chord(&self, tuning: Tuning) -> Result<Chord, &'static str> {
+        let mut pitches = self.get_pitch_classes(tuning);
+
+        pitches.sort();
+        pitches.dedup();
+
+        Chord::try_from(&pitches[..])
     }
 }
 
@@ -96,6 +105,7 @@ impl Add<Semitones> for FretPattern {
 mod tests {
     use super::*;
     use rstest::rstest;
+    use Tuning;
 
     #[rstest(
         s, frets,
@@ -115,5 +125,27 @@ mod tests {
     )]
     fn test_from_str_fail(s: &str) {
         assert!(FretPattern::from_str(s).is_err())
+    }
+
+    #[rstest(
+        frets, chord_str, tuning,
+        case([0, 0, 0, 3], "C", Tuning::C),
+        case([0, 0, 0, 3], "D", Tuning::D),
+        case([2, 2, 2, 0], "D", Tuning::C),
+    )]
+    fn test_get_chord(frets: [FretID; STRING_COUNT], chord_str: &str, tuning: Tuning) {
+        let fret_pattern = FretPattern::from(frets);
+        let chord1 = fret_pattern.get_chord(tuning).unwrap();
+        let chord2 = Chord::from_str(chord_str).unwrap();
+        assert_eq!(chord1, chord2);
+    }
+
+    #[rstest(
+        frets,
+        case([1, 2, 3, 4]),
+    )]
+    fn test_get_chord_fail(frets: [FretID; STRING_COUNT]) {
+        let fret_pattern = FretPattern::from(frets);
+        assert!(fret_pattern.get_chord(Tuning::C).is_err());
     }
 }
