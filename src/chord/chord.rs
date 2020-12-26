@@ -7,6 +7,7 @@ use crate::note::Note;
 use crate::note::PitchClass;
 use regex::Regex;
 use std::convert::TryFrom;
+use std::error::Error;
 use std::fmt;
 use std::str::FromStr;
 
@@ -15,6 +16,8 @@ use std::str::FromStr;
 pub struct ParseChordError {
     name: String,
 }
+
+impl Error for ParseChordError {}
 
 impl fmt::Display for ParseChordError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
