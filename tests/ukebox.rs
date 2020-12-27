@@ -269,6 +269,54 @@ impl TestConfig {
 
         tests
     }
+
+    fn generate_reverse_tests(&mut self) -> Vec<ReverseTest> {
+        use ChordType::*;
+
+        let note_names = [
+            "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B",
+        ];
+
+        let mut tests = Vec::new();
+
+        let start_index = self.start_index + self.tuning.get_semitones() as usize;
+
+        // Move upwards the fretboard using the given chord shape.
+        for i in 0..13 {
+            let index = start_index + i;
+            let root = *note_names.iter().cycle().nth(index).unwrap();
+            let suffix = match self.chord_type {
+                Major => "",
+                Minor => "m",
+                SuspendedSecond => "sus2",
+                SuspendedFourth => "sus4",
+                Augmented => "aug",
+                Diminished => "dim",
+                DominantSeventh => "7",
+                MinorSeventh => "m7",
+                MajorSeventh => "maj7",
+                MinorMajorSeventh => "mMaj7",
+                AugmentedSeventh => "aug7",
+                AugmentedMajorSeventh => "augMaj7",
+                DiminishedSeventh => "dim7",
+                HalfDiminishedSeventh => "m7b5",
+            };
+            let chord = format!("{}{}", root, suffix);
+            let title = format!("{} - {} {}", chord, root, self.chord_type);
+
+            let fret_str: String = self.frets.iter().map(|n| n.to_string()).collect();
+
+            let test = ReverseTest{
+                title, tuning: self.tuning, fret_str
+            };
+
+            tests.push(test);
+
+            *self = self.next();
+        }
+
+        tests
+    }
 }
 
 /// A set of command line arguments and options together with the
@@ -285,6 +333,23 @@ impl fmt::Display for Test {
         let s = format!(
             "cargo run -- {} -t {} -f {}\n\n{}\n",
             self.chord, self.tuning, self.min_fret, self.diagram
+        );
+
+        write!(f, "{}", s)
+    }
+}
+
+struct ReverseTest {
+    title: String,
+    tuning: Tuning,
+    fret_str: String
+}
+
+impl fmt::Display for ReverseTest {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let s = format!(
+            "cargo run -- {} -t {} -r\n\n{}\n",
+            self.fret_str, self.tuning, self.title
         );
 
         write!(f, "{}", s)
@@ -309,6 +374,28 @@ fn run_tests(test_configs: Vec<TestConfig>) -> Result<(), Box<dyn std::error::Er
             cmd.assert()
                 .success()
                 .stdout(predicate::str::contains(test.diagram));
+        }
+    }
+
+    Ok(())
+}
+
+fn run_reverse_tests(test_configs: Vec<TestConfig>) -> Result<(), Box<dyn std::error::Error>> {
+    for mut test_config in test_configs {
+        for test in test_config.generate_reverse_tests() {
+            // Run `cargo test -- --nocapture` to print all tests run.
+            println!("{}", test);
+
+            let mut cmd = Command::cargo_bin("ukebox")?;
+            cmd.arg(format!("{}", test.fret_str));
+
+            cmd.arg("-t").arg(test.tuning.to_string());
+
+            cmd.arg("-r");
+
+            cmd.assert()
+                .success()
+                .stdout(predicate::str::contains(test.title));
         }
     }
 
@@ -354,6 +441,26 @@ fn test_major_chords(tuning: Tuning) -> Result<(), Box<dyn std::error::Error>> {
     ];
 
     run_tests(test_configs)
+}
+
+#[rstest(
+    tuning,
+    case::c_tuning(Tuning::C),
+    case::d_tuning(Tuning::D),
+    case::g_tuning(Tuning::G)
+)]
+fn test_reverse_major_chords(tuning: Tuning) -> Result<(), Box<dyn std::error::Error>> {
+    let ct = ChordType::Major;
+
+    let test_configs = vec![
+        TestConfig::new(ct, 0, 1, [0, 0, 0, 3], tuning),
+        TestConfig::new(ct, 9, 2, [2, 1, 0, 0], tuning),
+        TestConfig::new(ct, 7, 1, [0, 2, 3, 2], tuning),
+        TestConfig::new(ct, 5, 1, [2, 0, 1, 0], tuning),
+        TestConfig::new(ct, 2, 2, [2, 2, 2, 0], tuning),
+    ];
+
+    run_reverse_tests(test_configs)
 }
 
 #[rstest(
