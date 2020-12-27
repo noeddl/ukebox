@@ -39,7 +39,17 @@ impl FretPattern {
         pitches.sort();
         pitches.dedup();
 
-        Chord::try_from(&pitches[..])
+        // Rotate pitch class list until a matching chord is found.
+        // For example, try [C, DSharp, GSharp], [DSharp, GSharp, C], [GSharp, C, FSharp].
+        for _ in 0..pitches.len() {
+            if let Ok(chord) = Chord::try_from(&pitches[..]) {
+                return Ok(chord);
+            }
+
+            pitches.rotate_left(1);
+        }
+
+        Err("No matching chord found.")
     }
 }
 
