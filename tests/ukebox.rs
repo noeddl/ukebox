@@ -385,7 +385,7 @@ fn run_tests(test_configs: Vec<TestConfig>) -> Result<(), Box<dyn std::error::Er
 
             cmd.assert()
                 .success()
-                .stdout(predicate::str::contains(test.diagram));
+                .stdout(format!("{}\n", test.diagram));
         }
     }
 
@@ -407,7 +407,7 @@ fn run_reverse_tests(test_configs: Vec<TestConfig>) -> Result<(), Box<dyn std::e
 
             cmd.assert()
                 .success()
-                .stdout(predicate::str::contains(test.title));
+                .stdout(format!("{}\n", test.title));
         }
     }
 
