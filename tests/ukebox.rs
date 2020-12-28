@@ -304,7 +304,7 @@ impl TestConfig {
             let chord = format!("{}{}", root, suffix);
             let title = format!("{} - {} {}", chord, root, self.chord_type);
 
-            let fret_str: String = self.frets.iter().map(|n| n.to_string()).collect();
+            let fret_str = frets2string(self.frets);
 
             let test = ReverseTest{
                 title, tuning: self.tuning, fret_str
@@ -317,6 +317,18 @@ impl TestConfig {
 
         tests
     }
+}
+
+fn frets2string(frets: [FretID; 4]) -> String {
+    // Determine whether to add a space between fret ids. This is only needed if the pattern
+    // contains ids consisting of more than one digit, e.g. [7, 7, 7, 10] is converted to
+    // "7 7 7 10".
+    let space = match frets.iter().filter(|n| **n > 9).count() {
+        0 => "",
+        _ => " "
+    };
+
+    frets.iter().map(|n| format!("{}{}", n, space)).collect::<String>().trim().to_string()
 }
 
 /// A set of command line arguments and options together with the

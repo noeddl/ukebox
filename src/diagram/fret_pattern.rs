@@ -78,7 +78,14 @@ impl FromStr for FretPattern {
     type Err = &'static str;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let fret_res: Result<Vec<FretID>, _> = s.chars().map(|c| c.to_string().parse()).collect();
+        // Handle both patterns containing spaces such as "1 2 3 4" as well as patterns
+        // without spaces such as "1234".
+        let split: Vec<String> = match s.contains(" ") {
+            true => s.split(" ").map(|c| c.to_string()).collect(),
+            false => s.chars().map(|c| c.to_string()).collect()
+        };
+
+        let fret_res: Result<Vec<FretID>, _> = split.iter().map(|s| s.parse()).collect();
 
         match fret_res {
             Ok(fret_vec) => Ok(Self::from(fret_vec)),
