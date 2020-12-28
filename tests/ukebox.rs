@@ -459,6 +459,18 @@ fn get_minor_chord_config(tuning: Tuning) -> Vec<TestConfig> {
     ]
 }
 
+fn get_suspended_second_chord_config(tuning: Tuning) -> Vec<TestConfig> {
+    let ct = ChordType::SuspendedSecond;
+
+    vec![
+        TestConfig::new(ct, 0, 1, [0, 2, 3, 3], tuning),
+        TestConfig::new(ct, 10, 1, [3, 0, 1, 1], tuning),
+        TestConfig::new(ct, 7, 1, [0, 2, 3, 0], tuning),
+        TestConfig::new(ct, 5, 1, [0, 0, 1, 3], tuning),
+        TestConfig::new(ct, 2, 2, [2, 2, 0, 0], tuning),
+    ]
+}
+
 #[rstest(
     tuning,
     case::c_tuning(Tuning::C),
@@ -514,17 +526,21 @@ fn test_reverse_minor_chords(tuning: Tuning) -> Result<(), Box<dyn std::error::E
     case::g_tuning(Tuning::G)
 )]
 fn test_suspended_second_chords(tuning: Tuning) -> Result<(), Box<dyn std::error::Error>> {
-    let ct = ChordType::SuspendedSecond;
-
-    let test_configs = vec![
-        TestConfig::new(ct, 0, 1, [0, 2, 3, 3], tuning),
-        TestConfig::new(ct, 10, 1, [3, 0, 1, 1], tuning),
-        TestConfig::new(ct, 7, 1, [0, 2, 3, 0], tuning),
-        TestConfig::new(ct, 5, 1, [0, 0, 1, 3], tuning),
-        TestConfig::new(ct, 2, 2, [2, 2, 0, 0], tuning),
-    ];
+    let test_configs = get_suspended_second_chord_config(tuning);
 
     run_tests(test_configs)
+}
+
+#[rstest(
+    tuning,
+    case::c_tuning(Tuning::C),
+    case::d_tuning(Tuning::D),
+    case::g_tuning(Tuning::G)
+)]
+fn test_reverse_suspended_second_chords(tuning: Tuning) -> Result<(), Box<dyn std::error::Error>> {
+    let test_configs = get_suspended_second_chord_config(tuning);
+
+    run_reverse_tests(test_configs)
 }
 
 #[rstest(
