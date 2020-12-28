@@ -7,6 +7,7 @@
 use assert_cmd::prelude::*; // Add methods on commands
 use predicates::prelude::*; // Used for writing assertions
 use rstest::rstest;
+use std::collections::HashMap;
 use std::fmt;
 use std::process::Command; // Run programs
 use std::str::FromStr;
@@ -270,14 +271,14 @@ impl TestConfig {
         tests
     }
 
-    fn generate_reverse_tests(&mut self) -> Vec<ReverseTest> {
+    fn generate_reverse_tests(&mut self) -> HashMap<(String,Tuning), Vec<String>> {
         use ChordType::*;
 
         let note_names = [
             "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B",
         ];
 
-        let mut tests = Vec::new();
+        let mut tests = HashMap::new();
 
         let start_index = self.start_index + self.tuning.get_semitones() as usize;
 
@@ -303,14 +304,9 @@ impl TestConfig {
             };
             let chord = format!("{}{}", root, suffix);
             let title = format!("{} - {} {}", chord, root, self.chord_type);
-
             let fret_str = frets2string(self.frets);
 
-            let test = ReverseTest{
-                title, tuning: self.tuning, fret_str
-            };
-
-            tests.push(test);
+            tests.entry((fret_str, self.tuning)).or_insert(Vec::new()).push(title);
 
             *self = self.next();
         }
@@ -394,20 +390,27 @@ fn run_tests(test_configs: Vec<TestConfig>) -> Result<(), Box<dyn std::error::Er
 
 fn run_reverse_tests(test_configs: Vec<TestConfig>) -> Result<(), Box<dyn std::error::Error>> {
     for mut test_config in test_configs {
-        for test in test_config.generate_reverse_tests() {
+        for ((fret_str, tuning), titles) in test_config.generate_reverse_tests() {
+            let title = titles.join("\n");
+
+            let s = format!(
+                "cargo run -- {} -t {} -r\n\n{}\n",
+                fret_str, tuning, title
+            );
+
             // Run `cargo test -- --nocapture` to print all tests run.
-            println!("{}", test);
+            println!("{}", s);
 
             let mut cmd = Command::cargo_bin("ukebox")?;
-            cmd.arg(format!("{}", test.fret_str));
+            cmd.arg(format!("{}", fret_str));
 
-            cmd.arg("-t").arg(test.tuning.to_string());
+            cmd.arg("-t").arg(tuning.to_string());
 
             cmd.arg("-r");
 
             cmd.assert()
                 .success()
-                .stdout(format!("{}\n", test.title));
+                .stdout(format!("{}\n", title));
         }
     }
 
@@ -477,10 +480,12 @@ fn get_suspended_second_chord_config(tuning: Tuning) -> Vec<TestConfig> {
     case::d_tuning(Tuning::D),
     case::g_tuning(Tuning::G)
 )]
-fn test_major_chords(tuning: Tuning) -> Result<(), Box<dyn std::error::Error>> {
-    let test_configs = get_major_chord_config(tuning);
+fn test_reverse_chords(tuning: Tuning) -> Result<(), Box<dyn std::error::Error>> {
+    let mut test_configs = get_major_chord_config(tuning);
+    test_configs.extend(get_major_chord_config(tuning));
+    test_configs.extend(get_suspended_second_chord_config(tuning));
 
-    run_tests(test_configs)
+    run_reverse_tests(test_configs)
 }
 
 #[rstest(
@@ -489,10 +494,10 @@ fn test_major_chords(tuning: Tuning) -> Result<(), Box<dyn std::error::Error>> {
     case::d_tuning(Tuning::D),
     case::g_tuning(Tuning::G)
 )]
-fn test_reverse_major_chords(tuning: Tuning) -> Result<(), Box<dyn std::error::Error>> {
+fn test_major_chords(tuning: Tuning) -> Result<(), Box<dyn std::error::Error>> {
     let test_configs = get_major_chord_config(tuning);
 
-    run_reverse_tests(test_configs)
+    run_tests(test_configs)
 }
 
 #[rstest(
@@ -513,34 +518,10 @@ fn test_minor_chords(tuning: Tuning) -> Result<(), Box<dyn std::error::Error>> {
     case::d_tuning(Tuning::D),
     case::g_tuning(Tuning::G)
 )]
-fn test_reverse_minor_chords(tuning: Tuning) -> Result<(), Box<dyn std::error::Error>> {
-    let test_configs = get_minor_chord_config(tuning);
-
-    run_reverse_tests(test_configs)
-}
-
-#[rstest(
-    tuning,
-    case::c_tuning(Tuning::C),
-    case::d_tuning(Tuning::D),
-    case::g_tuning(Tuning::G)
-)]
 fn test_suspended_second_chords(tuning: Tuning) -> Result<(), Box<dyn std::error::Error>> {
     let test_configs = get_suspended_second_chord_config(tuning);
 
     run_tests(test_configs)
-}
-
-#[rstest(
-    tuning,
-    case::c_tuning(Tuning::C),
-    case::d_tuning(Tuning::D),
-    case::g_tuning(Tuning::G)
-)]
-fn test_reverse_suspended_second_chords(tuning: Tuning) -> Result<(), Box<dyn std::error::Error>> {
-    let test_configs = get_suspended_second_chord_config(tuning);
-
-    run_reverse_tests(test_configs)
 }
 
 #[rstest(

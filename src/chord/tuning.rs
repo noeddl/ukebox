@@ -9,7 +9,7 @@ use structopt::clap::arg_enum;
 // Using clap's `arg_enum` macro allows the specification of all Tuning
 // variants as `possible_values` for the CLI `--tuning` option.
 arg_enum! {
-    #[derive(Debug, Clone, Copy)]
+    #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
     pub enum Tuning {
         C,
         D,
