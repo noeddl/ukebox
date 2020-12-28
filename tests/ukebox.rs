@@ -435,6 +435,18 @@ fn test_unknown_chord() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
+fn get_major_chord_config(tuning: Tuning) -> Vec<TestConfig> {
+    let ct = ChordType::Major;
+
+    vec![
+        TestConfig::new(ct, 0, 1, [0, 0, 0, 3], tuning),
+        TestConfig::new(ct, 9, 2, [2, 1, 0, 0], tuning),
+        TestConfig::new(ct, 7, 1, [0, 2, 3, 2], tuning),
+        TestConfig::new(ct, 5, 1, [2, 0, 1, 0], tuning),
+        TestConfig::new(ct, 2, 2, [2, 2, 2, 0], tuning),
+    ]
+}
+
 #[rstest(
     tuning,
     case::c_tuning(Tuning::C),
@@ -442,15 +454,7 @@ fn test_unknown_chord() -> Result<(), Box<dyn std::error::Error>> {
     case::g_tuning(Tuning::G)
 )]
 fn test_major_chords(tuning: Tuning) -> Result<(), Box<dyn std::error::Error>> {
-    let ct = ChordType::Major;
-
-    let test_configs = vec![
-        TestConfig::new(ct, 0, 1, [0, 0, 0, 3], tuning),
-        TestConfig::new(ct, 9, 2, [2, 1, 0, 0], tuning),
-        TestConfig::new(ct, 7, 1, [0, 2, 3, 2], tuning),
-        TestConfig::new(ct, 5, 1, [2, 0, 1, 0], tuning),
-        TestConfig::new(ct, 2, 2, [2, 2, 2, 0], tuning),
-    ];
+    let test_configs = get_major_chord_config(tuning);
 
     run_tests(test_configs)
 }
@@ -462,15 +466,7 @@ fn test_major_chords(tuning: Tuning) -> Result<(), Box<dyn std::error::Error>> {
     case::g_tuning(Tuning::G)
 )]
 fn test_reverse_major_chords(tuning: Tuning) -> Result<(), Box<dyn std::error::Error>> {
-    let ct = ChordType::Major;
-
-    let test_configs = vec![
-        TestConfig::new(ct, 0, 1, [0, 0, 0, 3], tuning),
-        TestConfig::new(ct, 9, 2, [2, 1, 0, 0], tuning),
-        TestConfig::new(ct, 7, 1, [0, 2, 3, 2], tuning),
-        TestConfig::new(ct, 5, 1, [2, 0, 1, 0], tuning),
-        TestConfig::new(ct, 2, 2, [2, 2, 2, 0], tuning),
-    ];
+    let test_configs = get_major_chord_config(tuning);
 
     run_reverse_tests(test_configs)
 }
