@@ -271,14 +271,14 @@ impl TestConfig {
         tests
     }
 
-    fn generate_reverse_tests(&mut self) -> HashMap<(String,Tuning), Vec<String>> {
+    fn generate_reverse_tests(&mut self) -> Vec<ReverseTest> {
         use ChordType::*;
 
         let note_names = [
             "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B",
         ];
 
-        let mut tests = HashMap::new();
+        let mut tests = Vec::new();
 
         let start_index = self.start_index + self.tuning.get_semitones() as usize;
 
@@ -306,7 +306,11 @@ impl TestConfig {
             let title = format!("{} - {} {}", chord, root, self.chord_type);
             let fret_str = frets2string(self.frets);
 
-            tests.entry((fret_str, self.tuning)).or_insert(Vec::new()).push(title);
+            let test = ReverseTest{
+                title, tuning: self.tuning, fret_str
+            };
+
+            tests.push(test);
 
             *self = self.next();
         }
@@ -389,29 +393,35 @@ fn run_tests(test_configs: Vec<TestConfig>) -> Result<(), Box<dyn std::error::Er
 }
 
 fn run_reverse_tests(test_configs: Vec<TestConfig>) -> Result<(), Box<dyn std::error::Error>> {
+    let mut tests = HashMap::new();
+
     for mut test_config in test_configs {
-        for ((fret_str, tuning), titles) in test_config.generate_reverse_tests() {
-            let title = titles.join("\n");
-
-            let s = format!(
-                "cargo run -- {} -t {} -r\n\n{}\n",
-                fret_str, tuning, title
-            );
-
-            // Run `cargo test -- --nocapture` to print all tests run.
-            println!("{}", s);
-
-            let mut cmd = Command::cargo_bin("ukebox")?;
-            cmd.arg(format!("{}", fret_str));
-
-            cmd.arg("-t").arg(tuning.to_string());
-
-            cmd.arg("-r");
-
-            cmd.assert()
-                .success()
-                .stdout(format!("{}\n", title));
+        for test in test_config.generate_reverse_tests() {
+            tests.entry((test.fret_str, test_config.tuning)).or_insert(Vec::new()).push(test.title);
         }
+    }
+
+    for ((fret_str, tuning), titles) in tests {
+        let title = titles.join("\n");
+
+        let s = format!(
+            "cargo run -- {} -t {} -r\n\n{}\n",
+            fret_str, tuning, title
+        );
+
+        // Run `cargo test -- --nocapture` to print all tests run.
+        println!("{}", s);
+
+        let mut cmd = Command::cargo_bin("ukebox")?;
+        cmd.arg(format!("{}", fret_str));
+
+        cmd.arg("-t").arg(tuning.to_string());
+
+        cmd.arg("-r");
+
+        cmd.assert()
+            .success()
+            .stdout(format!("{}\n", title));
     }
 
     Ok(())
@@ -494,7 +504,7 @@ fn get_suspended_fourth_chord_config(tuning: Tuning) -> Vec<TestConfig> {
 )]
 fn test_reverse_chords(tuning: Tuning) -> Result<(), Box<dyn std::error::Error>> {
     let mut test_configs = get_major_chord_config(tuning);
-    test_configs.extend(get_major_chord_config(tuning));
+    test_configs.extend(get_minor_chord_config(tuning));
     test_configs.extend(get_suspended_second_chord_config(tuning));
     test_configs.extend(get_suspended_fourth_chord_config(tuning));
 
