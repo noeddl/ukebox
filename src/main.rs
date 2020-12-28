@@ -26,8 +26,10 @@ fn run() -> Result<(), Box<dyn Error>> {
 
     if args.reverse {
         let fret_pattern = FretPattern::from_str(&args.chord)?;
-        let chord = fret_pattern.get_chord(args.tuning)?;
-        println!("{}", chord);
+        let chords = fret_pattern.get_chords(args.tuning);
+        for chord in chords {
+            println!("{}", chord);
+        }
     } else {
         let chord = Chord::from_str(&args.chord)?;
         let diagram = chord.get_diagram(args.min_fret, args.tuning);

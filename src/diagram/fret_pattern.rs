@@ -33,23 +33,24 @@ impl FretPattern {
         pitches
     }
 
-    pub fn get_chord(&self, tuning: Tuning) -> Result<Chord, &'static str> {
+    pub fn get_chords(&self, tuning: Tuning) -> Vec<Chord> {
+        let mut chords = vec![];
         let mut pitches = self.get_pitch_classes(tuning);
 
         pitches.sort();
         pitches.dedup();
 
-        // Rotate pitch class list until a matching chord is found.
+        // Rotate pitch class list and collect all matching chords.
         // For example, try [C, DSharp, GSharp], [DSharp, GSharp, C], [GSharp, C, FSharp].
         for _ in 0..pitches.len() {
             if let Ok(chord) = Chord::try_from(&pitches[..]) {
-                return Ok(chord);
+                chords.push(chord);
             }
 
             pitches.rotate_left(1);
         }
 
-        Err("No matching chord found.")
+        chords
     }
 }
 
@@ -150,19 +151,19 @@ mod tests {
         case([0, 0, 0, 3], "D", Tuning::D),
         case([2, 2, 2, 0], "D", Tuning::C),
     )]
-    fn test_get_chord(frets: [FretID; STRING_COUNT], chord_str: &str, tuning: Tuning) {
+    fn test_get_chords(frets: [FretID; STRING_COUNT], chord_str: &str, tuning: Tuning) {
         let fret_pattern = FretPattern::from(frets);
-        let chord1 = fret_pattern.get_chord(tuning).unwrap();
-        let chord2 = Chord::from_str(chord_str).unwrap();
-        assert_eq!(chord1, chord2);
+        let chords = fret_pattern.get_chords(tuning);
+        let chord = Chord::from_str(chord_str).unwrap();
+        assert_eq!(chords, vec![chord]);
     }
 
     #[rstest(
         frets,
         case([1, 2, 3, 4]),
     )]
-    fn test_get_chord_fail(frets: [FretID; STRING_COUNT]) {
+    fn test_get_chords_fail(frets: [FretID; STRING_COUNT]) {
         let fret_pattern = FretPattern::from(frets);
-        assert!(fret_pattern.get_chord(Tuning::C).is_err());
+        assert!(fret_pattern.get_chords(Tuning::C).is_empty());
     }
 }
