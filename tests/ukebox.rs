@@ -474,6 +474,18 @@ fn get_suspended_second_chord_config(tuning: Tuning) -> Vec<TestConfig> {
     ]
 }
 
+fn get_suspended_fourth_chord_config(tuning: Tuning) -> Vec<TestConfig> {
+    let ct = ChordType::SuspendedFourth;
+
+    vec![
+        TestConfig::new(ct, 0, 1, [0, 0, 1, 3], tuning),
+        TestConfig::new(ct, 9, 2, [2, 2, 0, 0], tuning),
+        TestConfig::new(ct, 7, 1, [0, 2, 3, 3], tuning),
+        TestConfig::new(ct, 5, 1, [3, 0, 1, 1], tuning),
+        TestConfig::new(ct, 2, 2, [0, 2, 3, 0], tuning),
+    ]
+}
+
 #[rstest(
     tuning,
     case::c_tuning(Tuning::C),
@@ -484,6 +496,7 @@ fn test_reverse_chords(tuning: Tuning) -> Result<(), Box<dyn std::error::Error>>
     let mut test_configs = get_major_chord_config(tuning);
     test_configs.extend(get_major_chord_config(tuning));
     test_configs.extend(get_suspended_second_chord_config(tuning));
+    test_configs.extend(get_suspended_fourth_chord_config(tuning));
 
     run_reverse_tests(test_configs)
 }
@@ -531,15 +544,7 @@ fn test_suspended_second_chords(tuning: Tuning) -> Result<(), Box<dyn std::error
     case::g_tuning(Tuning::G)
 )]
 fn test_suspended_fourth_chords(tuning: Tuning) -> Result<(), Box<dyn std::error::Error>> {
-    let ct = ChordType::SuspendedFourth;
-
-    let test_configs = vec![
-        TestConfig::new(ct, 0, 1, [0, 0, 1, 3], tuning),
-        TestConfig::new(ct, 9, 2, [2, 2, 0, 0], tuning),
-        TestConfig::new(ct, 7, 1, [0, 2, 3, 3], tuning),
-        TestConfig::new(ct, 5, 1, [3, 0, 1, 1], tuning),
-        TestConfig::new(ct, 2, 2, [0, 2, 3, 0], tuning),
-    ];
+    let test_configs = get_suspended_fourth_chord_config(tuning);
 
     run_tests(test_configs)
 }
