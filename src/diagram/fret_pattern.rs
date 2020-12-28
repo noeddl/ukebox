@@ -50,6 +50,8 @@ impl FretPattern {
             pitches.rotate_left(1);
         }
 
+        chords.sort();
+
         chords
     }
 }

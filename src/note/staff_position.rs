@@ -11,7 +11,7 @@ const STAFF_POSITION_COUNT: StaffSteps = 7;
 /// (if its staff position is `FPos` or `Gb` (if its staff position is `GPos`).
 ///
 /// https://en.wikipedia.org/wiki/Staff_(music)#Staff_positions
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub enum StaffPosition {
     CPos,
     DPos,

@@ -18,7 +18,7 @@ impl fmt::Display for ParseNoteError {
 }
 
 /// A note such a C, C# and so on.
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, Eq, PartialOrd, Ord)]
 pub struct Note {
     pub pitch_class: PitchClass,
     staff_position: StaffPosition,

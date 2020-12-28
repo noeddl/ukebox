@@ -26,7 +26,7 @@ impl fmt::Display for ParseChordError {
 }
 
 /// A chord such as C, Cm and so on.
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Chord {
     name: String,
     pub chord_type: ChordType,

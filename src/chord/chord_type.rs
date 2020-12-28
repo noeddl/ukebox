@@ -5,7 +5,7 @@ use std::fmt;
 use std::str::FromStr;
 
 /// The type of the chord depending on the intervals it contains.
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub enum ChordType {
     Major,
     Minor,
