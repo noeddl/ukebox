@@ -447,6 +447,18 @@ fn get_major_chord_config(tuning: Tuning) -> Vec<TestConfig> {
     ]
 }
 
+fn get_minor_chord_config(tuning: Tuning) -> Vec<TestConfig> {
+    let ct = ChordType::Minor;
+
+    vec![
+        TestConfig::new(ct, 0, 1, [0, 3, 3, 3], tuning),
+        TestConfig::new(ct, 9, 2, [2, 0, 0, 0], tuning),
+        TestConfig::new(ct, 7, 1, [0, 2, 3, 1], tuning),
+        TestConfig::new(ct, 5, 1, [1, 0, 1, 3], tuning),
+        TestConfig::new(ct, 2, 2, [2, 2, 1, 0], tuning),
+    ]
+}
+
 #[rstest(
     tuning,
     case::c_tuning(Tuning::C),
@@ -478,17 +490,21 @@ fn test_reverse_major_chords(tuning: Tuning) -> Result<(), Box<dyn std::error::E
     case::g_tuning(Tuning::G)
 )]
 fn test_minor_chords(tuning: Tuning) -> Result<(), Box<dyn std::error::Error>> {
-    let ct = ChordType::Minor;
-
-    let test_configs = vec![
-        TestConfig::new(ct, 0, 1, [0, 3, 3, 3], tuning),
-        TestConfig::new(ct, 9, 2, [2, 0, 0, 0], tuning),
-        TestConfig::new(ct, 7, 1, [0, 2, 3, 1], tuning),
-        TestConfig::new(ct, 5, 1, [1, 0, 1, 3], tuning),
-        TestConfig::new(ct, 2, 2, [2, 2, 1, 0], tuning),
-    ];
+    let test_configs = get_minor_chord_config(tuning);
 
     run_tests(test_configs)
+}
+
+#[rstest(
+    tuning,
+    case::c_tuning(Tuning::C),
+    case::d_tuning(Tuning::D),
+    case::g_tuning(Tuning::G)
+)]
+fn test_reverse_minor_chords(tuning: Tuning) -> Result<(), Box<dyn std::error::Error>> {
+    let test_configs = get_minor_chord_config(tuning);
+
+    run_reverse_tests(test_configs)
 }
 
 #[rstest(
