@@ -511,6 +511,18 @@ fn get_augmented_chord_config(tuning: Tuning) -> Vec<TestConfig> {
     ]
 }
 
+fn get_diminished_chord_config(tuning: Tuning) -> Vec<TestConfig> {
+    let ct = ChordType::Diminished;
+
+    vec![
+        TestConfig::new(ct, 2, 2, [7, 5, 4, 5], tuning),
+        TestConfig::new(ct, 10, 2, [3, 1, 0, 1], tuning),
+        TestConfig::new(ct, 7, 1, [0, 1, 3, 1], tuning),
+        TestConfig::new(ct, 6, 0, [2, 0, 2, 0], tuning),
+        TestConfig::new(ct, 3, 2, [2, 3, 2, 0], tuning),
+    ]
+}
+
 #[rstest(
     tuning,
     case::c_tuning(Tuning::C),
@@ -522,7 +534,8 @@ fn test_reverse_chords(tuning: Tuning) -> Result<(), Box<dyn std::error::Error>>
     test_configs.extend(get_minor_chord_config(tuning));
     test_configs.extend(get_suspended_second_chord_config(tuning));
     test_configs.extend(get_suspended_fourth_chord_config(tuning));
-    test_configs.extend(get_augmented_chord_config(tuning));
+    //test_configs.extend(get_augmented_chord_config(tuning));
+    test_configs.extend(get_diminished_chord_config(tuning));
 
     run_reverse_tests(test_configs)
 }
@@ -594,15 +607,7 @@ fn test_augmented_chords(tuning: Tuning) -> Result<(), Box<dyn std::error::Error
     case::g_tuning(Tuning::G)
 )]
 fn test_diminished_chords(tuning: Tuning) -> Result<(), Box<dyn std::error::Error>> {
-    let ct = ChordType::Diminished;
-
-    let test_configs = vec![
-        TestConfig::new(ct, 2, 2, [7, 5, 4, 5], tuning),
-        TestConfig::new(ct, 10, 2, [3, 1, 0, 1], tuning),
-        TestConfig::new(ct, 7, 1, [0, 1, 3, 1], tuning),
-        TestConfig::new(ct, 6, 0, [2, 0, 2, 0], tuning),
-        TestConfig::new(ct, 3, 2, [2, 3, 2, 0], tuning),
-    ];
+    let test_configs = get_diminished_chord_config(tuning);
 
     run_tests(test_configs)
 }
