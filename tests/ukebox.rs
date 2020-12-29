@@ -524,6 +524,17 @@ fn get_diminished_chord_config(tuning: Tuning) -> Vec<TestConfig> {
     ]
 }
 
+fn get_dominant_seventh_chord_config(tuning: Tuning) -> Vec<TestConfig> {
+    let ct = ChordType::DominantSeventh;
+
+    vec![
+        TestConfig::new(ct, 0, 1, [0, 0, 0, 1], tuning),
+        TestConfig::new(ct, 9, 2, [0, 1, 0, 0], tuning),
+        TestConfig::new(ct, 7, 1, [0, 2, 1, 2], tuning),
+        TestConfig::new(ct, 4, 1, [1, 2, 0, 2], tuning),
+    ]
+}
+
 #[rstest(
     tuning,
     case::c_tuning(Tuning::C),
@@ -537,6 +548,7 @@ fn test_reverse_chords(tuning: Tuning) -> Result<(), Box<dyn std::error::Error>>
     test_configs.extend(get_suspended_fourth_chord_config(tuning));
     //test_configs.extend(get_augmented_chord_config(tuning));
     test_configs.extend(get_diminished_chord_config(tuning));
+    test_configs.extend(get_dominant_seventh_chord_config(tuning));
 
     run_reverse_tests(test_configs)
 }
@@ -620,14 +632,7 @@ fn test_diminished_chords(tuning: Tuning) -> Result<(), Box<dyn std::error::Erro
     case::g_tuning(Tuning::G)
 )]
 fn test_dominant_seventh_chords(tuning: Tuning) -> Result<(), Box<dyn std::error::Error>> {
-    let ct = ChordType::DominantSeventh;
-
-    let test_configs = vec![
-        TestConfig::new(ct, 0, 1, [0, 0, 0, 1], tuning),
-        TestConfig::new(ct, 9, 2, [0, 1, 0, 0], tuning),
-        TestConfig::new(ct, 7, 1, [0, 2, 1, 2], tuning),
-        TestConfig::new(ct, 4, 1, [1, 2, 0, 2], tuning),
-    ];
+    let test_configs = get_dominant_seventh_chord_config(tuning);
 
     run_tests(test_configs)
 }
