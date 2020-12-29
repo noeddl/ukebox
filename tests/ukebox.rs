@@ -558,6 +558,18 @@ fn get_major_seventh_chord_config(tuning: Tuning) -> Vec<TestConfig> {
     ]
 }
 
+fn get_minor_major_seventh_chord_config(tuning: Tuning) -> Vec<TestConfig> {
+    let ct = ChordType::MinorMajorSeventh;
+
+    vec![
+        TestConfig::new(ct, 1, 0, [1, 1, 0, 3], tuning),
+        TestConfig::new(ct, 10, 2, [3, 1, 1, 0], tuning),
+        TestConfig::new(ct, 9, 0, [1, 0, 0, 0], tuning),
+        TestConfig::new(ct, 7, 1, [0, 2, 2, 1], tuning),
+        TestConfig::new(ct, 4, 2, [0, 3, 0, 2], tuning),
+    ]
+}
+
 #[rstest(
     tuning,
     case::c_tuning(Tuning::C),
@@ -574,6 +586,7 @@ fn test_reverse_chords(tuning: Tuning) -> Result<(), Box<dyn std::error::Error>>
     test_configs.extend(get_dominant_seventh_chord_config(tuning));
     test_configs.extend(get_minor_seventh_chord_config(tuning));
     test_configs.extend(get_major_seventh_chord_config(tuning));
+    test_configs.extend(get_minor_major_seventh_chord_config(tuning));
 
     run_reverse_tests(test_configs)
 }
@@ -693,15 +706,7 @@ fn test_major_seventh_chords(tuning: Tuning) -> Result<(), Box<dyn std::error::E
     case::g_tuning(Tuning::G)
 )]
 fn test_minor_major_seventh_chords(tuning: Tuning) -> Result<(), Box<dyn std::error::Error>> {
-    let ct = ChordType::MinorMajorSeventh;
-
-    let test_configs = vec![
-        TestConfig::new(ct, 1, 0, [1, 1, 0, 3], tuning),
-        TestConfig::new(ct, 10, 2, [3, 1, 1, 0], tuning),
-        TestConfig::new(ct, 9, 0, [1, 0, 0, 0], tuning),
-        TestConfig::new(ct, 7, 1, [0, 2, 2, 1], tuning),
-        TestConfig::new(ct, 4, 2, [0, 3, 0, 2], tuning),
-    ];
+    let test_configs = get_minor_major_seventh_chord_config(tuning);
 
     run_tests(test_configs)
 }
