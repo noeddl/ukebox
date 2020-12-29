@@ -403,6 +403,7 @@ fn run_reverse_tests(test_configs: Vec<TestConfig>) -> Result<(), Box<dyn std::e
 
     for ((fret_str, tuning), mut titles) in tests {
         titles.sort();
+        titles.dedup();
         let title = titles.join("\n");
 
         let s = format!(
