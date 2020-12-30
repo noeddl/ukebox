@@ -505,8 +505,8 @@ fn get_augmented_chord_config(tuning: Tuning) -> Vec<TestConfig> {
         TestConfig::new(ct, 0, 0, [1, 0, 0, 3], tuning),
         TestConfig::new(ct, 9, 2, [2, 1, 1, 0], tuning),
         TestConfig::new(ct, 8, 0, [1, 0, 0, 3], tuning),
-        TestConfig::new(ct, 7, 0, [0, 3, 3, 2], tuning),
-        TestConfig::new(ct, 5, 1, [2, 1, 1, 0], tuning),
+        //TestConfig::new(ct, 7, 0, [0, 3, 3, 2], tuning),
+        TestConfig::new(ct, 5, 2, [2, 1, 1, 0], tuning),
         TestConfig::new(ct, 4, 0, [1, 0, 0, 3], tuning),
         TestConfig::new(ct, 1, 2, [2, 1, 1, 0], tuning),
     ]
@@ -626,7 +626,7 @@ fn test_reverse_chords(tuning: Tuning) -> Result<(), Box<dyn std::error::Error>>
     test_configs.extend(get_minor_chord_config(tuning));
     test_configs.extend(get_suspended_second_chord_config(tuning));
     test_configs.extend(get_suspended_fourth_chord_config(tuning));
-    //test_configs.extend(get_augmented_chord_config(tuning));
+    test_configs.extend(get_augmented_chord_config(tuning));
     test_configs.extend(get_diminished_chord_config(tuning));
     test_configs.extend(get_dominant_seventh_chord_config(tuning));
     test_configs.extend(get_minor_seventh_chord_config(tuning));
