@@ -458,6 +458,18 @@ fn test_unknown_chord() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
+#[test]
+fn test_unknown_pattern() -> Result<(), Box<dyn std::error::Error>> {
+    let mut cmd = Command::cargo_bin("ukebox")?;
+    cmd.arg("name");
+    cmd.arg("blafoo");
+    cmd.assert().failure().stderr(predicate::str::contains(
+        "error: Invalid value for '<fret-pattern>': Fret pattern has wrong format (should be something like 1234 or \"7 8 9 10\")",
+    ));
+
+    Ok(())
+}
+
 fn get_major_chord_config(tuning: Tuning) -> Vec<TestConfig> {
     let ct = ChordType::Major;
 

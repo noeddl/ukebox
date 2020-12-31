@@ -2,9 +2,23 @@ use crate::chord::{Chord, FretID, Tuning};
 use crate::note::{PitchClass, Semitones};
 use crate::STRING_COUNT;
 use std::convert::{TryFrom, TryInto};
+use std::fmt;
 use std::ops::{Add, Index};
 use std::slice::Iter;
 use std::str::FromStr;
+
+/// Custom error for strings that cannot be parsed into a fret pattern.
+#[derive(Debug)]
+pub struct ParseFretPatternError {}
+
+impl fmt::Display for ParseFretPatternError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(
+            f,
+            "Fret pattern has wrong format (should be something like 1234 or \"7 8 9 10\")"
+        )
+    }
+}
 
 /// A pattern of frets to press down for playing a chord.
 /// Each index of the array corresponds to a ukulele string.
@@ -66,21 +80,8 @@ impl From<[FretID; STRING_COUNT]> for FretPattern {
     }
 }
 
-impl From<Vec<FretID>> for FretPattern {
-    fn from(mut fret_vec: Vec<FretID>) -> Self {
-        // Make sure the vector has the correct length. If it is too short,
-        // extend by the difference and fill with zeros.
-        // For example, [1, 2] will be extended to [1, 2, 0, 0].
-        fret_vec.resize(STRING_COUNT, 0);
-
-        Self {
-            frets: fret_vec.try_into().unwrap(),
-        }
-    }
-}
-
 impl FromStr for FretPattern {
-    type Err = &'static str;
+    type Err = ParseFretPatternError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         // Handle both patterns containing spaces such as "1 2 3 4" as well as patterns
@@ -90,12 +91,18 @@ impl FromStr for FretPattern {
             false => s.chars().map(|c| c.to_string()).collect(),
         };
 
+        // Parse out numbers in the pattern.
         let fret_res: Result<Vec<FretID>, _> = split.iter().map(|s| s.parse()).collect();
 
-        match fret_res {
-            Ok(fret_vec) => Ok(Self::from(fret_vec)),
-            _ => Err("Fret pattern has wrong format"),
+        if let Ok(fret_vec) = fret_res {
+            // Check for the correct number of frets.
+            let res: Result<[FretID; STRING_COUNT], _> = fret_vec.try_into();
+            if let Ok(frets) = res {
+                return Ok(Self::from(frets));
+            }
         }
+
+        Err(ParseFretPatternError {})
     }
 }
 
@@ -130,16 +137,15 @@ mod tests {
     #[rstest(
         s, frets,
         case("2220", [2, 2, 2, 0]),
-        case("22201", [2, 2, 2, 0]),
-        case("222", [2, 2, 2, 0]),
-        case("", [0, 0, 0, 0]),
+        case("2 2 2 0", [2, 2, 2, 0]),
+        case("7 8 9 10", [7, 8, 9, 10]),
     )]
     fn test_from_str(s: &str, frets: [FretID; STRING_COUNT]) {
         let fret_pattern = FretPattern::from_str(s).unwrap();
         assert_eq!(fret_pattern.frets, frets);
     }
 
-    #[rstest(s, case("Cm"))]
+    #[rstest(s, case(""), case("Cm"), case("222"), case("22201"))]
     fn test_from_str_fail(s: &str) {
         assert!(FretPattern::from_str(s).is_err())
     }
