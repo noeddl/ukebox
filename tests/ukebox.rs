@@ -272,11 +272,7 @@ impl TestConfig {
             let title = format!("{} - {} {}", chord, root, self.chord_type);
             let fret_str = frets2string(self.frets);
 
-            let test = ReverseTest {
-                title,
-                tuning: self.tuning,
-                fret_str,
-            };
+            let test = ReverseTest { fret_str, title };
 
             tests.push(test);
 
@@ -346,20 +342,8 @@ impl fmt::Display for Test {
 }
 
 struct ReverseTest {
-    title: String,
-    tuning: Tuning,
     fret_str: String,
-}
-
-impl fmt::Display for ReverseTest {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let s = format!(
-            "cargo run -- {} -t {} -r\n\n{}\n",
-            self.fret_str, self.tuning, self.title
-        );
-
-        write!(f, "{}", s)
-    }
+    title: String,
 }
 
 fn run_tests(test_configs: Vec<TestConfig>) -> Result<(), Box<dyn std::error::Error>> {
