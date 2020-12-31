@@ -37,7 +37,12 @@ impl Tuning {
     pub fn get_roots(self) -> [Note; STRING_COUNT] {
         let interval = self.get_interval();
 
-        ["G", "C", "E", "A"].iter().map(|c| Note::from_str(c).unwrap() + interval).collect::<Vec<Note>>().try_into().unwrap()
+        ["G", "C", "E", "A"]
+            .iter()
+            .map(|c| Note::from_str(c).unwrap() + interval)
+            .collect::<Vec<Note>>()
+            .try_into()
+            .unwrap()
     }
 
     /// Get the width of the space that we need to print the name

@@ -306,8 +306,10 @@ impl TestConfig {
             let title = format!("{} - {} {}", chord, root, self.chord_type);
             let fret_str = frets2string(self.frets);
 
-            let test = ReverseTest{
-                title, tuning: self.tuning, fret_str
+            let test = ReverseTest {
+                title,
+                tuning: self.tuning,
+                fret_str,
             };
 
             tests.push(test);
@@ -325,10 +327,15 @@ fn frets2string(frets: [FretID; 4]) -> String {
     // "7 7 7 10".
     let space = match frets.iter().filter(|n| **n > 9).count() {
         0 => "",
-        _ => " "
+        _ => " ",
     };
 
-    frets.iter().map(|n| format!("{}{}", n, space)).collect::<String>().trim().to_string()
+    frets
+        .iter()
+        .map(|n| format!("{}{}", n, space))
+        .collect::<String>()
+        .trim()
+        .to_string()
 }
 
 /// A set of command line arguments and options together with the
@@ -354,7 +361,7 @@ impl fmt::Display for Test {
 struct ReverseTest {
     title: String,
     tuning: Tuning,
-    fret_str: String
+    fret_str: String,
 }
 
 impl fmt::Display for ReverseTest {
@@ -385,9 +392,7 @@ fn run_tests(test_configs: Vec<TestConfig>) -> Result<(), Box<dyn std::error::Er
 
             cmd.arg(test.chord);
 
-            cmd.assert()
-                .success()
-                .stdout(format!("{}\n", test.diagram));
+            cmd.assert().success().stdout(format!("{}\n", test.diagram));
         }
     }
 
@@ -399,7 +404,10 @@ fn run_reverse_tests(test_configs: Vec<TestConfig>) -> Result<(), Box<dyn std::e
 
     for mut test_config in test_configs {
         for test in test_config.generate_reverse_tests() {
-            tests.entry((test.fret_str, test_config.tuning)).or_insert(Vec::new()).push(test.title);
+            tests
+                .entry((test.fret_str, test_config.tuning))
+                .or_insert(Vec::new())
+                .push(test.title);
         }
     }
 
@@ -422,9 +430,7 @@ fn run_reverse_tests(test_configs: Vec<TestConfig>) -> Result<(), Box<dyn std::e
         cmd.arg("-t").arg(tuning.to_string());
         cmd.arg(format!("{}", fret_str));
 
-        cmd.assert()
-            .success()
-            .stdout(format!("{}\n", title));
+        cmd.assert().success().stdout(format!("{}\n", title));
     }
 
     Ok(())
@@ -433,7 +439,9 @@ fn run_reverse_tests(test_configs: Vec<TestConfig>) -> Result<(), Box<dyn std::e
 #[test]
 fn test_no_args() -> Result<(), Box<dyn std::error::Error>> {
     let mut cmd = Command::cargo_bin("ukebox")?;
-    cmd.assert().failure().stderr(predicate::str::contains("USAGE:"));
+    cmd.assert()
+        .failure()
+        .stderr(predicate::str::contains("USAGE:"));
 
     Ok(())
 }

@@ -43,7 +43,11 @@ impl ChordDiagram {
     fn get_notes(&self) -> [Note; STRING_COUNT] {
         let pitches = self.frets.get_pitch_classes(self.tuning);
 
-        let notes: Vec<_> = pitches.iter().map(|pc| self.chord.get_note(*pc).unwrap()).copied().collect();
+        let notes: Vec<_> = pitches
+            .iter()
+            .map(|pc| self.chord.get_note(*pc).unwrap())
+            .copied()
+            .collect();
 
         notes.try_into().unwrap()
     }
@@ -73,11 +77,7 @@ impl fmt::Display for ChordDiagram {
         // If the fretboard section shown does not include the nut,
         // indicate the number of the first fret shown.
         if base_fret > 1 {
-            s.push_str(&format!(
-                "{:width$}\n",
-                base_fret,
-                width = root_width + 6
-            ))
+            s.push_str(&format!("{:width$}\n", base_fret, width = root_width + 6))
         }
 
         write!(f, "{}", s)

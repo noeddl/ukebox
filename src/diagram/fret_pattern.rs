@@ -1,6 +1,6 @@
-use crate::STRING_COUNT;
 use crate::chord::{Chord, FretID, Tuning};
 use crate::note::{PitchClass, Semitones};
+use crate::STRING_COUNT;
 use std::convert::{TryFrom, TryInto};
 use std::ops::{Add, Index};
 use std::slice::Iter;
@@ -28,7 +28,11 @@ impl FretPattern {
 
     pub fn get_pitch_classes(&self, tuning: Tuning) -> Vec<PitchClass> {
         let roots = tuning.get_roots();
-        let pitches: Vec<_> = self.iter().zip(roots.iter()).map(|(fret, note)| note.pitch_class + *fret).collect();
+        let pitches: Vec<_> = self
+            .iter()
+            .zip(roots.iter())
+            .map(|(fret, note)| note.pitch_class + *fret)
+            .collect();
 
         pitches
     }
@@ -58,9 +62,7 @@ impl FretPattern {
 
 impl From<[FretID; STRING_COUNT]> for FretPattern {
     fn from(frets: [FretID; STRING_COUNT]) -> Self {
-        Self {
-            frets
-        }
+        Self { frets }
     }
 }
 
@@ -72,7 +74,7 @@ impl From<Vec<FretID>> for FretPattern {
         fret_vec.resize(STRING_COUNT, 0);
 
         Self {
-            frets: fret_vec.try_into().unwrap()
+            frets: fret_vec.try_into().unwrap(),
         }
     }
 }
@@ -85,14 +87,14 @@ impl FromStr for FretPattern {
         // without spaces such as "1234".
         let split: Vec<String> = match s.contains(' ') {
             true => s.split(' ').map(|c| c.to_string()).collect(),
-            false => s.chars().map(|c| c.to_string()).collect()
+            false => s.chars().map(|c| c.to_string()).collect(),
         };
 
         let fret_res: Result<Vec<FretID>, _> = split.iter().map(|s| s.parse()).collect();
 
         match fret_res {
             Ok(fret_vec) => Ok(Self::from(fret_vec)),
-            _ => Err("Fret pattern has wrong format")
+            _ => Err("Fret pattern has wrong format"),
         }
     }
 }
@@ -115,9 +117,7 @@ impl Add<Semitones> for FretPattern {
             *f += n;
         }
 
-        Self{
-            frets
-        }
+        Self { frets }
     }
 }
 
@@ -139,10 +139,7 @@ mod tests {
         assert_eq!(fret_pattern.frets, frets);
     }
 
-    #[rstest(
-        s,
-        case("Cm"),
-    )]
+    #[rstest(s, case("Cm"))]
     fn test_from_str_fail(s: &str) {
         assert!(FretPattern::from_str(s).is_err())
     }

@@ -24,16 +24,23 @@ enum Ukebox {
         tuning: Tuning,
         /// A compact chart representing the finger positions of the chord to be looked up
         fret_pattern: FretPattern,
-    }
+    },
 }
 
 fn main() {
     match Ukebox::from_args() {
-        Ukebox::Chart { min_fret, tuning, chord } => {
+        Ukebox::Chart {
+            min_fret,
+            tuning,
+            chord,
+        } => {
             let diagram = chord.get_diagram(min_fret, tuning);
             println!("{}", diagram);
-        },
-        Ukebox::Name { tuning, fret_pattern } => {
+        }
+        Ukebox::Name {
+            tuning,
+            fret_pattern,
+        } => {
             let chords = fret_pattern.get_chords(tuning);
             for chord in chords {
                 println!("{}", chord);

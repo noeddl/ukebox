@@ -80,7 +80,7 @@ impl ChordShapeSet {
                 ChordShape::new("A", [2, 1, 1, 0]),
                 ChordShape::new("G#", [1, 0, 0, 3]),
                 // TODO: This pattern does also apply to Baug and D#aug.
-                // Fix e.g. when dealing with issue #11. 
+                // Fix e.g. when dealing with issue #11.
                 //ChordShape::new("G", [0, 3, 3, 2]),
                 ChordShape::new("F", [2, 1, 1, 0]),
                 ChordShape::new("E", [1, 0, 0, 3]),
