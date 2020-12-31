@@ -110,7 +110,7 @@ impl TryFrom<&[PitchClass]> for ChordType {
         // difference in semitones.
         let mut pitch_diffs: Vec<_> = pitches.iter().map(|pc| *pc - pitches[0]).collect();
 
-        pitch_diffs.sort();
+        pitch_diffs.sort_unstable();
 
         match pitch_diffs[..] {
             [0, 4, 7] => Ok(Major),
