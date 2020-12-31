@@ -137,8 +137,6 @@ impl TestConfig {
     }
 
     fn generate_tests_for_chord(&self, index: usize, note_names: &[&str]) -> (String, Vec<Test>) {
-        use ChordType::*;
-
         let mut tests = Vec::new();
         let root = *note_names.iter().cycle().nth(index).unwrap();
         let semitones = self.tuning.get_semitones() as usize;
@@ -159,22 +157,7 @@ impl TestConfig {
             .collect();
 
         for j in self.lower_min_fret..self.min_fret + 1 {
-            let suffix = match self.chord_type {
-                Major => "",
-                Minor => "m",
-                SuspendedSecond => "sus2",
-                SuspendedFourth => "sus4",
-                Augmented => "aug",
-                Diminished => "dim",
-                DominantSeventh => "7",
-                MinorSeventh => "m7",
-                MajorSeventh => "maj7",
-                MinorMajorSeventh => "mMaj7",
-                AugmentedSeventh => "aug7",
-                AugmentedMajorSeventh => "augMaj7",
-                DiminishedSeventh => "dim7",
-                HalfDiminishedSeventh => "m7b5",
-            };
+            let suffix = get_suffix(self.chord_type);
             let chord = format!("{}{}", root, suffix);
             let title = format!("[{} - {} {}]\n\n", chord, root, self.chord_type);
             let diagram = self.generate_diagram(&title, &notes);
@@ -272,8 +255,6 @@ impl TestConfig {
     }
 
     fn generate_reverse_tests(&mut self) -> Vec<ReverseTest> {
-        use ChordType::*;
-
         let note_names = [
             "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B",
         ];
@@ -286,22 +267,7 @@ impl TestConfig {
         for i in 0..13 {
             let index = start_index + i;
             let root = *note_names.iter().cycle().nth(index).unwrap();
-            let suffix = match self.chord_type {
-                Major => "",
-                Minor => "m",
-                SuspendedSecond => "sus2",
-                SuspendedFourth => "sus4",
-                Augmented => "aug",
-                Diminished => "dim",
-                DominantSeventh => "7",
-                MinorSeventh => "m7",
-                MajorSeventh => "maj7",
-                MinorMajorSeventh => "mMaj7",
-                AugmentedSeventh => "aug7",
-                AugmentedMajorSeventh => "augMaj7",
-                DiminishedSeventh => "dim7",
-                HalfDiminishedSeventh => "m7b5",
-            };
+            let suffix = get_suffix(self.chord_type);
             let chord = format!("{}{}", root, suffix);
             let title = format!("{} - {} {}", chord, root, self.chord_type);
             let fret_str = frets2string(self.frets);
@@ -318,6 +284,27 @@ impl TestConfig {
         }
 
         tests
+    }
+}
+
+fn get_suffix(chord_type: ChordType) -> &'static str {
+    use ChordType::*;
+
+    match chord_type {
+        Major => "",
+        Minor => "m",
+        SuspendedSecond => "sus2",
+        SuspendedFourth => "sus4",
+        Augmented => "aug",
+        Diminished => "dim",
+        DominantSeventh => "7",
+        MinorSeventh => "m7",
+        MajorSeventh => "maj7",
+        MinorMajorSeventh => "mMaj7",
+        AugmentedSeventh => "aug7",
+        AugmentedMajorSeventh => "augMaj7",
+        DiminishedSeventh => "dim7",
+        HalfDiminishedSeventh => "m7b5",
     }
 }
 
