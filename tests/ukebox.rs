@@ -343,8 +343,8 @@ struct Test {
 impl fmt::Display for Test {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let s = format!(
-            "cargo run -- {} -t {} -f {}\n\n{}\n",
-            self.chord, self.tuning, self.min_fret, self.diagram
+            "cargo run --release -- chart -t {} -f {} {}\n\n{}\n",
+            self.tuning, self.min_fret, self.chord, self.diagram
         );
 
         write!(f, "{}", s)
@@ -375,13 +375,15 @@ fn run_tests(test_configs: Vec<TestConfig>) -> Result<(), Box<dyn std::error::Er
             println!("{}", test);
 
             let mut cmd = Command::cargo_bin("ukebox")?;
-            cmd.arg(test.chord);
 
+            cmd.arg("chart");
             cmd.arg("-t").arg(test.tuning.to_string());
 
             if test.min_fret > 0 {
                 cmd.arg("-f").arg(test.min_fret.to_string());
             }
+
+            cmd.arg(test.chord);
 
             cmd.assert()
                 .success()
@@ -407,19 +409,18 @@ fn run_reverse_tests(test_configs: Vec<TestConfig>) -> Result<(), Box<dyn std::e
         let title = titles.join("\n");
 
         let s = format!(
-            "cargo run -- {} -t {} -r\n\n{}\n",
-            fret_str, tuning, title
+            "cargo run --release -- name -t {} {} \n\n{}\n",
+            tuning, fret_str, title
         );
 
         // Run `cargo test -- --nocapture` to print all tests run.
         println!("{}", s);
 
         let mut cmd = Command::cargo_bin("ukebox")?;
-        cmd.arg(format!("{}", fret_str));
 
+        cmd.arg("name");
         cmd.arg("-t").arg(tuning.to_string());
-
-        cmd.arg("-r");
+        cmd.arg(format!("{}", fret_str));
 
         cmd.assert()
             .success()
@@ -432,9 +433,7 @@ fn run_reverse_tests(test_configs: Vec<TestConfig>) -> Result<(), Box<dyn std::e
 #[test]
 fn test_no_args() -> Result<(), Box<dyn std::error::Error>> {
     let mut cmd = Command::cargo_bin("ukebox")?;
-    cmd.assert().failure().stderr(predicate::str::contains(
-        "error: The following required arguments were not provided",
-    ));
+    cmd.assert().failure().stderr(predicate::str::contains("USAGE:"));
 
     Ok(())
 }
@@ -442,6 +441,7 @@ fn test_no_args() -> Result<(), Box<dyn std::error::Error>> {
 #[test]
 fn test_unknown_chord() -> Result<(), Box<dyn std::error::Error>> {
     let mut cmd = Command::cargo_bin("ukebox")?;
+    cmd.arg("chart");
     cmd.arg("blafoo");
     cmd.assert().failure().stderr(predicate::str::contains(
         "error: Invalid value for '<chord>': Could not parse chord name \"blafoo\"",
