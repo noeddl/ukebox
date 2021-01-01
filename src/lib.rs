@@ -1,5 +1,5 @@
 pub mod chord;
-mod diagram;
+pub mod diagram;
 pub mod note;
 
 /// Number of strings on our string instrument.

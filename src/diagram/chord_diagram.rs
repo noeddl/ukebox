@@ -1,39 +1,26 @@
 use crate::chord::Chord;
 use crate::chord::FretID;
-use crate::chord::FretPattern;
 use crate::chord::Tuning;
+use crate::diagram::FretPattern;
 use crate::diagram::StringDiagram;
 use crate::diagram::CHART_WIDTH;
 use crate::note::Note;
 use crate::STRING_COUNT;
+use std::convert::TryInto;
 use std::fmt;
-use std::str::FromStr;
-
-type NotePattern = [Note; STRING_COUNT];
 
 pub struct ChordDiagram {
     chord: Chord,
-    roots: NotePattern,
     frets: FretPattern,
-    root_width: usize,
+    tuning: Tuning,
 }
 
 impl ChordDiagram {
-    pub fn new(chord: Chord, frets: FretPattern, tuning: Tuning) -> Self {
-        let interval = tuning.get_interval();
-
-        let roots = [
-            Note::from_str("G").unwrap() + interval,
-            Note::from_str("C").unwrap() + interval,
-            Note::from_str("E").unwrap() + interval,
-            Note::from_str("A").unwrap() + interval,
-        ];
-
+    pub fn new(chord: Chord, frets: impl Into<FretPattern>, tuning: Tuning) -> Self {
         Self {
-            roots,
             chord,
-            frets,
-            root_width: tuning.get_root_width(),
+            frets: frets.into(),
+            tuning,
         }
     }
 
@@ -43,31 +30,26 @@ impl ChordDiagram {
     /// beginning at the first fret, otherwise use the leftmost fret
     /// needed for the chords to be played.
     fn get_base_fret(&self) -> FretID {
-        let max_fret = *self.frets.iter().max().unwrap();
+        let max_fret = self.frets.get_max_fret();
 
         match max_fret {
             max_fret if max_fret <= CHART_WIDTH => 1,
-            _ => *self.frets.iter().min().unwrap(),
+            _ => self.frets.get_min_fret(),
         }
     }
 
     /// Compute the notes that correspond to the frets shown as pressed
     /// in the chord diagram.
-    fn get_notes(&self) -> NotePattern {
-        let mut notes = self.roots;
+    fn get_notes(&self) -> [Note; STRING_COUNT] {
+        let pitches = self.frets.get_pitch_classes(self.tuning);
 
-        for (i, fret) in self.frets.iter().enumerate() {
-            let pitch_class = notes[i].pitch_class + *fret;
-            notes[i] = match self.chord.get_note(pitch_class) {
-                Some(note) => *note,
-                _ => panic!(
-                    "No note with pitch class {:?} in chord {}",
-                    pitch_class, self.chord
-                ),
-            }
-        }
+        let notes: Vec<_> = pitches
+            .iter()
+            .map(|pc| self.chord.get_note(*pc).unwrap())
+            .copied()
+            .collect();
 
-        notes
+        notes.try_into().unwrap()
     }
 }
 
@@ -79,25 +61,23 @@ impl fmt::Display for ChordDiagram {
         // Determine from which fret to show the fretboard.
         let base_fret = self.get_base_fret();
 
+        let roots = self.tuning.get_roots();
         let notes = self.get_notes();
+        let root_width = self.tuning.get_root_width();
 
         // Create a diagram for each ukulele string.
         for i in (0..STRING_COUNT).rev() {
-            let root = self.roots[i];
+            let root = roots[i];
             let fret = self.frets[i];
             let note = notes[i];
-            let sd = StringDiagram::new(root, base_fret, fret, note, self.root_width);
+            let sd = StringDiagram::new(root, base_fret, fret, note, root_width);
             s.push_str(&format!("{}\n", sd.to_string()));
         }
 
         // If the fretboard section shown does not include the nut,
         // indicate the number of the first fret shown.
         if base_fret > 1 {
-            s.push_str(&format!(
-                "{:width$}\n",
-                base_fret,
-                width = self.root_width + 6
-            ))
+            s.push_str(&format!("{:width$}\n", base_fret, width = root_width + 6))
         }
 
         write!(f, "{}", s)

@@ -15,7 +15,7 @@ const PITCH_CLASS_COUNT: Semitones = 12;
 /// higher octave.
 /// For example, pitch class 12 is the same as pitch class 0 and corresponds
 /// to the pitch class of C.
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub enum PitchClass {
     C,
     CSharp,

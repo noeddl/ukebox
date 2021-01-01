@@ -1,7 +1,9 @@
 mod chord_diagram;
+mod fret_pattern;
 mod string_diagram;
 
 pub use self::chord_diagram::ChordDiagram;
+pub use self::fret_pattern::FretPattern;
 pub use self::string_diagram::StringDiagram;
 
 use crate::note::Semitones;

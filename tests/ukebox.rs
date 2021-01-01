@@ -7,6 +7,7 @@
 use assert_cmd::prelude::*; // Add methods on commands
 use predicates::prelude::*; // Used for writing assertions
 use rstest::rstest;
+use std::collections::HashMap;
 use std::fmt;
 use std::process::Command; // Run programs
 use std::str::FromStr;
@@ -136,8 +137,6 @@ impl TestConfig {
     }
 
     fn generate_tests_for_chord(&self, index: usize, note_names: &[&str]) -> (String, Vec<Test>) {
-        use ChordType::*;
-
         let mut tests = Vec::new();
         let root = *note_names.iter().cycle().nth(index).unwrap();
         let semitones = self.tuning.get_semitones() as usize;
@@ -158,22 +157,7 @@ impl TestConfig {
             .collect();
 
         for j in self.lower_min_fret..self.min_fret + 1 {
-            let suffix = match self.chord_type {
-                Major => "",
-                Minor => "m",
-                SuspendedSecond => "sus2",
-                SuspendedFourth => "sus4",
-                Augmented => "aug",
-                Diminished => "dim",
-                DominantSeventh => "7",
-                MinorSeventh => "m7",
-                MajorSeventh => "maj7",
-                MinorMajorSeventh => "mMaj7",
-                AugmentedSeventh => "aug7",
-                AugmentedMajorSeventh => "augMaj7",
-                DiminishedSeventh => "dim7",
-                HalfDiminishedSeventh => "m7b5",
-            };
+            let suffix = get_suffix(self.chord_type);
             let chord = format!("{}{}", root, suffix);
             let title = format!("[{} - {} {}]\n\n", chord, root, self.chord_type);
             let diagram = self.generate_diagram(&title, &notes);
@@ -269,6 +253,72 @@ impl TestConfig {
 
         tests
     }
+
+    fn generate_reverse_tests(&mut self) -> Vec<ReverseTest> {
+        let note_names = [
+            "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B",
+        ];
+
+        let mut tests = Vec::new();
+
+        let start_index = self.start_index + self.tuning.get_semitones() as usize;
+
+        // Move upwards the fretboard using the given chord shape.
+        for i in 0..13 {
+            let index = start_index + i;
+            let root = *note_names.iter().cycle().nth(index).unwrap();
+            let suffix = get_suffix(self.chord_type);
+            let chord = format!("{}{}", root, suffix);
+            let title = format!("{} - {} {}", chord, root, self.chord_type);
+            let fret_str = frets2string(self.frets);
+
+            let test = ReverseTest { fret_str, title };
+
+            tests.push(test);
+
+            *self = self.next();
+        }
+
+        tests
+    }
+}
+
+fn get_suffix(chord_type: ChordType) -> &'static str {
+    use ChordType::*;
+
+    match chord_type {
+        Major => "",
+        Minor => "m",
+        SuspendedSecond => "sus2",
+        SuspendedFourth => "sus4",
+        Augmented => "aug",
+        Diminished => "dim",
+        DominantSeventh => "7",
+        MinorSeventh => "m7",
+        MajorSeventh => "maj7",
+        MinorMajorSeventh => "mMaj7",
+        AugmentedSeventh => "aug7",
+        AugmentedMajorSeventh => "augMaj7",
+        DiminishedSeventh => "dim7",
+        HalfDiminishedSeventh => "m7b5",
+    }
+}
+
+fn frets2string(frets: [FretID; 4]) -> String {
+    // Determine whether to add a space between fret ids. This is only needed if the pattern
+    // contains ids consisting of more than one digit, e.g. [7, 7, 7, 10] is converted to
+    // "7 7 7 10".
+    let space = match frets.iter().filter(|n| **n > 9).count() {
+        0 => "",
+        _ => " ",
+    };
+
+    frets
+        .iter()
+        .map(|n| format!("{}{}", n, space))
+        .collect::<String>()
+        .trim()
+        .to_string()
 }
 
 /// A set of command line arguments and options together with the
@@ -283,12 +333,17 @@ struct Test {
 impl fmt::Display for Test {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let s = format!(
-            "cargo run -- {} -t {} -f {}\n\n{}\n",
-            self.chord, self.tuning, self.min_fret, self.diagram
+            "cargo run --release -- chart -t {} -f {} {}\n\n{}\n",
+            self.tuning, self.min_fret, self.chord, self.diagram
         );
 
         write!(f, "{}", s)
     }
+}
+
+struct ReverseTest {
+    fret_str: String,
+    title: String,
 }
 
 fn run_tests(test_configs: Vec<TestConfig>) -> Result<(), Box<dyn std::error::Error>> {
@@ -298,18 +353,55 @@ fn run_tests(test_configs: Vec<TestConfig>) -> Result<(), Box<dyn std::error::Er
             println!("{}", test);
 
             let mut cmd = Command::cargo_bin("ukebox")?;
-            cmd.arg(test.chord);
 
+            cmd.arg("chart");
             cmd.arg("-t").arg(test.tuning.to_string());
 
             if test.min_fret > 0 {
                 cmd.arg("-f").arg(test.min_fret.to_string());
             }
 
-            cmd.assert()
-                .success()
-                .stdout(predicate::str::contains(test.diagram));
+            cmd.arg(test.chord);
+
+            cmd.assert().success().stdout(format!("{}\n", test.diagram));
         }
+    }
+
+    Ok(())
+}
+
+fn run_reverse_tests(test_configs: Vec<TestConfig>) -> Result<(), Box<dyn std::error::Error>> {
+    let mut tests = HashMap::new();
+
+    for mut test_config in test_configs {
+        for test in test_config.generate_reverse_tests() {
+            tests
+                .entry((test.fret_str, test_config.tuning))
+                .or_insert(Vec::new())
+                .push(test.title);
+        }
+    }
+
+    for ((fret_str, tuning), mut titles) in tests {
+        titles.sort();
+        titles.dedup();
+        let title = titles.join("\n");
+
+        let s = format!(
+            "cargo run --release -- name -t {} {} \n\n{}\n",
+            tuning, fret_str, title
+        );
+
+        // Run `cargo test -- --nocapture` to print all tests run.
+        println!("{}", s);
+
+        let mut cmd = Command::cargo_bin("ukebox")?;
+
+        cmd.arg("name");
+        cmd.arg("-t").arg(tuning.to_string());
+        cmd.arg(format!("{}", fret_str));
+
+        cmd.assert().success().stdout(format!("{}\n", title));
     }
 
     Ok(())
@@ -318,9 +410,9 @@ fn run_tests(test_configs: Vec<TestConfig>) -> Result<(), Box<dyn std::error::Er
 #[test]
 fn test_no_args() -> Result<(), Box<dyn std::error::Error>> {
     let mut cmd = Command::cargo_bin("ukebox")?;
-    cmd.assert().failure().stderr(predicate::str::contains(
-        "error: The following required arguments were not provided",
-    ));
+    cmd.assert()
+        .failure()
+        .stderr(predicate::str::contains("USAGE:"));
 
     Ok(())
 }
@@ -328,12 +420,227 @@ fn test_no_args() -> Result<(), Box<dyn std::error::Error>> {
 #[test]
 fn test_unknown_chord() -> Result<(), Box<dyn std::error::Error>> {
     let mut cmd = Command::cargo_bin("ukebox")?;
+    cmd.arg("chart");
     cmd.arg("blafoo");
     cmd.assert().failure().stderr(predicate::str::contains(
         "error: Invalid value for '<chord>': Could not parse chord name \"blafoo\"",
     ));
 
     Ok(())
+}
+
+#[test]
+fn test_invalid_pattern() -> Result<(), Box<dyn std::error::Error>> {
+    let mut cmd = Command::cargo_bin("ukebox")?;
+    cmd.arg("name");
+    cmd.arg("blafoo");
+    cmd.assert().failure().stderr(predicate::str::contains(
+        "error: Invalid value for '<fret-pattern>': Fret pattern has wrong format (should be something like 1234 or \"7 8 9 10\")",
+    ));
+
+    Ok(())
+}
+
+#[test]
+fn test_unknown_pattern() -> Result<(), Box<dyn std::error::Error>> {
+    let mut cmd = Command::cargo_bin("ukebox")?;
+    cmd.arg("name");
+    cmd.arg("1234");
+    cmd.assert()
+        .success()
+        .stdout("No matching chord was found\n");
+
+    Ok(())
+}
+
+fn get_major_chord_config(tuning: Tuning) -> Vec<TestConfig> {
+    let ct = ChordType::Major;
+
+    vec![
+        TestConfig::new(ct, 0, 1, [0, 0, 0, 3], tuning),
+        TestConfig::new(ct, 9, 2, [2, 1, 0, 0], tuning),
+        TestConfig::new(ct, 7, 1, [0, 2, 3, 2], tuning),
+        TestConfig::new(ct, 5, 1, [2, 0, 1, 0], tuning),
+        TestConfig::new(ct, 2, 2, [2, 2, 2, 0], tuning),
+    ]
+}
+
+fn get_minor_chord_config(tuning: Tuning) -> Vec<TestConfig> {
+    let ct = ChordType::Minor;
+
+    vec![
+        TestConfig::new(ct, 0, 1, [0, 3, 3, 3], tuning),
+        TestConfig::new(ct, 9, 2, [2, 0, 0, 0], tuning),
+        TestConfig::new(ct, 7, 1, [0, 2, 3, 1], tuning),
+        TestConfig::new(ct, 5, 1, [1, 0, 1, 3], tuning),
+        TestConfig::new(ct, 2, 2, [2, 2, 1, 0], tuning),
+    ]
+}
+
+fn get_suspended_second_chord_config(tuning: Tuning) -> Vec<TestConfig> {
+    let ct = ChordType::SuspendedSecond;
+
+    vec![
+        TestConfig::new(ct, 0, 1, [0, 2, 3, 3], tuning),
+        TestConfig::new(ct, 10, 1, [3, 0, 1, 1], tuning),
+        TestConfig::new(ct, 7, 1, [0, 2, 3, 0], tuning),
+        TestConfig::new(ct, 5, 1, [0, 0, 1, 3], tuning),
+        TestConfig::new(ct, 2, 2, [2, 2, 0, 0], tuning),
+    ]
+}
+
+fn get_suspended_fourth_chord_config(tuning: Tuning) -> Vec<TestConfig> {
+    let ct = ChordType::SuspendedFourth;
+
+    vec![
+        TestConfig::new(ct, 0, 1, [0, 0, 1, 3], tuning),
+        TestConfig::new(ct, 9, 2, [2, 2, 0, 0], tuning),
+        TestConfig::new(ct, 7, 1, [0, 2, 3, 3], tuning),
+        TestConfig::new(ct, 5, 1, [3, 0, 1, 1], tuning),
+        TestConfig::new(ct, 2, 2, [0, 2, 3, 0], tuning),
+    ]
+}
+
+fn get_augmented_chord_config(tuning: Tuning) -> Vec<TestConfig> {
+    let ct = ChordType::Augmented;
+
+    vec![
+        TestConfig::new(ct, 0, 0, [1, 0, 0, 3], tuning),
+        TestConfig::new(ct, 9, 2, [2, 1, 1, 0], tuning),
+        TestConfig::new(ct, 8, 0, [1, 0, 0, 3], tuning),
+        //TestConfig::new(ct, 7, 0, [0, 3, 3, 2], tuning),
+        TestConfig::new(ct, 5, 2, [2, 1, 1, 0], tuning),
+        TestConfig::new(ct, 4, 0, [1, 0, 0, 3], tuning),
+        TestConfig::new(ct, 1, 2, [2, 1, 1, 0], tuning),
+    ]
+}
+
+fn get_diminished_chord_config(tuning: Tuning) -> Vec<TestConfig> {
+    let ct = ChordType::Diminished;
+
+    vec![
+        TestConfig::new(ct, 2, 2, [7, 5, 4, 5], tuning),
+        TestConfig::new(ct, 10, 2, [3, 1, 0, 1], tuning),
+        TestConfig::new(ct, 7, 1, [0, 1, 3, 1], tuning),
+        TestConfig::new(ct, 6, 0, [2, 0, 2, 0], tuning),
+        TestConfig::new(ct, 3, 2, [2, 3, 2, 0], tuning),
+    ]
+}
+
+fn get_dominant_seventh_chord_config(tuning: Tuning) -> Vec<TestConfig> {
+    let ct = ChordType::DominantSeventh;
+
+    vec![
+        TestConfig::new(ct, 0, 1, [0, 0, 0, 1], tuning),
+        TestConfig::new(ct, 9, 2, [0, 1, 0, 0], tuning),
+        TestConfig::new(ct, 7, 1, [0, 2, 1, 2], tuning),
+        TestConfig::new(ct, 4, 1, [1, 2, 0, 2], tuning),
+    ]
+}
+
+fn get_minor_seventh_chord_config(tuning: Tuning) -> Vec<TestConfig> {
+    let ct = ChordType::MinorSeventh;
+
+    vec![
+        TestConfig::new(ct, 1, 0, [1, 1, 0, 2], tuning),
+        TestConfig::new(ct, 9, 2, [0, 0, 0, 0], tuning),
+        TestConfig::new(ct, 7, 1, [0, 2, 1, 1], tuning),
+        TestConfig::new(ct, 4, 1, [0, 2, 0, 2], tuning),
+    ]
+}
+
+fn get_major_seventh_chord_config(tuning: Tuning) -> Vec<TestConfig> {
+    let ct = ChordType::MajorSeventh;
+
+    vec![
+        TestConfig::new(ct, 0, 1, [0, 0, 0, 2], tuning),
+        TestConfig::new(ct, 10, 1, [3, 2, 1, 0], tuning),
+        TestConfig::new(ct, 9, 0, [1, 1, 0, 0], tuning),
+        TestConfig::new(ct, 7, 1, [0, 2, 2, 2], tuning),
+        TestConfig::new(ct, 4, 1, [1, 3, 0, 2], tuning),
+    ]
+}
+
+fn get_minor_major_seventh_chord_config(tuning: Tuning) -> Vec<TestConfig> {
+    let ct = ChordType::MinorMajorSeventh;
+
+    vec![
+        TestConfig::new(ct, 1, 0, [1, 1, 0, 3], tuning),
+        TestConfig::new(ct, 10, 2, [3, 1, 1, 0], tuning),
+        TestConfig::new(ct, 9, 0, [1, 0, 0, 0], tuning),
+        TestConfig::new(ct, 7, 1, [0, 2, 2, 1], tuning),
+        TestConfig::new(ct, 4, 2, [0, 3, 0, 2], tuning),
+    ]
+}
+
+fn get_augmented_seventh_chord_config(tuning: Tuning) -> Vec<TestConfig> {
+    let ct = ChordType::AugmentedSeventh;
+
+    vec![
+        TestConfig::new(ct, 0, 1, [1, 0, 0, 1], tuning),
+        TestConfig::new(ct, 9, 2, [0, 1, 1, 0], tuning),
+        TestConfig::new(ct, 7, 1, [0, 3, 1, 2], tuning),
+        TestConfig::new(ct, 4, 1, [1, 2, 0, 3], tuning),
+    ]
+}
+
+fn get_augmented_major_seventh_chord_config(tuning: Tuning) -> Vec<TestConfig> {
+    let ct = ChordType::AugmentedMajorSeventh;
+
+    vec![
+        TestConfig::new(ct, 0, 1, [1, 0, 0, 2], tuning),
+        TestConfig::new(ct, 10, 1, [3, 2, 2, 0], tuning),
+        TestConfig::new(ct, 9, 0, [1, 1, 1, 0], tuning),
+        TestConfig::new(ct, 7, 1, [0, 3, 2, 2], tuning),
+        TestConfig::new(ct, 4, 2, [1, 3, 0, 3], tuning),
+    ]
+}
+
+fn get_diminished_seventh_chord_config(tuning: Tuning) -> Vec<TestConfig> {
+    let ct = ChordType::DiminishedSeventh;
+
+    vec![
+        TestConfig::new(ct, 1, 2, [0, 1, 0, 1], tuning),
+        TestConfig::new(ct, 10, 2, [0, 1, 0, 1], tuning),
+        TestConfig::new(ct, 7, 2, [0, 1, 0, 1], tuning),
+        TestConfig::new(ct, 4, 2, [0, 1, 0, 1], tuning),
+    ]
+}
+
+fn get_half_diminished_seventh_chord_config(tuning: Tuning) -> Vec<TestConfig> {
+    let ct = ChordType::HalfDiminishedSeventh;
+
+    vec![
+        TestConfig::new(ct, 1, 2, [0, 1, 0, 2], tuning),
+        TestConfig::new(ct, 10, 2, [1, 1, 0, 1], tuning),
+        TestConfig::new(ct, 7, 2, [0, 1, 1, 1], tuning),
+        TestConfig::new(ct, 4, 2, [0, 2, 0, 1], tuning),
+    ]
+}
+
+#[rstest(
+    tuning,
+    case::c_tuning(Tuning::C),
+    case::d_tuning(Tuning::D),
+    case::g_tuning(Tuning::G)
+)]
+fn test_reverse_chords(tuning: Tuning) -> Result<(), Box<dyn std::error::Error>> {
+    let mut test_configs = get_major_chord_config(tuning);
+    test_configs.extend(get_minor_chord_config(tuning));
+    test_configs.extend(get_suspended_second_chord_config(tuning));
+    test_configs.extend(get_suspended_fourth_chord_config(tuning));
+    test_configs.extend(get_augmented_chord_config(tuning));
+    test_configs.extend(get_diminished_chord_config(tuning));
+    test_configs.extend(get_dominant_seventh_chord_config(tuning));
+    test_configs.extend(get_minor_seventh_chord_config(tuning));
+    test_configs.extend(get_major_seventh_chord_config(tuning));
+    test_configs.extend(get_minor_major_seventh_chord_config(tuning));
+    test_configs.extend(get_augmented_seventh_chord_config(tuning));
+    test_configs.extend(get_augmented_major_seventh_chord_config(tuning));
+    test_configs.extend(get_diminished_seventh_chord_config(tuning));
+    test_configs.extend(get_half_diminished_seventh_chord_config(tuning));
+
+    run_reverse_tests(test_configs)
 }
 
 #[rstest(
@@ -343,15 +650,7 @@ fn test_unknown_chord() -> Result<(), Box<dyn std::error::Error>> {
     case::g_tuning(Tuning::G)
 )]
 fn test_major_chords(tuning: Tuning) -> Result<(), Box<dyn std::error::Error>> {
-    let ct = ChordType::Major;
-
-    let test_configs = vec![
-        TestConfig::new(ct, 0, 1, [0, 0, 0, 3], tuning),
-        TestConfig::new(ct, 9, 2, [2, 1, 0, 0], tuning),
-        TestConfig::new(ct, 7, 1, [0, 2, 3, 2], tuning),
-        TestConfig::new(ct, 5, 1, [2, 0, 1, 0], tuning),
-        TestConfig::new(ct, 2, 2, [2, 2, 2, 0], tuning),
-    ];
+    let test_configs = get_major_chord_config(tuning);
 
     run_tests(test_configs)
 }
@@ -363,15 +662,7 @@ fn test_major_chords(tuning: Tuning) -> Result<(), Box<dyn std::error::Error>> {
     case::g_tuning(Tuning::G)
 )]
 fn test_minor_chords(tuning: Tuning) -> Result<(), Box<dyn std::error::Error>> {
-    let ct = ChordType::Minor;
-
-    let test_configs = vec![
-        TestConfig::new(ct, 0, 1, [0, 3, 3, 3], tuning),
-        TestConfig::new(ct, 9, 2, [2, 0, 0, 0], tuning),
-        TestConfig::new(ct, 7, 1, [0, 2, 3, 1], tuning),
-        TestConfig::new(ct, 5, 1, [1, 0, 1, 3], tuning),
-        TestConfig::new(ct, 2, 2, [2, 2, 1, 0], tuning),
-    ];
+    let test_configs = get_minor_chord_config(tuning);
 
     run_tests(test_configs)
 }
@@ -383,15 +674,7 @@ fn test_minor_chords(tuning: Tuning) -> Result<(), Box<dyn std::error::Error>> {
     case::g_tuning(Tuning::G)
 )]
 fn test_suspended_second_chords(tuning: Tuning) -> Result<(), Box<dyn std::error::Error>> {
-    let ct = ChordType::SuspendedSecond;
-
-    let test_configs = vec![
-        TestConfig::new(ct, 0, 1, [0, 2, 3, 3], tuning),
-        TestConfig::new(ct, 10, 1, [3, 0, 1, 1], tuning),
-        TestConfig::new(ct, 7, 1, [0, 2, 3, 0], tuning),
-        TestConfig::new(ct, 5, 1, [0, 0, 1, 3], tuning),
-        TestConfig::new(ct, 2, 2, [2, 2, 0, 0], tuning),
-    ];
+    let test_configs = get_suspended_second_chord_config(tuning);
 
     run_tests(test_configs)
 }
@@ -403,15 +686,7 @@ fn test_suspended_second_chords(tuning: Tuning) -> Result<(), Box<dyn std::error
     case::g_tuning(Tuning::G)
 )]
 fn test_suspended_fourth_chords(tuning: Tuning) -> Result<(), Box<dyn std::error::Error>> {
-    let ct = ChordType::SuspendedFourth;
-
-    let test_configs = vec![
-        TestConfig::new(ct, 0, 1, [0, 0, 1, 3], tuning),
-        TestConfig::new(ct, 9, 2, [2, 2, 0, 0], tuning),
-        TestConfig::new(ct, 7, 1, [0, 2, 3, 3], tuning),
-        TestConfig::new(ct, 5, 1, [3, 0, 1, 1], tuning),
-        TestConfig::new(ct, 2, 2, [0, 2, 3, 0], tuning),
-    ];
+    let test_configs = get_suspended_fourth_chord_config(tuning);
 
     run_tests(test_configs)
 }
@@ -423,17 +698,7 @@ fn test_suspended_fourth_chords(tuning: Tuning) -> Result<(), Box<dyn std::error
     case::g_tuning(Tuning::G)
 )]
 fn test_augmented_chords(tuning: Tuning) -> Result<(), Box<dyn std::error::Error>> {
-    let ct = ChordType::Augmented;
-
-    let test_configs = vec![
-        TestConfig::new(ct, 0, 0, [1, 0, 0, 3], tuning),
-        TestConfig::new(ct, 9, 2, [2, 1, 1, 0], tuning),
-        TestConfig::new(ct, 8, 0, [1, 0, 0, 3], tuning),
-        TestConfig::new(ct, 7, 0, [0, 3, 3, 2], tuning),
-        TestConfig::new(ct, 5, 1, [2, 1, 1, 0], tuning),
-        TestConfig::new(ct, 4, 0, [1, 0, 0, 3], tuning),
-        TestConfig::new(ct, 1, 2, [2, 1, 1, 0], tuning),
-    ];
+    let test_configs = get_augmented_chord_config(tuning);
 
     run_tests(test_configs)
 }
@@ -445,15 +710,7 @@ fn test_augmented_chords(tuning: Tuning) -> Result<(), Box<dyn std::error::Error
     case::g_tuning(Tuning::G)
 )]
 fn test_diminished_chords(tuning: Tuning) -> Result<(), Box<dyn std::error::Error>> {
-    let ct = ChordType::Diminished;
-
-    let test_configs = vec![
-        TestConfig::new(ct, 2, 2, [7, 5, 4, 5], tuning),
-        TestConfig::new(ct, 10, 2, [3, 1, 0, 1], tuning),
-        TestConfig::new(ct, 7, 1, [0, 1, 3, 1], tuning),
-        TestConfig::new(ct, 6, 0, [2, 0, 2, 0], tuning),
-        TestConfig::new(ct, 3, 2, [2, 3, 2, 0], tuning),
-    ];
+    let test_configs = get_diminished_chord_config(tuning);
 
     run_tests(test_configs)
 }
@@ -465,14 +722,7 @@ fn test_diminished_chords(tuning: Tuning) -> Result<(), Box<dyn std::error::Erro
     case::g_tuning(Tuning::G)
 )]
 fn test_dominant_seventh_chords(tuning: Tuning) -> Result<(), Box<dyn std::error::Error>> {
-    let ct = ChordType::DominantSeventh;
-
-    let test_configs = vec![
-        TestConfig::new(ct, 0, 1, [0, 0, 0, 1], tuning),
-        TestConfig::new(ct, 9, 2, [0, 1, 0, 0], tuning),
-        TestConfig::new(ct, 7, 1, [0, 2, 1, 2], tuning),
-        TestConfig::new(ct, 4, 1, [1, 2, 0, 2], tuning),
-    ];
+    let test_configs = get_dominant_seventh_chord_config(tuning);
 
     run_tests(test_configs)
 }
@@ -484,14 +734,7 @@ fn test_dominant_seventh_chords(tuning: Tuning) -> Result<(), Box<dyn std::error
     case::g_tuning(Tuning::G)
 )]
 fn test_minor_seventh_chords(tuning: Tuning) -> Result<(), Box<dyn std::error::Error>> {
-    let ct = ChordType::MinorSeventh;
-
-    let test_configs = vec![
-        TestConfig::new(ct, 1, 0, [1, 1, 0, 2], tuning),
-        TestConfig::new(ct, 9, 2, [0, 0, 0, 0], tuning),
-        TestConfig::new(ct, 7, 1, [0, 2, 1, 1], tuning),
-        TestConfig::new(ct, 4, 1, [0, 2, 0, 2], tuning),
-    ];
+    let test_configs = get_minor_seventh_chord_config(tuning);
 
     run_tests(test_configs)
 }
@@ -503,15 +746,7 @@ fn test_minor_seventh_chords(tuning: Tuning) -> Result<(), Box<dyn std::error::E
     case::g_tuning(Tuning::G)
 )]
 fn test_major_seventh_chords(tuning: Tuning) -> Result<(), Box<dyn std::error::Error>> {
-    let ct = ChordType::MajorSeventh;
-
-    let test_configs = vec![
-        TestConfig::new(ct, 0, 1, [0, 0, 0, 2], tuning),
-        TestConfig::new(ct, 10, 1, [3, 2, 1, 0], tuning),
-        TestConfig::new(ct, 9, 0, [1, 1, 0, 0], tuning),
-        TestConfig::new(ct, 7, 1, [0, 2, 2, 2], tuning),
-        TestConfig::new(ct, 4, 1, [1, 3, 0, 2], tuning),
-    ];
+    let test_configs = get_major_seventh_chord_config(tuning);
 
     run_tests(test_configs)
 }
@@ -523,15 +758,7 @@ fn test_major_seventh_chords(tuning: Tuning) -> Result<(), Box<dyn std::error::E
     case::g_tuning(Tuning::G)
 )]
 fn test_minor_major_seventh_chords(tuning: Tuning) -> Result<(), Box<dyn std::error::Error>> {
-    let ct = ChordType::MinorMajorSeventh;
-
-    let test_configs = vec![
-        TestConfig::new(ct, 1, 0, [1, 1, 0, 3], tuning),
-        TestConfig::new(ct, 10, 2, [3, 1, 1, 0], tuning),
-        TestConfig::new(ct, 9, 0, [1, 0, 0, 0], tuning),
-        TestConfig::new(ct, 7, 1, [0, 2, 2, 1], tuning),
-        TestConfig::new(ct, 4, 2, [0, 3, 0, 2], tuning),
-    ];
+    let test_configs = get_minor_major_seventh_chord_config(tuning);
 
     run_tests(test_configs)
 }
@@ -543,14 +770,7 @@ fn test_minor_major_seventh_chords(tuning: Tuning) -> Result<(), Box<dyn std::er
     case::g_tuning(Tuning::G)
 )]
 fn test_augmented_seventh_chords(tuning: Tuning) -> Result<(), Box<dyn std::error::Error>> {
-    let ct = ChordType::AugmentedSeventh;
-
-    let test_configs = vec![
-        TestConfig::new(ct, 0, 1, [1, 0, 0, 1], tuning),
-        TestConfig::new(ct, 9, 2, [0, 1, 1, 0], tuning),
-        TestConfig::new(ct, 7, 1, [0, 3, 1, 2], tuning),
-        TestConfig::new(ct, 4, 1, [1, 2, 0, 3], tuning),
-    ];
+    let test_configs = get_augmented_seventh_chord_config(tuning);
 
     run_tests(test_configs)
 }
@@ -562,15 +782,7 @@ fn test_augmented_seventh_chords(tuning: Tuning) -> Result<(), Box<dyn std::erro
     case::g_tuning(Tuning::G)
 )]
 fn test_augmented_major_seventh_chords(tuning: Tuning) -> Result<(), Box<dyn std::error::Error>> {
-    let ct = ChordType::AugmentedMajorSeventh;
-
-    let test_configs = vec![
-        TestConfig::new(ct, 0, 1, [1, 0, 0, 2], tuning),
-        TestConfig::new(ct, 10, 1, [3, 2, 2, 0], tuning),
-        TestConfig::new(ct, 9, 0, [1, 1, 1, 0], tuning),
-        TestConfig::new(ct, 7, 1, [0, 3, 2, 2], tuning),
-        TestConfig::new(ct, 4, 2, [1, 3, 0, 3], tuning),
-    ];
+    let test_configs = get_augmented_major_seventh_chord_config(tuning);
 
     run_tests(test_configs)
 }
@@ -582,14 +794,7 @@ fn test_augmented_major_seventh_chords(tuning: Tuning) -> Result<(), Box<dyn std
     case::g_tuning(Tuning::G)
 )]
 fn test_diminished_seventh_chords(tuning: Tuning) -> Result<(), Box<dyn std::error::Error>> {
-    let ct = ChordType::DiminishedSeventh;
-
-    let test_configs = vec![
-        TestConfig::new(ct, 1, 2, [0, 1, 0, 1], tuning),
-        TestConfig::new(ct, 10, 2, [0, 1, 0, 1], tuning),
-        TestConfig::new(ct, 7, 2, [0, 1, 0, 1], tuning),
-        TestConfig::new(ct, 4, 2, [0, 1, 0, 1], tuning),
-    ];
+    let test_configs = get_diminished_seventh_chord_config(tuning);
 
     run_tests(test_configs)
 }
@@ -601,14 +806,7 @@ fn test_diminished_seventh_chords(tuning: Tuning) -> Result<(), Box<dyn std::err
     case::g_tuning(Tuning::G)
 )]
 fn test_half_diminished_seventh_chords(tuning: Tuning) -> Result<(), Box<dyn std::error::Error>> {
-    let ct = ChordType::HalfDiminishedSeventh;
-
-    let test_configs = vec![
-        TestConfig::new(ct, 1, 2, [0, 1, 0, 2], tuning),
-        TestConfig::new(ct, 10, 2, [1, 1, 0, 1], tuning),
-        TestConfig::new(ct, 7, 2, [0, 1, 1, 1], tuning),
-        TestConfig::new(ct, 4, 2, [0, 2, 0, 1], tuning),
-    ];
+    let test_configs = get_half_diminished_seventh_chord_config(tuning);
 
     run_tests(test_configs)
 }

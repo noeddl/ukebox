@@ -1,11 +1,15 @@
 use crate::note::Interval;
+use crate::note::Note;
 use crate::note::Semitones;
+use crate::STRING_COUNT;
+use std::convert::TryInto;
+use std::str::FromStr;
 use structopt::clap::arg_enum;
 
 // Using clap's `arg_enum` macro allows the specification of all Tuning
 // variants as `possible_values` for the CLI `--tuning` option.
 arg_enum! {
-    #[derive(Debug, Clone, Copy)]
+    #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
     pub enum Tuning {
         C,
         D,
@@ -28,6 +32,17 @@ impl Tuning {
             Self::D => Interval::MajorSecond,
             Self::G => Interval::PerfectFifth,
         }
+    }
+
+    pub fn get_roots(self) -> [Note; STRING_COUNT] {
+        let interval = self.get_interval();
+
+        ["G", "C", "E", "A"]
+            .iter()
+            .map(|c| Note::from_str(c).unwrap() + interval)
+            .collect::<Vec<Note>>()
+            .try_into()
+            .unwrap()
     }
 
     /// Get the width of the space that we need to print the name

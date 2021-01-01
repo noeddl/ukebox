@@ -18,7 +18,7 @@ impl fmt::Display for ParseNoteError {
 }
 
 /// A note such a C, C# and so on.
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, Eq, PartialOrd, Ord)]
 pub struct Note {
     pub pitch_class: PitchClass,
     staff_position: StaffPosition,
@@ -125,6 +125,30 @@ impl FromStr for Note {
     }
 }
 
+impl From<PitchClass> for Note {
+    /// Convert a pitch class into a note.
+    /// For notes that can be sharp or flat use the sharp version.
+    fn from(pitch_class: PitchClass) -> Self {
+        use PitchClass::*;
+        use StaffPosition::*;
+
+        let staff_position = match pitch_class {
+            C | CSharp => CPos,
+            D | DSharp => DPos,
+            E => EPos,
+            F | FSharp => FPos,
+            G | GSharp => GPos,
+            A | ASharp => APos,
+            B => BPos,
+        };
+
+        Self {
+            pitch_class,
+            staff_position,
+        }
+    }
+}
+
 impl Add<Interval> for Note {
     type Output = Self;
 
@@ -144,6 +168,7 @@ mod tests {
     use super::*;
     use rstest::rstest;
     use Interval::*;
+    use PitchClass::*;
 
     #[rstest(
         s,
@@ -167,6 +192,27 @@ mod tests {
     )]
     fn test_from_and_to_str(s: &str) {
         let note = Note::from_str(s).unwrap();
+        assert_eq!(format!("{}", note), s);
+    }
+
+    #[rstest(
+        pitch_class,
+        s,
+        case(C, "C"),
+        case(CSharp, "C#"),
+        case(D, "D"),
+        case(DSharp, "D#"),
+        case(E, "E"),
+        case(F, "F"),
+        case(FSharp, "F#"),
+        case(G, "G"),
+        case(GSharp, "G#"),
+        case(A, "A"),
+        case(ASharp, "A#"),
+        case(B, "B")
+    )]
+    fn test_from_pitch_class(pitch_class: PitchClass, s: &str) {
+        let note = Note::from(pitch_class);
         assert_eq!(format!("{}", note), s);
     }
 

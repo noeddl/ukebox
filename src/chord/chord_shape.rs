@@ -1,7 +1,7 @@
 use crate::chord::ChordType;
 use crate::chord::FretID;
-use crate::chord::FretPattern;
 use crate::chord::Tuning;
+use crate::diagram::FretPattern;
 use crate::note::Note;
 use crate::note::Semitones;
 use std::str::FromStr;
@@ -20,23 +20,17 @@ pub struct ChordShape {
 }
 
 impl ChordShape {
-    fn new(note_name: &str, frets: FretPattern) -> Self {
+    fn new(note_name: &str, frets: impl Into<FretPattern>) -> Self {
         Self {
             root: Note::from_str(note_name).unwrap(),
-            frets,
+            frets: frets.into(),
         }
     }
 
     /// Apply the chord shape while moving it `n` frets forward on the fretboard.
     /// Return the resulting fret pattern.
     fn apply(self, n: Semitones) -> FretPattern {
-        let mut frets = self.frets;
-
-        for f in &mut frets[..] {
-            *f += n;
-        }
-
-        frets
+        self.frets + n
     }
 }
 
@@ -85,7 +79,9 @@ impl ChordShapeSet {
                 ChordShape::new("C", [1, 0, 0, 3]),
                 ChordShape::new("A", [2, 1, 1, 0]),
                 ChordShape::new("G#", [1, 0, 0, 3]),
-                ChordShape::new("G", [0, 3, 3, 2]),
+                // TODO: This pattern does also apply to Baug and D#aug.
+                // Fix e.g. when dealing with issue #11.
+                //ChordShape::new("G", [0, 3, 3, 2]),
                 ChordShape::new("F", [2, 1, 1, 0]),
                 ChordShape::new("E", [1, 0, 0, 3]),
                 ChordShape::new("C#", [2, 1, 1, 0]),

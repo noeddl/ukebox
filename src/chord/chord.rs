@@ -1,11 +1,13 @@
 use crate::chord::ChordShapeSet;
+use crate::chord::ChordType;
 use crate::chord::FretID;
 use crate::chord::Tuning;
 use crate::diagram::ChordDiagram;
-use crate::note::Interval;
 use crate::note::Note;
 use crate::note::PitchClass;
 use regex::Regex;
+use std::convert::TryFrom;
+use std::error::Error;
 use std::fmt;
 use std::str::FromStr;
 
@@ -15,85 +17,16 @@ pub struct ParseChordError {
     name: String,
 }
 
+impl Error for ParseChordError {}
+
 impl fmt::Display for ParseChordError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "Could not parse chord name \"{}\"", self.name)
     }
 }
 
-/// The type of the chord depending on the intervals it contains.
-#[derive(Debug, Clone, Copy, PartialEq)]
-pub enum ChordType {
-    Major,
-    Minor,
-    SuspendedSecond,
-    SuspendedFourth,
-    Augmented,
-    Diminished,
-    DominantSeventh,
-    MinorSeventh,
-    MajorSeventh,
-    MinorMajorSeventh,
-    AugmentedSeventh,
-    AugmentedMajorSeventh,
-    DiminishedSeventh,
-    HalfDiminishedSeventh,
-}
-
-impl ChordType {
-    fn get_intervals(self) -> Vec<Interval> {
-        use ChordType::*;
-
-        let interval_names = match self {
-            Major => vec!["P1", "M3", "P5"],
-            Minor => vec!["P1", "m3", "P5"],
-            SuspendedSecond => vec!["P1", "M2", "P5"],
-            SuspendedFourth => vec!["P1", "P4", "P5"],
-            Augmented => vec!["P1", "M3", "A5"],
-            Diminished => vec!["P1", "m3", "d5"],
-            DominantSeventh => vec!["P1", "M3", "P5", "m7"],
-            MinorSeventh => vec!["P1", "m3", "P5", "m7"],
-            MajorSeventh => vec!["P1", "M3", "P5", "M7"],
-            MinorMajorSeventh => vec!["P1", "m3", "P5", "M7"],
-            AugmentedSeventh => vec!["P1", "M3", "A5", "m7"],
-            AugmentedMajorSeventh => vec!["P1", "M3", "A5", "M7"],
-            DiminishedSeventh => vec!["P1", "m3", "d5", "d7"],
-            HalfDiminishedSeventh => vec!["P1", "m3", "d5", "m7"],
-        };
-
-        interval_names
-            .iter()
-            .map(|s| Interval::from_str(s).unwrap())
-            .collect()
-    }
-}
-
-impl fmt::Display for ChordType {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        use ChordType::*;
-
-        let s = match self {
-            Major => "major",
-            Minor => "minor",
-            SuspendedSecond => "suspended 2nd",
-            SuspendedFourth => "suspended 4th",
-            Augmented => "augmented",
-            Diminished => "diminished",
-            DominantSeventh => "dominant 7th",
-            MinorSeventh => "minor 7th",
-            MajorSeventh => "major 7th",
-            MinorMajorSeventh => "minor/major 7th",
-            AugmentedSeventh => "augmented 7th",
-            AugmentedMajorSeventh => "augmented major 7th",
-            DiminishedSeventh => "diminished 7th",
-            HalfDiminishedSeventh => "half-diminished 7th",
-        };
-
-        write!(f, "{}", s)
-    }
-}
-
 /// A chord such as C, Cm and so on.
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Chord {
     name: String,
     pub chord_type: ChordType,
@@ -197,11 +130,39 @@ impl FromStr for Chord {
     }
 }
 
+impl TryFrom<&[PitchClass]> for Chord {
+    type Error = &'static str;
+
+    /// Determine the chord that is represented by a list of pitch classes.
+    fn try_from(pitches: &[PitchClass]) -> Result<Self, Self::Error> {
+        let chord_type = ChordType::try_from(pitches)?;
+
+        let root = Note::from(pitches[0]);
+
+        // Collect notes of the chord.
+        let mut notes = vec![];
+
+        for interval in chord_type.get_intervals() {
+            notes.push(root + interval);
+        }
+
+        let name = format!("{}{}", root, chord_type.to_symbol());
+
+        Ok(Self {
+            name,
+            root,
+            chord_type,
+            notes,
+        })
+    }
+}
+
 #[cfg(test)]
 mod tests {
     #![allow(clippy::many_single_char_names)]
     use super::*;
     use rstest::rstest;
+    use PitchClass::*;
 
     #[rstest(
         chord,
@@ -728,6 +689,38 @@ mod tests {
         let s = Note::from_str(seventh).unwrap();
         assert_eq!(c.notes, vec![r, t, f, s]);
         assert_eq!(c.chord_type, ChordType::HalfDiminishedSeventh);
+    }
+
+    #[rstest(
+        pitches,
+        chord_name,
+        // Test C-chords.
+        case(vec![C, E, G], "C"),
+        case(vec![C, DSharp, G], "Cm"),
+        case(vec![C, D, G], "Csus2"),
+        case(vec![C, F, G], "Csus4"),
+        case(vec![C, E, GSharp], "Caug"),
+        case(vec![C, DSharp, FSharp], "Cdim"),
+        case(vec![C, E, G, ASharp], "C7"),
+        case(vec![C, DSharp, G, ASharp], "Cm7"),
+        case(vec![C, E, G, B], "Cmaj7"),
+        case(vec![C, DSharp, G, B], "CmMaj7"),
+        case(vec![C, E, GSharp, ASharp], "Caug7"),
+        case(vec![C, E, GSharp, B], "CaugMaj7"),
+        case(vec![C, DSharp, FSharp, A], "Cdim7"),
+        case(vec![C, DSharp, FSharp, ASharp], "Cm7b5"),
+        // Test some chords with other root notes.
+        case(vec![D, FSharp, A], "D"),
+        case(vec![D, F, A], "Dm"),
+        case(vec![D, FSharp, A, C], "D7"),
+        case(vec![G, B, D], "G"),
+        // Test pitch class list in different order.
+        case(vec![C, G, E], "C"),
+    )]
+    fn test_get_chord_type(pitches: Vec<PitchClass>, chord_name: &str) {
+        let chord1 = Chord::try_from(&pitches[..]).unwrap();
+        let chord2 = Chord::from_str(chord_name).unwrap();
+        assert_eq!(chord1, chord2);
     }
 
     #[rstest(
