@@ -42,6 +42,11 @@ fn main() {
             fret_pattern,
         } => {
             let chords = fret_pattern.get_chords(tuning);
+
+            if chords.is_empty() {
+                println!("No matching chord was found");
+            }
+
             for chord in chords {
                 println!("{}", chord);
             }
