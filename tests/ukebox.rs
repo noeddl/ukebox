@@ -446,7 +446,9 @@ fn test_unknown_pattern() -> Result<(), Box<dyn std::error::Error>> {
     let mut cmd = Command::cargo_bin("ukebox")?;
     cmd.arg("name");
     cmd.arg("1234");
-    cmd.assert().success().stdout("No matching chord was found\n");
+    cmd.assert()
+        .success()
+        .stdout("No matching chord was found\n");
 
     Ok(())
 }
