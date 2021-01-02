@@ -3,6 +3,7 @@ rust:
   - stable
   - beta
   - nightly
+  - 1.48.0
 jobs:
   allow_failures:
     - rust: nightly
