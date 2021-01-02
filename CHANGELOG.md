@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.5.0] - 2020-01-02
+
+* Add subcommand `name` for looking up the chord name(s) corresponding to a given chord fingering ([#18](https://github.com/noeddl/ukebox/issues/18)).
+* Move the existing functionality of looking up chord charts to a new subcommand called `chart`.
+
 ## [0.4.0] - 2019-12-23
 
 * Add a bunch of new chord types ([#31](https://github.com/noeddl/ukebox/issues/31)).
