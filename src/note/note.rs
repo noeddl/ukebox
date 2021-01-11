@@ -1,8 +1,10 @@
 use crate::note::Interval;
 use crate::note::PitchClass;
+use crate::note::Semitones;
 use crate::note::StaffPosition;
 use std::fmt;
 use std::ops::Add;
+use std::ops::Sub;
 use std::str::FromStr;
 
 /// Custom error for strings that cannot be parsed into notes.
@@ -163,6 +165,22 @@ impl Add<Interval> for Note {
     }
 }
 
+impl Add<Semitones> for Note {
+    type Output = Self;
+
+    fn add(self, n: Semitones) -> Self {
+        Self::from(self.pitch_class + n)
+    }
+}
+
+impl Sub<Semitones> for Note {
+    type Output = Self;
+
+    fn sub(self, n: Semitones) -> Self {
+        Self::from(self.pitch_class - n)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -230,5 +248,37 @@ mod tests {
     fn test_add_interval(note_name: &str, interval: Interval, result_name: &str) {
         let note = Note::from_str(note_name).unwrap();
         assert_eq!(note + interval, Note::from_str(result_name).unwrap());
+    }
+
+    #[rstest(
+        note_name,
+        n,
+        result_name,
+        case("C", 0, "C"),
+        case("C", 1, "C#"),
+        case("C", 3, "D#"),
+        case("C", 4, "E"),
+        case("C", 7, "G"),
+        case("A", 3, "C"),
+        case("A", 12, "A")
+    )]
+    fn test_add_semitones(note_name: &str, n: Semitones, result_name: &str) {
+        let note = Note::from_str(note_name).unwrap();
+        assert_eq!(note + n, Note::from_str(result_name).unwrap());
+    }
+
+    #[rstest(
+        note_name,
+        n,
+        result_name,
+        case("C", 0, "C"),
+        case("C", 1, "B"),
+        case("C", 2, "A#"),
+        case("A", 3, "F#"),
+        case("A", 12, "A")
+    )]
+    fn test_subtract_semitones(note_name: &str, n: Semitones, result_name: &str) {
+        let note = Note::from_str(note_name).unwrap();
+        assert_eq!(note - n, Note::from_str(result_name).unwrap());
     }
 }
