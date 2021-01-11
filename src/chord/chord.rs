@@ -5,10 +5,13 @@ use crate::chord::Tuning;
 use crate::diagram::ChordDiagram;
 use crate::note::Note;
 use crate::note::PitchClass;
+use crate::note::Semitones;
 use regex::Regex;
 use std::convert::TryFrom;
 use std::error::Error;
 use std::fmt;
+use std::ops::Add;
+use std::ops::Sub;
 use std::str::FromStr;
 
 /// Custom error for strings that cannot be parsed into chords.
@@ -118,6 +121,22 @@ impl TryFrom<&[PitchClass]> for Chord {
         let root = Note::from(pitches[0]);
 
         Ok(Self::new(root, chord_type))
+    }
+}
+
+impl Add<Semitones> for Chord {
+    type Output = Self;
+
+    fn add(self, n: Semitones) -> Self {
+        Self::new(self.root + n, self.chord_type)
+    }
+}
+
+impl Sub<Semitones> for Chord {
+    type Output = Self;
+
+    fn sub(self, n: Semitones) -> Self {
+        Self::new(self.root - n, self.chord_type)
     }
 }
 
@@ -715,5 +734,37 @@ mod tests {
         let c = Chord::from_str(chord).unwrap();
         let n = Note::from_str(note).unwrap();
         assert_eq!(c.contains(n), contains);
+    }
+
+    #[rstest(
+        chord,
+        n,
+        result,
+        case("C", 0, "C"),
+        case("Cm", 1, "C#m"),
+        case("Cmaj7", 2, "Dmaj7"),
+        case("Cdim", 4, "Edim"),
+        case("C#", 2, "D#"),
+        case("A#m", 3, "C#m"),
+        case("A", 12, "A")
+    )]
+    fn test_add_semitones(chord: &str, n: Semitones, result: &str) {
+        let c = Chord::from_str(chord).unwrap();
+        assert_eq!(c + n, Chord::from_str(result).unwrap());
+    }
+
+    #[rstest(
+        chord,
+        n,
+        result,
+        case("C", 0, "C"),
+        case("Cm", 1, "Bm"),
+        case("Cmaj7", 2, "A#maj7"),
+        case("Adim", 3, "F#dim"),
+        case("A", 12, "A")
+    )]
+    fn test_subtract_semitones(chord: &str, n: Semitones, result: &str) {
+        let c = Chord::from_str(chord).unwrap();
+        assert_eq!(c - n, Chord::from_str(result).unwrap());
     }
 }
