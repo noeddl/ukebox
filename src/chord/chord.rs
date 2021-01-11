@@ -35,10 +35,6 @@ pub struct Chord {
 }
 
 impl Chord {
-    pub fn contains(&self, note: Note) -> bool {
-        self.notes.contains(&note)
-    }
-
     /// Given `pitch_class` return the matching note in the chord in case one exists.
     pub fn get_note(&self, pitch_class: PitchClass) -> Option<&Note> {
         self.notes.iter().find(|n| n.pitch_class == pitch_class)
@@ -721,19 +717,5 @@ mod tests {
         let chord1 = Chord::try_from(&pitches[..]).unwrap();
         let chord2 = Chord::from_str(chord_name).unwrap();
         assert_eq!(chord1, chord2);
-    }
-
-    #[rstest(
-        chord,
-        note,
-        contains,
-        case("C", "C", true),
-        case("C", "E", true),
-        case("C", "D", false)
-    )]
-    fn test_contains(chord: &str, note: &str, contains: bool) {
-        let c = Chord::from_str(chord).unwrap();
-        let n = Note::from_str(note).unwrap();
-        assert_eq!(c.contains(n), contains);
     }
 }
