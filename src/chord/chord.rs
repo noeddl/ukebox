@@ -59,8 +59,6 @@ impl FromStr for Chord {
     type Err = ParseChordError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        use ChordType::*;
-
         let name = s.to_string();
 
         // Regular expression for chord names.
@@ -92,22 +90,9 @@ impl FromStr for Chord {
         };
 
         // Get chord type.
-        let chord_type = match &caps["type"] {
-            "m" => Minor,
-            "sus2" => SuspendedSecond,
-            "sus4" => SuspendedFourth,
-            "aug" => Augmented,
-            "dim" => Diminished,
-            "7" => DominantSeventh,
-            "m7" => MinorSeventh,
-            "maj7" => MajorSeventh,
-            "mMaj7" => MinorMajorSeventh,
-            "aug7" => AugmentedSeventh,
-            "augMaj7" => AugmentedMajorSeventh,
-            "dim7" => DiminishedSeventh,
-            "m7b5" => HalfDiminishedSeventh,
-            "" => Major,
-            _ => return Err(ParseChordError { name }),
+        let chord_type = match ChordType::from_str(&caps["type"]) {
+            Ok(chord_type) => chord_type,
+            Err(_) => return Err(ParseChordError { name }),
         };
 
         // Collect notes of the chord.

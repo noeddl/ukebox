@@ -99,6 +99,32 @@ impl fmt::Display for ChordType {
     }
 }
 
+impl FromStr for ChordType {
+    type Err = &'static str;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        use ChordType::*;
+
+        match s {
+            "" => Ok(Major),
+            "m" => Ok(Minor),
+            "sus2" => Ok(SuspendedSecond),
+            "sus4" => Ok(SuspendedFourth),
+            "aug" => Ok(Augmented),
+            "dim" => Ok(Diminished),
+            "7" => Ok(DominantSeventh),
+            "m7" => Ok(MinorSeventh),
+            "maj7" => Ok(MajorSeventh),
+            "mMaj7" => Ok(MinorMajorSeventh),
+            "aug7" => Ok(AugmentedSeventh),
+            "augMaj7" => Ok(AugmentedMajorSeventh),
+            "dim7" => Ok(DiminishedSeventh),
+            "m7b5" => Ok(HalfDiminishedSeventh),
+            _ => Err("no valid chord type"),
+        }
+    }
+}
+
 impl TryFrom<&[PitchClass]> for ChordType {
     type Error = &'static str;
 
