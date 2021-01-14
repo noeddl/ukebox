@@ -29,12 +29,30 @@ impl fmt::Display for ParseChordError {
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Chord {
     name: String,
-    pub chord_type: ChordType,
     pub root: Note,
+    pub chord_type: ChordType,
     notes: Vec<Note>,
 }
 
 impl Chord {
+    pub fn new(root: Note, chord_type: ChordType) -> Self {
+        let name = format!("{}{}", root, chord_type.to_symbol());
+
+        // Collect notes of the chord.
+        let mut notes = vec![];
+
+        for interval in chord_type.get_intervals() {
+            notes.push(root + interval);
+        }
+
+        Self {
+            name,
+            root,
+            chord_type,
+            notes,
+        }
+    }
+
     /// Given `pitch_class` return the matching note in the chord in case one exists.
     pub fn get_note(&self, pitch_class: PitchClass) -> Option<&Note> {
         self.notes.iter().find(|n| n.pitch_class == pitch_class)
@@ -95,19 +113,7 @@ impl FromStr for Chord {
             Err(_) => return Err(ParseChordError { name }),
         };
 
-        // Collect notes of the chord.
-        let mut notes = vec![];
-
-        for interval in chord_type.get_intervals() {
-            notes.push(root + interval);
-        }
-
-        Ok(Self {
-            name,
-            root,
-            chord_type,
-            notes,
-        })
+        Ok(Self::new(root, chord_type))
     }
 }
 
@@ -117,24 +123,9 @@ impl TryFrom<&[PitchClass]> for Chord {
     /// Determine the chord that is represented by a list of pitch classes.
     fn try_from(pitches: &[PitchClass]) -> Result<Self, Self::Error> {
         let chord_type = ChordType::try_from(pitches)?;
-
         let root = Note::from(pitches[0]);
 
-        // Collect notes of the chord.
-        let mut notes = vec![];
-
-        for interval in chord_type.get_intervals() {
-            notes.push(root + interval);
-        }
-
-        let name = format!("{}{}", root, chord_type.to_symbol());
-
-        Ok(Self {
-            name,
-            root,
-            chord_type,
-            notes,
-        })
+        Ok(Self::new(root, chord_type))
     }
 }
 
