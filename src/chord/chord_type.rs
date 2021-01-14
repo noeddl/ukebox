@@ -24,7 +24,7 @@ pub enum ChordType {
 }
 
 impl ChordType {
-    pub fn get_intervals(self) -> Vec<Interval> {
+    pub fn intervals(&self) -> impl Iterator<Item = Interval> + '_ {
         use ChordType::*;
 
         let interval_names = match self {
@@ -45,9 +45,8 @@ impl ChordType {
         };
 
         interval_names
-            .iter()
+            .into_iter()
             .map(|s| Interval::from_str(s).unwrap())
-            .collect()
     }
 
     pub fn to_symbol(self) -> String {
