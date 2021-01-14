@@ -37,13 +37,11 @@ pub struct Chord {
 impl Chord {
     pub fn new(root: Note, chord_type: ChordType) -> Self {
         let name = format!("{}{}", root, chord_type.to_symbol());
-
-        // Collect notes of the chord.
-        let mut notes = vec![];
-
-        for interval in chord_type.get_intervals() {
-            notes.push(root + interval);
-        }
+        let notes = chord_type
+            .get_intervals()
+            .iter()
+            .map(|&i| root + i)
+            .collect();
 
         Self {
             name,
