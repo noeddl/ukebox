@@ -46,7 +46,6 @@ impl ChordDiagram {
         let notes: Vec<_> = pitches
             .iter()
             .map(|pc| self.chord.get_note(*pc).unwrap())
-            .copied()
             .collect();
 
         notes.try_into().unwrap()

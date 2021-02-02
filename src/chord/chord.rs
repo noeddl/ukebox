@@ -31,25 +31,27 @@ pub struct Chord {
     name: String,
     pub root: Note,
     pub chord_type: ChordType,
-    notes: Vec<Note>,
 }
 
 impl Chord {
     pub fn new(root: Note, chord_type: ChordType) -> Self {
         let name = format!("{}{}", root, chord_type.to_symbol());
-        let notes = chord_type.intervals().map(|i| root + i).collect();
 
         Self {
             name,
             root,
             chord_type,
-            notes,
         }
     }
 
+    /// Return an iterator over the chord's notes.
+    pub fn notes(&self) -> impl Iterator<Item = Note> + '_ {
+        self.chord_type.intervals().map(move |i| self.root + i)
+    }
+
     /// Given `pitch_class` return the matching note in the chord in case one exists.
-    pub fn get_note(&self, pitch_class: PitchClass) -> Option<&Note> {
-        self.notes.iter().find(|n| n.pitch_class == pitch_class)
+    pub fn get_note(&self, pitch_class: PitchClass) -> Option<Note> {
+        self.notes().find(|n| n.pitch_class == pitch_class)
     }
 
     pub fn get_diagram(self, min_fret: FretID, tuning: Tuning) -> ChordDiagram {
@@ -63,7 +65,7 @@ impl Chord {
 
 impl fmt::Display for Chord {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{} - {} {}", self.name, self.notes[0], self.chord_type)
+        write!(f, "{} - {} {}", self.name, self.root, self.chord_type)
     }
 }
 
@@ -173,7 +175,8 @@ mod tests {
         let r = Note::from_str(root).unwrap();
         let t = Note::from_str(third).unwrap();
         let f = Note::from_str(fifth).unwrap();
-        assert_eq!(c.notes, vec![r, t, f]);
+        let notes: Vec<Note> = c.notes().collect();
+        assert_eq!(notes, vec![r, t, f]);
         assert_eq!(c.chord_type, ChordType::Major);
     }
 
@@ -205,7 +208,8 @@ mod tests {
         let r = Note::from_str(root).unwrap();
         let t = Note::from_str(third).unwrap();
         let f = Note::from_str(fifth).unwrap();
-        assert_eq!(c.notes, vec![r, t, f]);
+        let notes: Vec<Note> = c.notes().collect();
+        assert_eq!(notes, vec![r, t, f]);
         assert_eq!(c.chord_type, ChordType::Minor);
     }
 
@@ -237,7 +241,8 @@ mod tests {
         let r = Note::from_str(root).unwrap();
         let t = Note::from_str(third).unwrap();
         let f = Note::from_str(fifth).unwrap();
-        assert_eq!(c.notes, vec![r, t, f]);
+        let notes: Vec<Note> = c.notes().collect();
+        assert_eq!(notes, vec![r, t, f]);
         assert_eq!(c.chord_type, ChordType::SuspendedSecond);
     }
 
@@ -269,7 +274,8 @@ mod tests {
         let r = Note::from_str(root).unwrap();
         let t = Note::from_str(third).unwrap();
         let f = Note::from_str(fifth).unwrap();
-        assert_eq!(c.notes, vec![r, t, f]);
+        let notes: Vec<Note> = c.notes().collect();
+        assert_eq!(notes, vec![r, t, f]);
         assert_eq!(c.chord_type, ChordType::SuspendedFourth);
     }
 
@@ -301,7 +307,8 @@ mod tests {
         let r = Note::from_str(root).unwrap();
         let t = Note::from_str(third).unwrap();
         let f = Note::from_str(fifth).unwrap();
-        assert_eq!(c.notes, vec![r, t, f]);
+        let notes: Vec<Note> = c.notes().collect();
+        assert_eq!(notes, vec![r, t, f]);
         assert_eq!(c.chord_type, ChordType::Augmented);
     }
 
@@ -333,7 +340,8 @@ mod tests {
         let r = Note::from_str(root).unwrap();
         let t = Note::from_str(third).unwrap();
         let f = Note::from_str(fifth).unwrap();
-        assert_eq!(c.notes, vec![r, t, f]);
+        let notes: Vec<Note> = c.notes().collect();
+        assert_eq!(notes, vec![r, t, f]);
         assert_eq!(c.chord_type, ChordType::Diminished);
     }
 
@@ -373,7 +381,8 @@ mod tests {
         let t = Note::from_str(third).unwrap();
         let f = Note::from_str(fifth).unwrap();
         let s = Note::from_str(seventh).unwrap();
-        assert_eq!(c.notes, vec![r, t, f, s]);
+        let notes: Vec<Note> = c.notes().collect();
+        assert_eq!(notes, vec![r, t, f, s]);
         assert_eq!(c.chord_type, ChordType::DominantSeventh);
     }
 
@@ -413,7 +422,8 @@ mod tests {
         let t = Note::from_str(third).unwrap();
         let f = Note::from_str(fifth).unwrap();
         let s = Note::from_str(seventh).unwrap();
-        assert_eq!(c.notes, vec![r, t, f, s]);
+        let notes: Vec<Note> = c.notes().collect();
+        assert_eq!(notes, vec![r, t, f, s]);
         assert_eq!(c.chord_type, ChordType::MinorSeventh);
     }
 
@@ -453,7 +463,8 @@ mod tests {
         let t = Note::from_str(third).unwrap();
         let f = Note::from_str(fifth).unwrap();
         let s = Note::from_str(seventh).unwrap();
-        assert_eq!(c.notes, vec![r, t, f, s]);
+        let notes: Vec<Note> = c.notes().collect();
+        assert_eq!(notes, vec![r, t, f, s]);
         assert_eq!(c.chord_type, ChordType::MajorSeventh);
     }
 
@@ -493,7 +504,8 @@ mod tests {
         let t = Note::from_str(third).unwrap();
         let f = Note::from_str(fifth).unwrap();
         let s = Note::from_str(seventh).unwrap();
-        assert_eq!(c.notes, vec![r, t, f, s]);
+        let notes: Vec<Note> = c.notes().collect();
+        assert_eq!(notes, vec![r, t, f, s]);
         assert_eq!(c.chord_type, ChordType::MinorMajorSeventh);
     }
 
@@ -533,7 +545,8 @@ mod tests {
         let t = Note::from_str(third).unwrap();
         let f = Note::from_str(fifth).unwrap();
         let s = Note::from_str(seventh).unwrap();
-        assert_eq!(c.notes, vec![r, t, f, s]);
+        let notes: Vec<Note> = c.notes().collect();
+        assert_eq!(notes, vec![r, t, f, s]);
         assert_eq!(c.chord_type, ChordType::AugmentedSeventh);
     }
 
@@ -573,7 +586,8 @@ mod tests {
         let t = Note::from_str(third).unwrap();
         let f = Note::from_str(fifth).unwrap();
         let s = Note::from_str(seventh).unwrap();
-        assert_eq!(c.notes, vec![r, t, f, s]);
+        let notes: Vec<Note> = c.notes().collect();
+        assert_eq!(notes, vec![r, t, f, s]);
         assert_eq!(c.chord_type, ChordType::AugmentedMajorSeventh);
     }
 
@@ -613,7 +627,8 @@ mod tests {
         let t = Note::from_str(third).unwrap();
         let f = Note::from_str(fifth).unwrap();
         let s = Note::from_str(seventh).unwrap();
-        assert_eq!(c.notes, vec![r, t, f, s]);
+        let notes: Vec<Note> = c.notes().collect();
+        assert_eq!(notes, vec![r, t, f, s]);
         assert_eq!(c.chord_type, ChordType::DiminishedSeventh);
     }
 
@@ -653,7 +668,8 @@ mod tests {
         let t = Note::from_str(third).unwrap();
         let f = Note::from_str(fifth).unwrap();
         let s = Note::from_str(seventh).unwrap();
-        assert_eq!(c.notes, vec![r, t, f, s]);
+        let notes: Vec<Note> = c.notes().collect();
+        assert_eq!(notes, vec![r, t, f, s]);
         assert_eq!(c.chord_type, ChordType::HalfDiminishedSeventh);
     }
 
