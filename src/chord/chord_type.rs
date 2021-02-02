@@ -24,6 +24,7 @@ pub enum ChordType {
 }
 
 impl ChordType {
+    /// Return an iterator over the chord type's intervals.
     pub fn intervals(&self) -> impl Iterator<Item = Interval> + '_ {
         use ChordType::*;
 
