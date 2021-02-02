@@ -28,20 +28,13 @@ impl fmt::Display for ParseChordError {
 /// A chord such as C, Cm and so on.
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Chord {
-    name: String,
     pub root: Note,
     pub chord_type: ChordType,
 }
 
 impl Chord {
     pub fn new(root: Note, chord_type: ChordType) -> Self {
-        let name = format!("{}{}", root, chord_type.to_symbol());
-
-        Self {
-            name,
-            root,
-            chord_type,
-        }
+        Self { root, chord_type }
     }
 
     /// Return an iterator over the chord's notes.
@@ -65,7 +58,8 @@ impl Chord {
 
 impl fmt::Display for Chord {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{} - {} {}", self.name, self.root, self.chord_type)
+        let name = format!("{}{}", self.root, self.chord_type.to_symbol());
+        write!(f, "{} - {} {}", name, self.root, self.chord_type)
     }
 }
 
