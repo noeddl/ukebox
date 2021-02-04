@@ -26,6 +26,15 @@ pub struct Note {
     staff_position: StaffPosition,
 }
 
+impl Note {
+    pub fn new(pitch_class: PitchClass, staff_position: StaffPosition) -> Self {
+        Self {
+            pitch_class,
+            staff_position,
+        }
+    }
+}
+
 impl PartialEq for Note {
     /// Treat two notes as equal if they are represented by the same symbol.
     /// For example, `B sharp`, `C` and `D double flat` are all casually
@@ -120,10 +129,7 @@ impl FromStr for Note {
             _ => return Err(ParseNoteError { name }),
         };
 
-        Ok(Self {
-            pitch_class,
-            staff_position,
-        })
+        Ok(Self::new(pitch_class, staff_position))
     }
 }
 
@@ -144,10 +150,7 @@ impl From<PitchClass> for Note {
             B => BPos,
         };
 
-        Self {
-            pitch_class,
-            staff_position,
-        }
+        Self::new(pitch_class, staff_position)
     }
 }
 
@@ -158,10 +161,7 @@ impl Add<Interval> for Note {
     fn add(self, interval: Interval) -> Self {
         let pitch_class = self.pitch_class + interval.to_semitones();
         let staff_position = self.staff_position + (interval.to_number() - 1);
-        Self {
-            pitch_class,
-            staff_position,
-        }
+        Self::new(pitch_class, staff_position)
     }
 }
 
