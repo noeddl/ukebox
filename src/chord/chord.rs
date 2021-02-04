@@ -42,6 +42,13 @@ impl Chord {
         self.chord_type.intervals().map(move |i| self.root + i)
     }
 
+    /// Return `true` if the chord contains the given `note`.
+    /// Both the sharp and the flat version of the same note should match,
+    /// e.g. both `D#` and `Eb`.
+    pub fn contains(&self, note: Note) -> bool {
+        self.notes().any(|n| n.pitch_class == note.pitch_class)
+    }
+
     /// Given `pitch_class` return the matching note in the chord in case it exists.
     /// This is to determine whether the sharp or flat version of the same note
     /// should be presented for this chord.
@@ -692,5 +699,21 @@ mod tests {
         let chord1 = Chord::try_from(&pitches[..]).unwrap();
         let chord2 = Chord::from_str(chord_name).unwrap();
         assert_eq!(chord1, chord2);
+    }
+
+    #[rstest(
+        chord,
+        note,
+        contains,
+        case("C", "C", true),
+        case("C", "E", true),
+        case("C", "D", false),
+        case("Cm", "Eb", true),
+        case("Cm", "D#", true)
+    )]
+    fn test_contains(chord: &str, note: &str, contains: bool) {
+        let c = Chord::from_str(chord).unwrap();
+        let n = Note::from_str(note).unwrap();
+        assert_eq!(c.contains(n), contains);
     }
 }
