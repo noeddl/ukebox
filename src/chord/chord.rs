@@ -86,24 +86,17 @@ impl FromStr for Chord {
         .unwrap();
 
         // Match regex.
-        let caps = match re.captures(s) {
-            Some(caps) => caps,
-            None => return Err(ParseChordError { name }),
+        if let Some(caps) = re.captures(s) {
+            // Get root note.
+            if let Ok(root) = Note::from_str(&caps["root"]) {
+                // Get chord type.
+                if let Ok(chord_type) = ChordType::from_str(&caps["type"]) {
+                    return Ok(Self::new(root, chord_type));
+                };
+            };
         };
 
-        // Get root note.
-        let root = match Note::from_str(&caps["root"]) {
-            Ok(note) => note,
-            Err(_) => return Err(ParseChordError { name }),
-        };
-
-        // Get chord type.
-        let chord_type = match ChordType::from_str(&caps["type"]) {
-            Ok(chord_type) => chord_type,
-            Err(_) => return Err(ParseChordError { name }),
-        };
-
-        Ok(Self::new(root, chord_type))
+        Err(ParseChordError { name })
     }
 }
 
