@@ -42,7 +42,7 @@ impl Chord {
         self.chord_type.intervals().map(move |i| self.root + i)
     }
 
-    /// Given `pitch_class` return the matching note in the chord in case one exists.
+    /// Given `pitch_class` return the matching note in the chord in case it exists.
     pub fn get_note(&self, pitch_class: PitchClass) -> Option<Note> {
         self.notes().find(|n| n.pitch_class == pitch_class)
     }
