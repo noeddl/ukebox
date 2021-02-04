@@ -28,20 +28,32 @@ impl fmt::Display for ParseChordError {
 /// A chord such as C, Cm and so on.
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Chord {
-    name: String,
-    pub chord_type: ChordType,
     pub root: Note,
-    notes: Vec<Note>,
+    pub chord_type: ChordType,
 }
 
 impl Chord {
-    pub fn contains(&self, note: Note) -> bool {
-        self.notes.contains(&note)
+    pub fn new(root: Note, chord_type: ChordType) -> Self {
+        Self { root, chord_type }
     }
 
-    /// Given `pitch_class` return the matching note in the chord in case one exists.
-    pub fn get_note(&self, pitch_class: PitchClass) -> Option<&Note> {
-        self.notes.iter().find(|n| n.pitch_class == pitch_class)
+    /// Return an iterator over the chord's notes.
+    pub fn notes(&self) -> impl Iterator<Item = Note> + '_ {
+        self.chord_type.intervals().map(move |i| self.root + i)
+    }
+
+    /// Return `true` if the chord contains the given `note`.
+    /// Both the sharp and the flat version of the same note should match,
+    /// e.g. both `D#` and `Eb`.
+    pub fn contains(&self, note: Note) -> bool {
+        self.notes().any(|n| n.pitch_class == note.pitch_class)
+    }
+
+    /// Given `pitch_class` return the matching note in the chord in case it exists.
+    /// This is to determine whether the sharp or flat version of the same note
+    /// should be presented for this chord.
+    pub fn get_note(&self, pitch_class: PitchClass) -> Option<Note> {
+        self.notes().find(|n| n.pitch_class == pitch_class)
     }
 
     pub fn get_diagram(self, min_fret: FretID, tuning: Tuning) -> ChordDiagram {
@@ -55,7 +67,8 @@ impl Chord {
 
 impl fmt::Display for Chord {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{} - {} {}", self.name, self.notes[0], self.chord_type)
+        let name = format!("{}{}", self.root, self.chord_type.to_symbol());
+        write!(f, "{} - {} {}", name, self.root, self.chord_type)
     }
 }
 
@@ -63,8 +76,6 @@ impl FromStr for Chord {
     type Err = ParseChordError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        use ChordType::*;
-
         let name = s.to_string();
 
         // Regular expression for chord names.
@@ -84,49 +95,17 @@ impl FromStr for Chord {
         .unwrap();
 
         // Match regex.
-        let caps = match re.captures(s) {
-            Some(caps) => caps,
-            None => return Err(ParseChordError { name }),
+        if let Some(caps) = re.captures(s) {
+            // Get root note.
+            if let Ok(root) = Note::from_str(&caps["root"]) {
+                // Get chord type.
+                if let Ok(chord_type) = ChordType::from_str(&caps["type"]) {
+                    return Ok(Self::new(root, chord_type));
+                };
+            };
         };
 
-        // Get root note.
-        let root = match Note::from_str(&caps["root"]) {
-            Ok(note) => note,
-            Err(_) => return Err(ParseChordError { name }),
-        };
-
-        // Get chord type.
-        let chord_type = match &caps["type"] {
-            "m" => Minor,
-            "sus2" => SuspendedSecond,
-            "sus4" => SuspendedFourth,
-            "aug" => Augmented,
-            "dim" => Diminished,
-            "7" => DominantSeventh,
-            "m7" => MinorSeventh,
-            "maj7" => MajorSeventh,
-            "mMaj7" => MinorMajorSeventh,
-            "aug7" => AugmentedSeventh,
-            "augMaj7" => AugmentedMajorSeventh,
-            "dim7" => DiminishedSeventh,
-            "m7b5" => HalfDiminishedSeventh,
-            "" => Major,
-            _ => return Err(ParseChordError { name }),
-        };
-
-        // Collect notes of the chord.
-        let mut notes = vec![];
-
-        for interval in chord_type.get_intervals() {
-            notes.push(root + interval);
-        }
-
-        Ok(Self {
-            name,
-            root,
-            chord_type,
-            notes,
-        })
+        Err(ParseChordError { name })
     }
 }
 
@@ -136,24 +115,9 @@ impl TryFrom<&[PitchClass]> for Chord {
     /// Determine the chord that is represented by a list of pitch classes.
     fn try_from(pitches: &[PitchClass]) -> Result<Self, Self::Error> {
         let chord_type = ChordType::try_from(pitches)?;
-
         let root = Note::from(pitches[0]);
 
-        // Collect notes of the chord.
-        let mut notes = vec![];
-
-        for interval in chord_type.get_intervals() {
-            notes.push(root + interval);
-        }
-
-        let name = format!("{}{}", root, chord_type.to_symbol());
-
-        Ok(Self {
-            name,
-            root,
-            chord_type,
-            notes,
-        })
+        Ok(Self::new(root, chord_type))
     }
 }
 
@@ -207,7 +171,8 @@ mod tests {
         let r = Note::from_str(root).unwrap();
         let t = Note::from_str(third).unwrap();
         let f = Note::from_str(fifth).unwrap();
-        assert_eq!(c.notes, vec![r, t, f]);
+        let notes: Vec<Note> = c.notes().collect();
+        assert_eq!(notes, vec![r, t, f]);
         assert_eq!(c.chord_type, ChordType::Major);
     }
 
@@ -239,7 +204,8 @@ mod tests {
         let r = Note::from_str(root).unwrap();
         let t = Note::from_str(third).unwrap();
         let f = Note::from_str(fifth).unwrap();
-        assert_eq!(c.notes, vec![r, t, f]);
+        let notes: Vec<Note> = c.notes().collect();
+        assert_eq!(notes, vec![r, t, f]);
         assert_eq!(c.chord_type, ChordType::Minor);
     }
 
@@ -271,7 +237,8 @@ mod tests {
         let r = Note::from_str(root).unwrap();
         let t = Note::from_str(third).unwrap();
         let f = Note::from_str(fifth).unwrap();
-        assert_eq!(c.notes, vec![r, t, f]);
+        let notes: Vec<Note> = c.notes().collect();
+        assert_eq!(notes, vec![r, t, f]);
         assert_eq!(c.chord_type, ChordType::SuspendedSecond);
     }
 
@@ -303,7 +270,8 @@ mod tests {
         let r = Note::from_str(root).unwrap();
         let t = Note::from_str(third).unwrap();
         let f = Note::from_str(fifth).unwrap();
-        assert_eq!(c.notes, vec![r, t, f]);
+        let notes: Vec<Note> = c.notes().collect();
+        assert_eq!(notes, vec![r, t, f]);
         assert_eq!(c.chord_type, ChordType::SuspendedFourth);
     }
 
@@ -335,7 +303,8 @@ mod tests {
         let r = Note::from_str(root).unwrap();
         let t = Note::from_str(third).unwrap();
         let f = Note::from_str(fifth).unwrap();
-        assert_eq!(c.notes, vec![r, t, f]);
+        let notes: Vec<Note> = c.notes().collect();
+        assert_eq!(notes, vec![r, t, f]);
         assert_eq!(c.chord_type, ChordType::Augmented);
     }
 
@@ -367,7 +336,8 @@ mod tests {
         let r = Note::from_str(root).unwrap();
         let t = Note::from_str(third).unwrap();
         let f = Note::from_str(fifth).unwrap();
-        assert_eq!(c.notes, vec![r, t, f]);
+        let notes: Vec<Note> = c.notes().collect();
+        assert_eq!(notes, vec![r, t, f]);
         assert_eq!(c.chord_type, ChordType::Diminished);
     }
 
@@ -407,7 +377,8 @@ mod tests {
         let t = Note::from_str(third).unwrap();
         let f = Note::from_str(fifth).unwrap();
         let s = Note::from_str(seventh).unwrap();
-        assert_eq!(c.notes, vec![r, t, f, s]);
+        let notes: Vec<Note> = c.notes().collect();
+        assert_eq!(notes, vec![r, t, f, s]);
         assert_eq!(c.chord_type, ChordType::DominantSeventh);
     }
 
@@ -447,7 +418,8 @@ mod tests {
         let t = Note::from_str(third).unwrap();
         let f = Note::from_str(fifth).unwrap();
         let s = Note::from_str(seventh).unwrap();
-        assert_eq!(c.notes, vec![r, t, f, s]);
+        let notes: Vec<Note> = c.notes().collect();
+        assert_eq!(notes, vec![r, t, f, s]);
         assert_eq!(c.chord_type, ChordType::MinorSeventh);
     }
 
@@ -487,7 +459,8 @@ mod tests {
         let t = Note::from_str(third).unwrap();
         let f = Note::from_str(fifth).unwrap();
         let s = Note::from_str(seventh).unwrap();
-        assert_eq!(c.notes, vec![r, t, f, s]);
+        let notes: Vec<Note> = c.notes().collect();
+        assert_eq!(notes, vec![r, t, f, s]);
         assert_eq!(c.chord_type, ChordType::MajorSeventh);
     }
 
@@ -527,7 +500,8 @@ mod tests {
         let t = Note::from_str(third).unwrap();
         let f = Note::from_str(fifth).unwrap();
         let s = Note::from_str(seventh).unwrap();
-        assert_eq!(c.notes, vec![r, t, f, s]);
+        let notes: Vec<Note> = c.notes().collect();
+        assert_eq!(notes, vec![r, t, f, s]);
         assert_eq!(c.chord_type, ChordType::MinorMajorSeventh);
     }
 
@@ -567,7 +541,8 @@ mod tests {
         let t = Note::from_str(third).unwrap();
         let f = Note::from_str(fifth).unwrap();
         let s = Note::from_str(seventh).unwrap();
-        assert_eq!(c.notes, vec![r, t, f, s]);
+        let notes: Vec<Note> = c.notes().collect();
+        assert_eq!(notes, vec![r, t, f, s]);
         assert_eq!(c.chord_type, ChordType::AugmentedSeventh);
     }
 
@@ -607,7 +582,8 @@ mod tests {
         let t = Note::from_str(third).unwrap();
         let f = Note::from_str(fifth).unwrap();
         let s = Note::from_str(seventh).unwrap();
-        assert_eq!(c.notes, vec![r, t, f, s]);
+        let notes: Vec<Note> = c.notes().collect();
+        assert_eq!(notes, vec![r, t, f, s]);
         assert_eq!(c.chord_type, ChordType::AugmentedMajorSeventh);
     }
 
@@ -647,7 +623,8 @@ mod tests {
         let t = Note::from_str(third).unwrap();
         let f = Note::from_str(fifth).unwrap();
         let s = Note::from_str(seventh).unwrap();
-        assert_eq!(c.notes, vec![r, t, f, s]);
+        let notes: Vec<Note> = c.notes().collect();
+        assert_eq!(notes, vec![r, t, f, s]);
         assert_eq!(c.chord_type, ChordType::DiminishedSeventh);
     }
 
@@ -687,7 +664,8 @@ mod tests {
         let t = Note::from_str(third).unwrap();
         let f = Note::from_str(fifth).unwrap();
         let s = Note::from_str(seventh).unwrap();
-        assert_eq!(c.notes, vec![r, t, f, s]);
+        let notes: Vec<Note> = c.notes().collect();
+        assert_eq!(notes, vec![r, t, f, s]);
         assert_eq!(c.chord_type, ChordType::HalfDiminishedSeventh);
     }
 
@@ -729,7 +707,9 @@ mod tests {
         contains,
         case("C", "C", true),
         case("C", "E", true),
-        case("C", "D", false)
+        case("C", "D", false),
+        case("Cm", "Eb", true),
+        case("Cm", "D#", true)
     )]
     fn test_contains(chord: &str, note: &str, contains: bool) {
         let c = Chord::from_str(chord).unwrap();

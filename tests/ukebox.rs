@@ -383,7 +383,14 @@ fn run_reverse_tests(test_configs: Vec<TestConfig>) -> Result<(), Box<dyn std::e
     }
 
     for ((fret_str, tuning), mut titles) in tests {
-        titles.sort();
+        let notes = vec!['C', 'D', 'E', 'F', 'G', 'A', 'B'];
+        // Sort titles by chord names/notes so that C comes before A etc.
+        titles.sort_by(|a, b| {
+            notes
+                .iter()
+                .position(|&x| x == a.chars().next().unwrap())
+                .cmp(&notes.iter().position(|&x| x == b.chars().next().unwrap()))
+        });
         titles.dedup();
         let title = titles.join("\n");
 
