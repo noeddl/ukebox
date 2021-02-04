@@ -255,6 +255,8 @@ mod tests {
         n,
         result_name,
         case("C", 0, "C"),
+        case("C#", 0, "C#"),
+        case("Db", 0, "Db"),
         case("C", 1, "C#"),
         case("C", 3, "D#"),
         case("C", 4, "E"),
@@ -272,9 +274,11 @@ mod tests {
         n,
         result_name,
         case("C", 0, "C"),
+        case("C#", 0, "C#"),
+        case("Db", 0, "Db"),
         case("C", 1, "B"),
-        case("C", 2, "A#"),
-        case("A", 3, "F#"),
+        case("C", 2, "Bb"),
+        case("A", 3, "Gb"),
         case("A", 12, "A")
     )]
     fn test_subtract_semitones(note_name: &str, n: Semitones, result_name: &str) {
