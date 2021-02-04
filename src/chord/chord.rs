@@ -43,6 +43,8 @@ impl Chord {
     }
 
     /// Given `pitch_class` return the matching note in the chord in case it exists.
+    /// This is to determine whether the sharp or flat version of the same note
+    /// should be presented for this chord.
     pub fn get_note(&self, pitch_class: PitchClass) -> Option<Note> {
         self.notes().find(|n| n.pitch_class == pitch_class)
     }
