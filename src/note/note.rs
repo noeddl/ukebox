@@ -33,6 +33,14 @@ impl Note {
             staff_position,
         }
     }
+
+    /// Return `true` if this note is a "white note", i.e. a note represented
+    /// by a white key on the piano (i.e. is part of the C major scale).
+    pub fn is_white_note(&self) -> bool {
+        use PitchClass::*;
+
+        matches!(self.pitch_class, C | D | E | F | G | A | B)
+    }
 }
 
 impl PartialEq for Note {
@@ -187,8 +195,6 @@ impl Sub<Semitones> for Note {
     type Output = Self;
 
     fn sub(self, n: Semitones) -> Self {
-        use PitchClass::*;
-
         let note = Self::from(self.pitch_class - n);
 
         // Make sure the staff position stays the same if the pitch class
@@ -199,8 +205,8 @@ impl Sub<Semitones> for Note {
 
         // Make sure that the staff position will be chosen so that
         // sharp/flat notes turn out flat (e.g. D - 1 = Db).
-        let staff_position = match note.pitch_class {
-            C | D | E | F | G | A | B => note.staff_position,
+        let staff_position = match note {
+            n if n.is_white_note() => note.staff_position,
             _ => note.staff_position + 1,
         };
 
@@ -238,6 +244,32 @@ mod tests {
     fn test_from_and_to_str(s: &str) {
         let note = Note::from_str(s).unwrap();
         assert_eq!(format!("{}", note), s);
+    }
+
+    #[rstest(
+        s,
+        is_white_note,
+        case("C", true),
+        case("C#", false),
+        case("Db", false),
+        case("D", true),
+        case("D#", false),
+        case("Eb", false),
+        case("E", true),
+        case("F", true),
+        case("F#", false),
+        case("Gb", false),
+        case("G", true),
+        case("G#", false),
+        case("Ab", false),
+        case("A", true),
+        case("A#", false),
+        case("Bb", false),
+        case("B", true)
+    )]
+    fn test_is_white_note(s: &str, is_white_note: bool) {
+        let note = Note::from_str(s).unwrap();
+        assert_eq!(note.is_white_note(), is_white_note);
     }
 
     #[rstest(
