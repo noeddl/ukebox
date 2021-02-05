@@ -341,6 +341,8 @@ mod tests {
         case("Db", 0, "Db"),
         case("C", 1, "B"),
         case("C", 2, "Bb"),
+        case("C#", 3, "Bb"),
+        case("Db", 3, "Bb"),
         case("A", 3, "Gb"),
         case("A", 12, "A")
     )]
