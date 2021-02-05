@@ -759,8 +759,8 @@ mod tests {
         result,
         case("C", 0, "C"),
         case("Cm", 1, "Bm"),
-        case("Cmaj7", 2, "A#maj7"),
-        case("Adim", 3, "F#dim"),
+        case("Cmaj7", 2, "Bbmaj7"),
+        case("Adim", 3, "Gbdim"),
         case("A", 12, "A")
     )]
     fn test_subtract_semitones(chord: &str, n: Semitones, result: &str) {
