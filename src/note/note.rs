@@ -189,24 +189,22 @@ impl Sub<Semitones> for Note {
     fn sub(self, n: Semitones) -> Self {
         use PitchClass::*;
 
-        let pitch_class = self.pitch_class - n;
+        let note = Self::from(self.pitch_class - n);
 
         // Make sure the staff position stays the same if the pitch class
         // stays the same (e.g. when adding 0 or 12 semitones).
-        if pitch_class == self.pitch_class {
-            return Self::new(pitch_class, self.staff_position);
+        if note.pitch_class == self.pitch_class {
+            return Self::new(self.pitch_class, self.staff_position);
         }
-
-        let note = Self::from(pitch_class);
 
         // Make sure that the staff position will be chosen so that
         // sharp/flat notes turn out flat (e.g. D - 1 = Db).
-        let staff_position = match pitch_class {
-            CSharp | DSharp | FSharp | GSharp | ASharp => note.staff_position + 1,
-            _ => note.staff_position,
+        let staff_position = match note.pitch_class {
+            C | D | E | F | G | A | B => note.staff_position,
+            _ => note.staff_position + 1,
         };
 
-        Self::new(pitch_class, staff_position)
+        Self::new(note.pitch_class, staff_position)
     }
 }
 
