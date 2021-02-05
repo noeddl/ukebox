@@ -169,17 +169,17 @@ impl Add<Semitones> for Note {
     type Output = Self;
 
     fn add(self, n: Semitones) -> Self {
-        let pitch_class = self.pitch_class + n;
+        let note = Self::from(self.pitch_class + n);
 
         // Make sure the staff position stays the same if the pitch class
         // stays the same (e.g. when adding 0 or 12 semitones).
-        if pitch_class == self.pitch_class {
-            return Self::new(pitch_class, self.staff_position);
+        if note.pitch_class == self.pitch_class {
+            return Self::new(self.pitch_class, self.staff_position);
         }
 
         // Otherwise, the staff position will by default be chosen so that
         // sharp/flat notes turn out sharp (e.g. C + 1 = C#).
-        Self::from(pitch_class)
+        note
     }
 }
 
