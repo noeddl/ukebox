@@ -203,7 +203,7 @@ impl Sub<Semitones> for Note {
             return Self::new(self.pitch_class, self.staff_position);
         }
 
-        // Make sure that the staff position will be chosen so that
+        // Otherwise, make sure that the staff position will be chosen so that
         // sharp/flat notes turn out flat (e.g. D - 1 = Db).
         let staff_position = match note {
             n if n.is_white_note() => note.staff_position,
