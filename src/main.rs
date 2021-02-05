@@ -20,7 +20,7 @@ enum Subcommand {
         /// Minimal fret (= minimal position) from which to play <chord>
         #[structopt(short = "f", long, default_value = "0")]
         min_fret: FretID,
-        /// Number of semitones to add (e.g. 1, +1) or subtract (e.g. -1)
+        /// Number of semitones to add (e.g. 1, +1) or to subtract (e.g. -1)
         #[structopt(long, allow_hyphen_values = true, default_value = "0")]
         transpose: i8,
         /// Name of the chord to be shown
