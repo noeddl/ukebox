@@ -13,7 +13,7 @@
 * shows you how to play a given chord on a ukulele by printing a **chord chart** in ASCII art
 * presents the **chord name(s)** corresponding to a chord fingering given in [numeric chord notation](https://ukenut.com/compact-fretted-chord-notation/)
 * supports **different ukulele tunings** (C, D and G)
-* can present **different fingerings** of the same chord along the fretbord
+* can present each chord in **different positions** along the fretbord
 * allows you to **transpose** a chord by any number of semitones
 
 ## Installation
