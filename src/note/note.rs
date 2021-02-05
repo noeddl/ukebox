@@ -35,7 +35,7 @@ impl Note {
     }
 
     /// Return `true` if this note is a "white note", i.e. a note represented
-    /// by a white key on the piano (i.e. is part of the C major scale).
+    /// by a white key on the piano (i.e. the note is part of the C major scale).
     pub fn is_white_note(&self) -> bool {
         use PitchClass::*;
 
@@ -198,7 +198,7 @@ impl Sub<Semitones> for Note {
         let note = Self::from(self.pitch_class - n);
 
         // Make sure the staff position stays the same if the pitch class
-        // stays the same (e.g. when adding 0 or 12 semitones).
+        // stays the same (e.g. when subtracting 0 or 12 semitones).
         if note.pitch_class == self.pitch_class {
             return Self::new(self.pitch_class, self.staff_position);
         }
