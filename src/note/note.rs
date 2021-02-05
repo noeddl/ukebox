@@ -169,7 +169,17 @@ impl Add<Semitones> for Note {
     type Output = Self;
 
     fn add(self, n: Semitones) -> Self {
-        Self::from(self.pitch_class + n)
+        let pitch_class = self.pitch_class + n;
+
+        // Make sure the staff position stays the same if the pitch class
+        // stays the same (e.g. when adding 0 or 12 semitones).
+        if pitch_class == self.pitch_class {
+            return Self::new(pitch_class, self.staff_position);
+        }
+
+        // Otherwise, the staff position will by default be chosen so that
+        // sharp/flat notes turn out sharp (e.g. C + 1 = C#).
+        Self::from(pitch_class)
     }
 }
 
@@ -258,11 +268,15 @@ mod tests {
         case("C#", 0, "C#"),
         case("Db", 0, "Db"),
         case("C", 1, "C#"),
+        case("C#", 1, "D"),
+        case("Db", 1, "D"),
         case("C", 3, "D#"),
         case("C", 4, "E"),
         case("C", 7, "G"),
         case("A", 3, "C"),
-        case("A", 12, "A")
+        case("A", 12, "A"),
+        case("A#", 12, "A#"),
+        case("Ab", 12, "Ab")
     )]
     fn test_add_semitones(note_name: &str, n: Semitones, result_name: &str) {
         let note = Note::from_str(note_name).unwrap();
