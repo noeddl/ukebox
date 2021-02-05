@@ -14,6 +14,7 @@
 * presents the **chord name(s)** corresponding to a chord fingering given in [numeric chord notation](https://ukenut.com/compact-fretted-chord-notation/)
 * supports **different ukulele tunings** (C, D and G)
 * can present **different fingerings** of the same chord along the fretbord
+* allows you to **transpose** a chord by any number of semitones
 
 ## Installation
 
@@ -47,7 +48,7 @@ SUBCOMMANDS:
     name     Chord name lookup
 ```
 
-When running the program with Rust, replace the command `ukebox` with `cargo run --release`, e.g. `cargo run --release chart G`.
+When running the program with Rust, replace the command `ukebox` with `cargo run --release`, e.g. `cargo run --release -- chart G`.
 
 ### Chord chart lookup
 
@@ -62,8 +63,9 @@ FLAGS:
     -V, --version    Prints version information
 
 OPTIONS:
-    -f, --min-fret <min-fret>    Minimal fret (= minimal position) from which to play <chord> [default: 0]
-    -t, --tuning <tuning>        Type of tuning to be used [default: C]  [possible values: C, D, G]
+    -f, --min-fret <min-fret>      Minimal fret (= minimal position) from which to play <chord> [default: 0]
+        --transpose <transpose>    Number of semitones to add (e.g. 1, +1) or to subtract (e.g. -1) [default: 0]
+    -t, --tuning <tuning>          Type of tuning to be used [default: C]  [possible values: C, D, G]
 
 ARGS:
     <chord>    Name of the chord to be shown
@@ -111,6 +113,26 @@ F#  -|---|---|-o-|---|- B
 D   -|---|---|-o-|---|- G
 A   -|---|---|-o-|---|- D
        3
+```
+
+```
+$ ukebox chart --transpose 1 C
+[C# - C# major]
+
+A  ||---|---|---|-o-|- C#
+E  ||-o-|---|---|---|- F
+C  ||-o-|---|---|---|- C#
+G  ||-o-|---|---|---|- G#
+```
+
+```
+$ ukebox chart --transpose -2 C
+[Bb - Bb major]
+
+A  ||-o-|---|---|---|- Bb
+E  ||-o-|---|---|---|- F
+C  ||---|-o-|---|---|- D
+G  ||---|---|-o-|---|- Bb
 ```
 
 ### Chord name lookup
