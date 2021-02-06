@@ -20,6 +20,9 @@ enum Subcommand {
         /// Minimal fret (= minimal position) from which to play <chord>
         #[structopt(short = "f", long, default_value = "0")]
         min_fret: FretID,
+        /// Number of semitones to add (e.g. 1, +1) or to subtract (e.g. -1)
+        #[structopt(long, allow_hyphen_values = true, default_value = "0")]
+        transpose: i8,
         /// Name of the chord to be shown
         chord: Chord,
     },
@@ -35,7 +38,18 @@ fn main() {
     let tuning = args.tuning;
 
     match args.cmd {
-        Subcommand::Chart { min_fret, chord } => {
+        Subcommand::Chart {
+            min_fret,
+            transpose,
+            chord,
+        } => {
+            // Transpose chord.
+            let chord = match transpose {
+                // Subtract semitones (e.g. -1).
+                t if t < 0 => chord - transpose.abs() as u8,
+                // Add semitones (e.g. 1, +1).
+                _ => chord + transpose as u8,
+            };
             let diagram = chord.get_diagram(min_fret, tuning);
             println!("{}", diagram);
         }

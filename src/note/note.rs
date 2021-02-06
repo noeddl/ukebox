@@ -1,8 +1,10 @@
 use crate::note::Interval;
 use crate::note::PitchClass;
+use crate::note::Semitones;
 use crate::note::StaffPosition;
 use std::fmt;
 use std::ops::Add;
+use std::ops::Sub;
 use std::str::FromStr;
 
 /// Custom error for strings that cannot be parsed into notes.
@@ -22,6 +24,23 @@ impl fmt::Display for ParseNoteError {
 pub struct Note {
     pub pitch_class: PitchClass,
     staff_position: StaffPosition,
+}
+
+impl Note {
+    pub fn new(pitch_class: PitchClass, staff_position: StaffPosition) -> Self {
+        Self {
+            pitch_class,
+            staff_position,
+        }
+    }
+
+    /// Return `true` if this note is a "white note", i.e. a note represented
+    /// by a white key on the piano (i.e. the note is part of the C major scale).
+    pub fn is_white_note(&self) -> bool {
+        use PitchClass::*;
+
+        matches!(self.pitch_class, C | D | E | F | G | A | B)
+    }
 }
 
 impl PartialEq for Note {
@@ -118,10 +137,7 @@ impl FromStr for Note {
             _ => return Err(ParseNoteError { name }),
         };
 
-        Ok(Self {
-            pitch_class,
-            staff_position,
-        })
+        Ok(Self::new(pitch_class, staff_position))
     }
 }
 
@@ -142,10 +158,7 @@ impl From<PitchClass> for Note {
             B => BPos,
         };
 
-        Self {
-            pitch_class,
-            staff_position,
-        }
+        Self::new(pitch_class, staff_position)
     }
 }
 
@@ -156,10 +169,48 @@ impl Add<Interval> for Note {
     fn add(self, interval: Interval) -> Self {
         let pitch_class = self.pitch_class + interval.to_semitones();
         let staff_position = self.staff_position + (interval.to_number() - 1);
-        Self {
-            pitch_class,
-            staff_position,
+        Self::new(pitch_class, staff_position)
+    }
+}
+
+impl Add<Semitones> for Note {
+    type Output = Self;
+
+    fn add(self, n: Semitones) -> Self {
+        let note = Self::from(self.pitch_class + n);
+
+        // Make sure the staff position stays the same if the pitch class
+        // stays the same (e.g. when adding 0 or 12 semitones).
+        if note.pitch_class == self.pitch_class {
+            return Self::new(self.pitch_class, self.staff_position);
         }
+
+        // Otherwise, the staff position will by default be chosen so that
+        // sharp/flat notes turn out sharp (e.g. C + 1 = C#).
+        note
+    }
+}
+
+impl Sub<Semitones> for Note {
+    type Output = Self;
+
+    fn sub(self, n: Semitones) -> Self {
+        let note = Self::from(self.pitch_class - n);
+
+        // Make sure the staff position stays the same if the pitch class
+        // stays the same (e.g. when subtracting 0 or 12 semitones).
+        if note.pitch_class == self.pitch_class {
+            return Self::new(self.pitch_class, self.staff_position);
+        }
+
+        // Otherwise, make sure that the staff position will be chosen so that
+        // sharp/flat notes turn out flat (e.g. D - 1 = Db).
+        let staff_position = match note {
+            n if n.is_white_note() => note.staff_position,
+            _ => note.staff_position + 1,
+        };
+
+        Self::new(note.pitch_class, staff_position)
     }
 }
 
@@ -193,6 +244,32 @@ mod tests {
     fn test_from_and_to_str(s: &str) {
         let note = Note::from_str(s).unwrap();
         assert_eq!(format!("{}", note), s);
+    }
+
+    #[rstest(
+        s,
+        is_white_note,
+        case("C", true),
+        case("C#", false),
+        case("Db", false),
+        case("D", true),
+        case("D#", false),
+        case("Eb", false),
+        case("E", true),
+        case("F", true),
+        case("F#", false),
+        case("Gb", false),
+        case("G", true),
+        case("G#", false),
+        case("Ab", false),
+        case("A", true),
+        case("A#", false),
+        case("Bb", false),
+        case("B", true)
+    )]
+    fn test_is_white_note(s: &str, is_white_note: bool) {
+        let note = Note::from_str(s).unwrap();
+        assert_eq!(note.is_white_note(), is_white_note);
     }
 
     #[rstest(
@@ -230,5 +307,47 @@ mod tests {
     fn test_add_interval(note_name: &str, interval: Interval, result_name: &str) {
         let note = Note::from_str(note_name).unwrap();
         assert_eq!(note + interval, Note::from_str(result_name).unwrap());
+    }
+
+    #[rstest(
+        note_name,
+        n,
+        result_name,
+        case("C", 0, "C"),
+        case("C#", 0, "C#"),
+        case("Db", 0, "Db"),
+        case("C", 1, "C#"),
+        case("C#", 1, "D"),
+        case("Db", 1, "D"),
+        case("C", 3, "D#"),
+        case("C", 4, "E"),
+        case("C", 7, "G"),
+        case("A", 3, "C"),
+        case("A", 12, "A"),
+        case("A#", 12, "A#"),
+        case("Ab", 12, "Ab")
+    )]
+    fn test_add_semitones(note_name: &str, n: Semitones, result_name: &str) {
+        let note = Note::from_str(note_name).unwrap();
+        assert_eq!(note + n, Note::from_str(result_name).unwrap());
+    }
+
+    #[rstest(
+        note_name,
+        n,
+        result_name,
+        case("C", 0, "C"),
+        case("C#", 0, "C#"),
+        case("Db", 0, "Db"),
+        case("C", 1, "B"),
+        case("C", 2, "Bb"),
+        case("C#", 3, "Bb"),
+        case("Db", 3, "Bb"),
+        case("A", 3, "Gb"),
+        case("A", 12, "A")
+    )]
+    fn test_subtract_semitones(note_name: &str, n: Semitones, result_name: &str) {
+        let note = Note::from_str(note_name).unwrap();
+        assert_eq!(note - n, Note::from_str(result_name).unwrap());
     }
 }

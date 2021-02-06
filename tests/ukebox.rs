@@ -5,6 +5,7 @@
 /// using the command line parameters and the actual output is compared to the
 /// expected output.
 use assert_cmd::prelude::*; // Add methods on commands
+use indoc::indoc;
 use predicates::prelude::*; // Used for writing assertions
 use rstest::rstest;
 use std::collections::HashMap;
@@ -816,4 +817,75 @@ fn test_half_diminished_seventh_chords(tuning: Tuning) -> Result<(), Box<dyn std
     let test_configs = get_half_diminished_seventh_chord_config(tuning);
 
     run_tests(test_configs)
+}
+
+#[rstest(
+    chord,
+    semitones,
+    chart,
+    case(
+        "C",
+        "0",
+        indoc!("
+            [C - C major]
+
+            A  ||---|---|-o-|---|- C
+            E o||---|---|---|---|- E
+            C o||---|---|---|---|- C
+            G o||---|---|---|---|- G
+
+        ")
+    ),
+    case(
+        "C",
+        "+1",
+        indoc!("
+            [C# - C# major]
+
+            A  ||---|---|---|-o-|- C#
+            E  ||-o-|---|---|---|- F
+            C  ||-o-|---|---|---|- C#
+            G  ||-o-|---|---|---|- G#
+
+        ")
+    ),
+    case(
+        "C",
+        "1",
+        indoc!("
+            [C# - C# major]
+
+            A  ||---|---|---|-o-|- C#
+            E  ||-o-|---|---|---|- F
+            C  ||-o-|---|---|---|- C#
+            G  ||-o-|---|---|---|- G#
+
+        ")
+    ),
+    case(
+        "D",
+        "-1",
+        indoc!("
+            [Db - Db major]
+
+            A  ||---|---|---|-o-|- Db
+            E  ||-o-|---|---|---|- F
+            C  ||-o-|---|---|---|- Db
+            G  ||-o-|---|---|---|- Ab
+
+        ")
+    ),
+)]
+fn test_transpose(
+    chord: &str,
+    semitones: &str,
+    chart: &'static str,
+) -> Result<(), Box<dyn std::error::Error + 'static>> {
+    let mut cmd = Command::cargo_bin("ukebox")?;
+    cmd.arg("chart");
+    cmd.arg("--transpose").arg(semitones);
+    cmd.arg(chord);
+    cmd.assert().success().stdout(chart);
+
+    Ok(())
 }

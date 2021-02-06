@@ -1,5 +1,9 @@
 # Changelog
 
+## [Unreleased]
+
+* Add command line option `--transpose` to specify a number of semitones to be added or subtracted before printing the chord chart ([#24](https://github.com/noeddl/ukebox/issues/24)).
+
 ## [0.5.0] - 2020-01-02
 
 * Add subcommand `name` for looking up the chord name(s) corresponding to a given chord fingering ([#18](https://github.com/noeddl/ukebox/issues/18)).
