@@ -741,12 +741,16 @@ mod tests {
         n,
         result,
         case("C", 0, "C"),
+        case("C#", 0, "C#"),
+        case("Db", 0, "Db"),
         case("Cm", 1, "C#m"),
         case("Cmaj7", 2, "Dmaj7"),
         case("Cdim", 4, "Edim"),
         case("C#", 2, "D#"),
         case("A#m", 3, "C#m"),
-        case("A", 12, "A")
+        case("A", 12, "A"),
+        case("A#", 12, "A#"),
+        case("Ab", 12, "Ab")
     )]
     fn test_add_semitones(chord: &str, n: Semitones, result: &str) {
         let c = Chord::from_str(chord).unwrap();
@@ -758,10 +762,14 @@ mod tests {
         n,
         result,
         case("C", 0, "C"),
+        case("C#", 0, "C#"),
+        case("Db", 0, "Db"),
         case("Cm", 1, "Bm"),
         case("Cmaj7", 2, "Bbmaj7"),
         case("Adim", 3, "Gbdim"),
-        case("A", 12, "A")
+        case("A", 12, "A"),
+        case("A#", 12, "A#"),
+        case("Ab", 12, "Ab")
     )]
     fn test_subtract_semitones(chord: &str, n: Semitones, result: &str) {
         let c = Chord::from_str(chord).unwrap();
