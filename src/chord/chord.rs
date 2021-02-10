@@ -52,6 +52,12 @@ impl Chord {
         self.notes().any(|n| n.pitch_class == note.pitch_class)
     }
 
+    /// Return `true` if `notes` contains exactly the chord's notes.
+    /// Duplicates are allowed.
+    pub fn consists_of(&self, notes: &[Note]) -> bool {
+        self.notes().all(|n| notes.contains(&n)) && notes.iter().all(|n| self.contains(n))
+    }
+
     /// Given `pitch_class` return the matching note in the chord in case it exists.
     /// This is to determine whether the sharp or flat version of the same note
     /// should be presented for this chord.
@@ -734,6 +740,25 @@ mod tests {
         let c = Chord::from_str(chord).unwrap();
         let n = Note::from_str(note).unwrap();
         assert_eq!(c.contains(&n), contains);
+    }
+
+    #[rstest(
+        chord,
+        note_strs,
+        consists_of,
+        case("C", vec!["C", "E", "G"], true),
+        case("C", vec!["G", "C", "E", "C"], true),
+        case("C", vec!["C", "D", "G"], false),
+        case("C", vec!["C", "E"], false),
+        case("C", vec!["G", "C", "E", "D"], false),
+    )]
+    fn test_consists_of(chord: &str, note_strs: Vec<&str>, consists_of: bool) {
+        let c = Chord::from_str(chord).unwrap();
+        let notes: Vec<Note> = note_strs
+            .iter()
+            .map(|s| Note::from_str(s).unwrap())
+            .collect();
+        assert_eq!(c.consists_of(&notes), consists_of);
     }
 
     #[rstest(
