@@ -3,11 +3,14 @@ use crate::chord::ChordType;
 use crate::chord::FretID;
 use crate::chord::Tuning;
 use crate::diagram::ChordDiagram;
+use crate::diagram::FretPattern;
 use crate::note::Note;
 use crate::note::PitchClass;
 use crate::note::Semitones;
+use itertools::Itertools;
 use regex::Regex;
 use std::convert::TryFrom;
+use std::convert::TryInto;
 use std::error::Error;
 use std::fmt;
 use std::ops::Add;
@@ -63,6 +66,42 @@ impl Chord {
     /// should be presented for this chord.
     pub fn get_note(&self, pitch_class: PitchClass) -> Option<Note> {
         self.notes().find(|n| n.pitch_class == pitch_class)
+    }
+
+    pub fn get_voicings(&self, min_fret: FretID, tuning: Tuning) -> Vec<FretPattern> {
+        let max_fret = 12;
+        let roots = tuning.get_roots();
+        let mut fret_note_sets = vec![];
+
+        for root in roots.iter().rev() {
+            let mut fret_note_set = vec![];
+            for fret in min_fret..max_fret + 1 {
+                let note = *root + fret;
+                if self.contains(&note) {
+                    fret_note_set.push((fret, note));
+                }
+            }
+            fret_note_sets.push(fret_note_set);
+        }
+
+        let mut fret_patterns = vec![];
+
+        for fret_note_set in fret_note_sets.into_iter().multi_cartesian_product() {
+            let note_set: Vec<Note> = fret_note_set.iter().map(|x| x.1).collect();
+            if self.consists_of(&note_set) {
+                let fret_set: [FretID; 4] = fret_note_set
+                    .iter()
+                    .rev()
+                    .map(|x| x.0)
+                    .collect::<Vec<FretID>>()
+                    .try_into()
+                    .unwrap();
+                let fret_pattern = fret_set.into();
+                fret_patterns.push(fret_pattern);
+            }
+        }
+
+        fret_patterns
     }
 
     pub fn get_diagram(self, min_fret: FretID, tuning: Tuning) -> ChordDiagram {
