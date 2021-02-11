@@ -42,6 +42,10 @@ impl FretPattern {
         *self.iter().max().unwrap()
     }
 
+    pub fn get_span(&self) -> FretID {
+        self.get_max_fret() - self.get_min_fret()
+    }
+
     pub fn get_pitch_classes(&self, tuning: Tuning) -> Vec<PitchClass> {
         let roots = tuning.get_roots();
         let pitches: Vec<_> = self

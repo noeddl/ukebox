@@ -70,6 +70,7 @@ impl Chord {
 
     pub fn get_voicings(&self, min_fret: FretID, tuning: Tuning) -> Vec<FretPattern> {
         let max_fret = 12;
+        let max_span = 5;
         let roots = tuning.get_roots();
         let mut fret_note_sets = vec![];
 
@@ -96,8 +97,10 @@ impl Chord {
                     .collect::<Vec<FretID>>()
                     .try_into()
                     .unwrap();
-                let fret_pattern = fret_set.into();
-                fret_patterns.push(fret_pattern);
+                let fret_pattern: FretPattern = fret_set.into();
+                if fret_pattern.get_span() < max_span {
+                    fret_patterns.push(fret_pattern);
+                }
             }
         }
 
