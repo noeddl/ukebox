@@ -52,6 +52,8 @@ fn main() {
             };
             let voicings = chord.get_voicings(min_fret, tuning);
 
+            println!("{:?}", voicings.len());
+
             for voicing in voicings {
                 println!("{:?}", voicing);
             }
