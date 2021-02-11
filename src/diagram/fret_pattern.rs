@@ -32,8 +32,10 @@ impl FretPattern {
         self.frets.iter()
     }
 
+    /// Return the lowest fret at which a string is pressed down.
+    /// Ignore fret ID 0 as it represents open strings.
     pub fn get_min_fret(&self) -> FretID {
-        *self.iter().min().unwrap()
+        *self.iter().filter(|&x| x > &0).min().unwrap()
     }
 
     pub fn get_max_fret(&self) -> FretID {
