@@ -33,9 +33,12 @@ impl FretPattern {
     }
 
     /// Return the lowest fret at which a string is pressed down.
-    /// Ignore fret ID 0 as it represents open strings.
     pub fn get_min_fret(&self) -> FretID {
-        *self.iter().filter(|&x| x > &0).min().unwrap()
+        match self.iter().filter(|&x| x > &0).min() {
+            Some(x) => *x,
+            // Special case [0, 0, 0, 0]: no string is pressed down.
+            _ => 0,
+        }
     }
 
     pub fn get_max_fret(&self) -> FretID {
@@ -154,6 +157,26 @@ mod tests {
     #[rstest(s, case(""), case("Cm"), case("222"), case("22201"))]
     fn test_from_str_fail(s: &str) {
         assert!(FretPattern::from_str(s).is_err())
+    }
+
+    #[rstest(
+        frets, min_fret, max_fret, span,
+        case([0, 0, 0, 0], 0, 0, 0),
+        case([1, 1, 1, 1], 1, 1, 0),
+        case([2, 0, 1, 3], 1, 3, 2),
+        case([5, 5, 5, 6], 5, 6, 1),
+        case([3, 0, 0, 12], 3, 12, 9),
+    )]
+    fn test_get_min_max_fret_and_span(
+        frets: [FretID; STRING_COUNT],
+        min_fret: FretID,
+        max_fret: FretID,
+        span: u8,
+    ) {
+        let fret_pattern = FretPattern::from(frets);
+        assert_eq!(fret_pattern.get_min_fret(), min_fret);
+        assert_eq!(fret_pattern.get_max_fret(), max_fret);
+        assert_eq!(fret_pattern.get_span(), span);
     }
 
     #[rstest(
