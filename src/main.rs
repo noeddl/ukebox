@@ -53,6 +53,7 @@ fn main() {
             let voicings = chord.get_voicings(min_fret, tuning);
 
             println!("{:?}", voicings.len());
+            println!("{}", format!("[{}]\n", chord));
 
             for voicing in voicings {
                 println!("{}", voicing);

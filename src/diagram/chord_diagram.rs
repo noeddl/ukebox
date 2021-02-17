@@ -54,8 +54,7 @@ impl ChordDiagram {
 
 impl fmt::Display for ChordDiagram {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        // Display the name of the chord shown.
-        let mut s = format!("[{}]\n\n", self.chord);
+        let mut s = "".to_string();
 
         // Determine from which fret to show the fretboard.
         let base_fret = self.get_base_fret();
