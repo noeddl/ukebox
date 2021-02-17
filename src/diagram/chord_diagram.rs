@@ -4,6 +4,7 @@ use crate::diagram::StringDiagram;
 use crate::diagram::CHART_WIDTH;
 use crate::note::Note;
 use crate::STRING_COUNT;
+use itertools::izip;
 use std::fmt;
 
 pub struct ChordDiagram {
@@ -57,11 +58,8 @@ impl fmt::Display for ChordDiagram {
             .unwrap();
 
         // Create a diagram for each ukulele string.
-        for i in (0..STRING_COUNT).rev() {
-            let root = self.roots[i];
-            let fret = self.frets[i];
-            let note = self.notes[i];
-            let sd = StringDiagram::new(root, base_fret, fret, note, root_width);
+        for (root, fret, note) in izip!(&self.roots, self.frets.iter(), &self.notes).rev() {
+            let sd = StringDiagram::new(*root, base_fret, *fret, *note, root_width);
             s.push_str(&format!("{}\n", sd.to_string()));
         }
 
