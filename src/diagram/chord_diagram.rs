@@ -1,4 +1,3 @@
-use crate::chord::Chord;
 use crate::chord::FretID;
 use crate::chord::Tuning;
 use crate::diagram::FretPattern;
@@ -6,21 +5,27 @@ use crate::diagram::StringDiagram;
 use crate::diagram::CHART_WIDTH;
 use crate::note::Note;
 use crate::STRING_COUNT;
-use std::convert::TryInto;
 use std::fmt;
 
 pub struct ChordDiagram {
-    chord: Chord,
     frets: FretPattern,
     tuning: Tuning,
+    roots: [Note; STRING_COUNT],
+    notes: [Note; STRING_COUNT],
 }
 
 impl ChordDiagram {
-    pub fn new(chord: Chord, frets: impl Into<FretPattern>, tuning: Tuning) -> Self {
+    pub fn new(
+        frets: impl Into<FretPattern>,
+        tuning: Tuning,
+        roots: [Note; STRING_COUNT],
+        notes: [Note; STRING_COUNT],
+    ) -> Self {
         Self {
-            chord,
             frets: frets.into(),
             tuning,
+            roots,
+            notes,
         }
     }
 
@@ -37,19 +42,6 @@ impl ChordDiagram {
             _ => self.frets.get_min_fret(),
         }
     }
-
-    /// Compute the notes that correspond to the frets shown as pressed
-    /// in the chord diagram.
-    fn get_notes(&self) -> [Note; STRING_COUNT] {
-        let pitches = self.frets.get_pitch_classes(self.tuning);
-
-        let notes: Vec<_> = pitches
-            .iter()
-            .map(|pc| self.chord.get_note(*pc).unwrap())
-            .collect();
-
-        notes.try_into().unwrap()
-    }
 }
 
 impl fmt::Display for ChordDiagram {
@@ -59,15 +51,13 @@ impl fmt::Display for ChordDiagram {
         // Determine from which fret to show the fretboard.
         let base_fret = self.get_base_fret();
 
-        let roots = self.tuning.get_roots();
-        let notes = self.get_notes();
         let root_width = self.tuning.get_root_width();
 
         // Create a diagram for each ukulele string.
         for i in (0..STRING_COUNT).rev() {
-            let root = roots[i];
+            let root = self.roots[i];
             let fret = self.frets[i];
-            let note = notes[i];
+            let note = self.notes[i];
             let sd = StringDiagram::new(root, base_fret, fret, note, root_width);
             s.push_str(&format!("{}\n", sd.to_string()));
         }

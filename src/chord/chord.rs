@@ -1,4 +1,3 @@
-use crate::chord::ChordShapeSet;
 use crate::chord::ChordType;
 use crate::chord::FretID;
 use crate::chord::Tuning;
@@ -88,7 +87,12 @@ impl Chord {
         let mut diagrams = vec![];
 
         for fret_note_set in fret_note_sets.into_iter().multi_cartesian_product() {
-            let note_set: Vec<Note> = fret_note_set.iter().map(|x| x.1).collect();
+            let note_set: [Note; 4] = fret_note_set
+                .iter()
+                .map(|x| x.1)
+                .collect::<Vec<Note>>()
+                .try_into()
+                .unwrap();
             if self.consists_of(&note_set) {
                 let fret_set: [FretID; 4] = fret_note_set
                     .iter()
@@ -99,21 +103,13 @@ impl Chord {
                     .unwrap();
                 let fret_pattern: FretPattern = fret_set.into();
                 if fret_pattern.get_span() < max_span {
-                    let diagram = ChordDiagram::new(*self, fret_pattern, tuning);
+                    let diagram = ChordDiagram::new(fret_pattern, tuning, roots, note_set);
                     diagrams.push(diagram);
                 }
             }
         }
 
         diagrams
-    }
-
-    pub fn get_diagram(self, min_fret: FretID, tuning: Tuning) -> ChordDiagram {
-        let chord_shapes = ChordShapeSet::new(self.chord_type);
-
-        let frets = chord_shapes.get_config(self.root, min_fret, tuning);
-
-        ChordDiagram::new(self, frets, tuning)
     }
 }
 
