@@ -32,7 +32,7 @@ impl fmt::Display for ParseChordError {
 }
 
 /// A chord such as C, Cm and so on.
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Chord {
     pub root: Note,
     pub chord_type: ChordType,
@@ -68,7 +68,7 @@ impl Chord {
         self.notes().find(|n| n.pitch_class == pitch_class)
     }
 
-    pub fn get_voicings(&self, min_fret: FretID, tuning: Tuning) -> Vec<FretPattern> {
+    pub fn get_voicings(&self, min_fret: FretID, tuning: Tuning) -> Vec<ChordDiagram> {
         let max_fret = 12;
         let max_span = 5;
         let roots = tuning.get_roots();
@@ -85,7 +85,7 @@ impl Chord {
             fret_note_sets.push(fret_note_set);
         }
 
-        let mut fret_patterns = vec![];
+        let mut diagrams = vec![];
 
         for fret_note_set in fret_note_sets.into_iter().multi_cartesian_product() {
             let note_set: Vec<Note> = fret_note_set.iter().map(|x| x.1).collect();
@@ -99,12 +99,13 @@ impl Chord {
                     .unwrap();
                 let fret_pattern: FretPattern = fret_set.into();
                 if fret_pattern.get_span() < max_span {
-                    fret_patterns.push(fret_pattern);
+                    let diagram = ChordDiagram::new(*self, fret_pattern, tuning);
+                    diagrams.push(diagram);
                 }
             }
         }
 
-        fret_patterns
+        diagrams
     }
 
     pub fn get_diagram(self, min_fret: FretID, tuning: Tuning) -> ChordDiagram {

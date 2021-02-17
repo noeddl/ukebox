@@ -55,7 +55,7 @@ fn main() {
             println!("{:?}", voicings.len());
 
             for voicing in voicings {
-                println!("{:?}", voicing);
+                println!("{}", voicing);
             }
 
             //let diagram = chord.get_diagram(min_fret, tuning);
