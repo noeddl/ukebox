@@ -10,6 +10,7 @@ pub struct ChordDiagram {
     frets: FretPattern,
     roots: [Note; STRING_COUNT],
     notes: [Note; STRING_COUNT],
+    max_span: FretID,
 }
 
 impl ChordDiagram {
@@ -17,11 +18,13 @@ impl ChordDiagram {
         frets: impl Into<FretPattern>,
         roots: [Note; STRING_COUNT],
         notes: [Note; STRING_COUNT],
+        max_span: FretID,
     ) -> Self {
         Self {
             frets: frets.into(),
             roots,
             notes,
+            max_span,
         }
     }
 
@@ -34,7 +37,7 @@ impl ChordDiagram {
         let max_fret = self.frets.get_max_fret();
 
         match max_fret {
-            max_fret if max_fret <= CHART_WIDTH => 1,
+            max_fret if max_fret <= self.max_span => 1,
             _ => self.frets.get_min_fret(),
         }
     }
