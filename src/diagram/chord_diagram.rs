@@ -11,6 +11,7 @@ pub struct ChordDiagram {
     tuning: Tuning,
     notes: [Note; STRING_COUNT],
     max_span: FretID,
+    base_fret: FretID,
 }
 
 impl ChordDiagram {
@@ -20,19 +21,22 @@ impl ChordDiagram {
         notes: [Note; STRING_COUNT],
         max_span: FretID,
     ) -> Self {
+        let frets = frets.into();
+
+        // Determine from which fret to show the fretboard.
+        let base_fret = frets.get_base_fret(max_span);
+
         Self {
-            frets: frets.into(),
+            frets,
             tuning,
             notes,
             max_span,
+            base_fret,
         }
     }
 
     /// Format a line that represents a ukulele string in a chord diagram.
     pub fn format_line(&self, root: Note, fret: FretID, note: Note) -> String {
-        // Determine from which fret to show the fretboard.
-        let base_fret = self.frets.get_base_fret(self.max_span);
-
         // Get the width of the space that we need to print the name
         // of the root notes (the names of the strings).
         let root_width = self.tuning.get_root_width();
@@ -41,7 +45,7 @@ impl ChordDiagram {
 
         // Show a symbol for the nut if the chord is played on the lower
         // end of the fretboard. Indicate ongoing strings otherwise.
-        let nut = match base_fret {
+        let nut = match self.base_fret {
             1 => "||",
             _ => "-|",
         };
@@ -55,7 +59,7 @@ impl ChordDiagram {
         // Create a line representing the string with the fret to be pressed.
         let mut string = "".to_owned();
 
-        for i in base_fret..base_fret + self.max_span {
+        for i in self.base_fret..self.base_fret + self.max_span {
             let c = match fret {
                 fret if fret == i => "o",
                 _ => "-",
@@ -81,17 +85,18 @@ impl fmt::Display for ChordDiagram {
             s.push('\n');
         }
 
-        // Determine from which fret to show the fretboard.
-        let base_fret = self.frets.get_base_fret(self.max_span);
-
         // Get the width of the space that we need to print the name
         // of the root notes (the names of the strings).
         let root_width = self.tuning.get_root_width();
 
         // If the fretboard section shown does not include the nut,
         // indicate the number of the first fret shown.
-        if base_fret > 1 {
-            s.push_str(&format!("{:width$}\n", base_fret, width = root_width + 6))
+        if self.base_fret > 1 {
+            s.push_str(&format!(
+                "{:width$}\n",
+                self.base_fret,
+                width = root_width + 6
+            ))
         }
 
         write!(f, "{}", s)
