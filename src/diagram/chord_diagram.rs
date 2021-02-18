@@ -1,4 +1,5 @@
 use crate::chord::FretID;
+use crate::chord::Tuning;
 use crate::diagram::FretPattern;
 use crate::note::Note;
 use crate::STRING_COUNT;
@@ -7,7 +8,7 @@ use std::fmt;
 
 pub struct ChordDiagram {
     frets: FretPattern,
-    roots: [Note; STRING_COUNT],
+    tuning: Tuning,
     notes: [Note; STRING_COUNT],
     max_span: FretID,
 }
@@ -15,13 +16,13 @@ pub struct ChordDiagram {
 impl ChordDiagram {
     pub fn new(
         frets: impl Into<FretPattern>,
-        roots: [Note; STRING_COUNT],
+        tuning: Tuning,
         notes: [Note; STRING_COUNT],
         max_span: FretID,
     ) -> Self {
         Self {
             frets: frets.into(),
-            roots,
+            tuning,
             notes,
             max_span,
         }
@@ -90,15 +91,12 @@ impl fmt::Display for ChordDiagram {
 
         // Get the width of the space that we need to print the name
         // of the root notes (the names of the strings).
-        let root_width = self
-            .roots
-            .iter()
-            .map(|n| format!("{}", n).len())
-            .max()
-            .unwrap();
+        let root_width = self.tuning.get_root_width();
+
+        let roots = self.tuning.get_roots();
 
         // Create a diagram for each ukulele string.
-        for (root, fret, note) in izip!(&self.roots, self.frets.iter(), &self.notes).rev() {
+        for (root, fret, note) in izip!(&roots, self.frets.iter(), &self.notes).rev() {
             let sd = self.format_line(*root, base_fret, *fret, *note, root_width);
             s.push_str(&sd);
             s.push('\n');

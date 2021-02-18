@@ -103,7 +103,7 @@ impl Chord {
                     .unwrap();
                 let fret_pattern: FretPattern = fret_set.into();
                 if fret_pattern.get_span() < max_span {
-                    let diagram = ChordDiagram::new(fret_pattern, roots, note_set, max_span);
+                    let diagram = ChordDiagram::new(fret_pattern, tuning, note_set, max_span);
                     diagrams.push(diagram);
                 }
             }
