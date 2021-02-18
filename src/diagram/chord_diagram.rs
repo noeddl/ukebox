@@ -28,24 +28,10 @@ impl ChordDiagram {
         }
     }
 
-    /// Determine from which fret to show the fretboard.
-    ///
-    /// If the rightmost fret fits on the diagram, show the fretboard
-    /// beginning at the first fret, otherwise use the leftmost fret
-    /// needed for the chords to be played.
-    fn get_base_fret(&self) -> FretID {
-        let max_fret = self.frets.get_max_fret();
-
-        match max_fret {
-            max_fret if max_fret <= self.max_span => 1,
-            _ => self.frets.get_min_fret(),
-        }
-    }
-
     /// Format a line that represents a ukulele string in a chord diagram.
     pub fn format_line(&self, root: Note, fret: FretID, note: Note) -> String {
         // Determine from which fret to show the fretboard.
-        let base_fret = self.get_base_fret();
+        let base_fret = self.frets.get_base_fret(self.max_span);
 
         // Get the width of the space that we need to print the name
         // of the root notes (the names of the strings).
@@ -96,7 +82,7 @@ impl fmt::Display for ChordDiagram {
         }
 
         // Determine from which fret to show the fretboard.
-        let base_fret = self.get_base_fret();
+        let base_fret = self.frets.get_base_fret(self.max_span);
 
         // Get the width of the space that we need to print the name
         // of the root notes (the names of the strings).

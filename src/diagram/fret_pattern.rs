@@ -49,6 +49,20 @@ impl FretPattern {
         self.get_max_fret() - self.get_min_fret()
     }
 
+    /// Determine from which fret to show the fretboard.
+    ///
+    /// If the rightmost fret fits on the diagram, show the fretboard
+    /// beginning at the first fret, otherwise use the leftmost fret
+    /// needed for the chords to be played.
+    pub fn get_base_fret(&self, max_span: Semitones) -> FretID {
+        let max_fret = self.get_max_fret();
+
+        match max_fret {
+            max_fret if max_fret <= max_span => 1,
+            _ => self.get_min_fret(),
+        }
+    }
+
     pub fn get_pitch_classes(&self, tuning: Tuning) -> Vec<PitchClass> {
         let roots = tuning.get_roots();
         let pitches: Vec<_> = self
