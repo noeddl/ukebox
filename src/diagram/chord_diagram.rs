@@ -1,6 +1,5 @@
 use crate::chord::FretID;
 use crate::diagram::FretPattern;
-use crate::diagram::CHART_WIDTH;
 use crate::note::Note;
 use crate::STRING_COUNT;
 use itertools::izip;
@@ -69,7 +68,7 @@ impl ChordDiagram {
         // Create a line representing the string with the fret to be pressed.
         let mut string = "".to_owned();
 
-        for i in base_fret..base_fret + CHART_WIDTH {
+        for i in base_fret..base_fret + self.max_span {
             let c = match fret {
                 fret if fret == i => "o",
                 _ => "-",
