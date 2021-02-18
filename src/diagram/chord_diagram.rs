@@ -41,44 +41,45 @@ impl ChordDiagram {
             _ => self.frets.get_min_fret(),
         }
     }
-}
 
-/// Format a line that represents a ukulele string in a chord diagram.
-fn format_line(
-    root: Note,
-    base_fret: FretID,
-    fret: FretID,
-    note: Note,
-    root_width: usize,
-) -> String {
-    let root_str = format!("{:width$}", root.to_string(), width = root_width);
+    /// Format a line that represents a ukulele string in a chord diagram.
+    pub fn format_line(
+        &self,
+        root: Note,
+        base_fret: FretID,
+        fret: FretID,
+        note: Note,
+        root_width: usize,
+    ) -> String {
+        let root_str = format!("{:width$}", root.to_string(), width = root_width);
 
-    // Show a symbol for the nut if the chord is played on the lower
-    // end of the fretboard. Indicate ongoing strings otherwise.
-    let nut = match base_fret {
-        1 => "||",
-        _ => "-|",
-    };
-
-    // Mark open strings with a special symbol.
-    let sym = match fret {
-        0 => "o",
-        _ => " ",
-    };
-
-    // Create a line representing the string with the fret to be pressed.
-    let mut string = "".to_owned();
-
-    for i in base_fret..base_fret + CHART_WIDTH {
-        let c = match fret {
-            fret if fret == i => "o",
-            _ => "-",
+        // Show a symbol for the nut if the chord is played on the lower
+        // end of the fretboard. Indicate ongoing strings otherwise.
+        let nut = match base_fret {
+            1 => "||",
+            _ => "-|",
         };
 
-        string.push_str(&format!("-{}-|", c));
-    }
+        // Mark open strings with a special symbol.
+        let sym = match fret {
+            0 => "o",
+            _ => " ",
+        };
 
-    format!("{} {}{}{}- {}", root_str, sym, nut, string, note)
+        // Create a line representing the string with the fret to be pressed.
+        let mut string = "".to_owned();
+
+        for i in base_fret..base_fret + CHART_WIDTH {
+            let c = match fret {
+                fret if fret == i => "o",
+                _ => "-",
+            };
+
+            string.push_str(&format!("-{}-|", c));
+        }
+
+        format!("{} {}{}{}- {}", root_str, sym, nut, string, note)
+    }
 }
 
 impl fmt::Display for ChordDiagram {
@@ -99,7 +100,7 @@ impl fmt::Display for ChordDiagram {
 
         // Create a diagram for each ukulele string.
         for (root, fret, note) in izip!(&self.roots, self.frets.iter(), &self.notes).rev() {
-            let sd = format_line(*root, base_fret, *fret, *note, root_width);
+            let sd = self.format_line(*root, base_fret, *fret, *note, root_width);
             s.push_str(&sd);
             s.push('\n');
         }
