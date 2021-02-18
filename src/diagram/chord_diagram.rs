@@ -43,14 +43,14 @@ impl ChordDiagram {
     }
 
     /// Format a line that represents a ukulele string in a chord diagram.
-    pub fn format_line(
-        &self,
-        root: Note,
-        base_fret: FretID,
-        fret: FretID,
-        note: Note,
-        root_width: usize,
-    ) -> String {
+    pub fn format_line(&self, root: Note, fret: FretID, note: Note) -> String {
+        // Determine from which fret to show the fretboard.
+        let base_fret = self.get_base_fret();
+
+        // Get the width of the space that we need to print the name
+        // of the root notes (the names of the strings).
+        let root_width = self.tuning.get_root_width();
+
         let root_str = format!("{:width$}", root.to_string(), width = root_width);
 
         // Show a symbol for the nut if the chord is played on the lower
@@ -86,21 +86,21 @@ impl fmt::Display for ChordDiagram {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let mut s = "".to_string();
 
+        let roots = self.tuning.get_roots();
+
+        // Create a diagram for each ukulele string.
+        for (root, fret, note) in izip!(&roots, self.frets.iter(), &self.notes).rev() {
+            let sd = self.format_line(*root, *fret, *note);
+            s.push_str(&sd);
+            s.push('\n');
+        }
+
         // Determine from which fret to show the fretboard.
         let base_fret = self.get_base_fret();
 
         // Get the width of the space that we need to print the name
         // of the root notes (the names of the strings).
         let root_width = self.tuning.get_root_width();
-
-        let roots = self.tuning.get_roots();
-
-        // Create a diagram for each ukulele string.
-        for (root, fret, note) in izip!(&roots, self.frets.iter(), &self.notes).rev() {
-            let sd = self.format_line(*root, base_fret, *fret, *note, root_width);
-            s.push_str(&sd);
-            s.push('\n');
-        }
 
         // If the fretboard section shown does not include the nut,
         // indicate the number of the first fret shown.
