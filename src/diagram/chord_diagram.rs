@@ -12,6 +12,7 @@ pub struct ChordDiagram {
     notes: [Note; STRING_COUNT],
     max_span: FretID,
     base_fret: FretID,
+    root_width: usize,
 }
 
 impl ChordDiagram {
@@ -26,22 +27,23 @@ impl ChordDiagram {
         // Determine from which fret to show the fretboard.
         let base_fret = frets.get_base_fret(max_span);
 
+        // Get the width of the space that we need to print the name
+        // of the root notes (the names of the strings).
+        let root_width = tuning.get_root_width();
+
         Self {
             frets,
             tuning,
             notes,
             max_span,
             base_fret,
+            root_width,
         }
     }
 
     /// Format a line that represents a ukulele string in a chord diagram.
     pub fn format_line(&self, root: Note, fret: FretID, note: Note) -> String {
-        // Get the width of the space that we need to print the name
-        // of the root notes (the names of the strings).
-        let root_width = self.tuning.get_root_width();
-
-        let root_str = format!("{:width$}", root.to_string(), width = root_width);
+        let root_str = format!("{:width$}", root.to_string(), width = self.root_width);
 
         // Show a symbol for the nut if the chord is played on the lower
         // end of the fretboard. Indicate ongoing strings otherwise.
@@ -85,17 +87,13 @@ impl fmt::Display for ChordDiagram {
             s.push('\n');
         }
 
-        // Get the width of the space that we need to print the name
-        // of the root notes (the names of the strings).
-        let root_width = self.tuning.get_root_width();
-
         // If the fretboard section shown does not include the nut,
         // indicate the number of the first fret shown.
         if self.base_fret > 1 {
             s.push_str(&format!(
                 "{:width$}\n",
                 self.base_fret,
-                width = root_width + 6
+                width = self.root_width + 6
             ))
         }
 
