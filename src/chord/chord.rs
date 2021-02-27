@@ -57,7 +57,9 @@ impl Chord {
     /// Return `true` if `notes` contains exactly the chord's notes.
     /// Duplicates are allowed.
     pub fn consists_of(&self, notes: &[Note]) -> bool {
-        self.notes().all(|n| notes.contains(&n)) && notes.iter().all(|n| self.contains(n))
+        let pitches: Vec<PitchClass> = notes.iter().map(|n| n.pitch_class).collect();
+        self.notes().all(|n| pitches.contains(&n.pitch_class))
+            && notes.iter().all(|n| self.contains(n))
     }
 
     /// Given `pitch_class` return the matching note in the chord in case it exists.
@@ -69,7 +71,7 @@ impl Chord {
 
     pub fn get_voicings(&self, min_fret: FretID, tuning: Tuning) -> Vec<ChordDiagram> {
         let max_fret = 12;
-        let max_span = 5;
+        let max_span = 4;
         let roots = tuning.get_roots();
         let mut fret_note_sets = vec![];
 
@@ -89,6 +91,7 @@ impl Chord {
         for fret_note_set in fret_note_sets.into_iter().multi_cartesian_product() {
             let note_set: [Note; 4] = fret_note_set
                 .iter()
+                .rev()
                 .map(|x| x.1)
                 .collect::<Vec<Note>>()
                 .try_into()
