@@ -104,42 +104,45 @@ impl fmt::Display for ChordDiagram {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::chord::Chord;
     use indoc::indoc;
     use rstest::rstest;
     use std::str::FromStr;
 
     #[rstest(
         root_name,
-        base_fret,
+        min_fret,
         fret,
         note_name,
         diagram,
-        case("C", 1, 0, "C", "C o||---|---|---|---|- C"),
-        case("C", 1, 4, "E", "C  ||---|---|---|-o-|- E"),
-        case("C", 1, 2, "D", "C  ||---|-o-|---|---|- D"),
-        case("G", 1, 4, "B", "G  ||---|---|---|-o-|- B"),
+        case("C", 0, 0, "C", "C o||---|---|---|---|- C"),
+        case("C", 0, 4, "E", "C  ||---|---|---|-o-|- E"),
+        case("C", 0, 2, "D", "C  ||---|-o-|---|---|- D"),
+        case("G", 0, 4, "B", "G  ||---|---|---|-o-|- B"),
         case("C", 5, 7, "G", "C  -|---|---|-o-|---|- G"),
-        case("C", 1, 1, "C#", "C  ||-o-|---|---|---|- C#"),
-        case("C", 1, 1, "Db", "C  ||-o-|---|---|---|- Db"),
+        case("C", 0, 1, "C#", "C  ||-o-|---|---|---|- C#"),
+        case("C", 0, 1, "Db", "C  ||-o-|---|---|---|- Db"),
         case("C", 5, 6, "F#", "C  -|---|-o-|---|---|- F#"),
         case("C", 5, 6, "Gb", "C  -|---|-o-|---|---|- Gb"),
-        case("F#", 1, 0, "F#", "F# o||---|---|---|---|- F#"),
-        case("F#", 1, 4, "A#", "F#  ||---|---|---|-o-|- A#"),
-        case("F#", 5, 7, "D", "F#  -|---|---|-o-|---|- D")
+        case("F#", 0, 0, "F#", "F# o||---|---|---|---|- F#"),
+        case("F#", 0, 4, "A#", "F#  ||---|---|---|-o-|- A#"),
+        case("F#", 0, 7, "D", "F#  -|---|---|-o-|---|- D")
     )]
     fn test_format_line(
         root_name: &str,
-        base_fret: FretID,
+        min_fret: FretID,
         fret: FretID,
         note_name: &str,
         diagram: &str,
     ) {
+        let chord = Chord::from_str(root_name).unwrap();
+        let chord_diagrams = chord.get_voicings(min_fret, Tuning::C);
+        let chord_diagram = &chord_diagrams[0];
+
         let root = Note::from_str(root_name).unwrap();
         let note = Note::from_str(note_name).unwrap();
 
-        let root_width = root_name.len();
-
-        let sd = format_line(root, base_fret, fret, note, root_width);
+        let sd = chord_diagram.format_line(root, fret, note);
 
         assert_eq!(sd, diagram);
     }
@@ -150,8 +153,6 @@ mod tests {
             0,
             Tuning::C,
             indoc!("
-                [C - C major]
-
                 A  ||---|---|-o-|---|- C
                 E o||---|---|---|---|- E
                 C o||---|---|---|---|- C
@@ -163,8 +164,6 @@ mod tests {
             1,
             Tuning::C,
             indoc!("
-                [C - C major]
-
                 A  -|-o-|---|---|---|- C
                 E  -|-o-|---|---|---|- G
                 C  -|---|-o-|---|---|- E
@@ -177,8 +176,6 @@ mod tests {
             0,
             Tuning::C,
             indoc!("
-                [C# - C# major]
-
                 A  ||---|---|---|-o-|- C#
                 E  ||-o-|---|---|---|- F
                 C  ||-o-|---|---|---|- C#
@@ -190,8 +187,6 @@ mod tests {
             0,
             Tuning::C,
             indoc!("
-                [Db - Db major]
-
                 A  ||---|---|---|-o-|- Db
                 E  ||-o-|---|---|---|- F
                 C  ||-o-|---|---|---|- Db
@@ -203,8 +198,6 @@ mod tests {
             0,
             Tuning::C,
             indoc!("
-                [Cm - C minor]
-
                 A  ||---|---|-o-|---|- C
                 E  ||---|---|-o-|---|- G
                 C  ||---|---|-o-|---|- Eb
@@ -216,11 +209,9 @@ mod tests {
             0,
             Tuning::C,
             indoc!("
-                [C#m - C# minor]
-
                 A  ||---|---|---|-o-|- C#
-                E  ||---|---|---|-o-|- G#
-                C  ||---|---|---|-o-|- E
+                E o||---|---|---|---|- E
+                C  ||-o-|---|---|---|- C#
                 G  ||-o-|---|---|---|- G#
             ")
         ),
@@ -229,8 +220,6 @@ mod tests {
             0,
             Tuning::C,
             indoc!("
-                [Dbm - Db minor]
-
                 A  ||---|---|---|-o-|- Db
                 E  ||---|---|---|-o-|- Ab
                 C  ||---|---|---|-o-|- E
@@ -242,8 +231,6 @@ mod tests {
             0,
             Tuning::D,
             indoc!("
-                [D - D major]
-
                 B   ||---|---|-o-|---|- D
                 F# o||---|---|---|---|- F#
                 D  o||---|---|---|---|- D
@@ -255,8 +242,6 @@ mod tests {
             5,
             Tuning::D,
             indoc!("
-                [D - D major]
-
                 B   -|---|---|-o-|---|- F#
                 F#  -|---|---|---|-o-|- D
                 D   -|---|---|-o-|---|- A
@@ -269,8 +254,6 @@ mod tests {
             0,
             Tuning::G,
             indoc!("
-                [G - G major]
-
                 E  ||---|---|-o-|---|- G
                 B o||---|---|---|---|- B
                 G o||---|---|---|---|- G
@@ -280,7 +263,8 @@ mod tests {
     )]
     fn test_to_diagram(chord_name: &str, min_fret: FretID, tuning: Tuning, diagram: &str) {
         let chord = Chord::from_str(chord_name).unwrap();
-        let chord_diagram = chord.get_diagram(min_fret, tuning);
+        let chord_diagrams = chord.get_voicings(min_fret, tuning);
+        let chord_diagram = &chord_diagrams[0];
         assert_eq!(chord_diagram.to_string(), diagram);
     }
 }
