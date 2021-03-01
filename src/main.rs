@@ -52,12 +52,14 @@ fn main() {
             };
             let voicings = chord.get_voicings(min_fret, tuning);
 
-            println!("{:?}", voicings.len());
+            //println!("{:?}", voicings.len());
             println!("{}", format!("[{}]\n", chord));
 
-            for voicing in voicings {
-                println!("{}", voicing);
-            }
+            println!("{}", voicings[0]);
+
+            //for voicing in voicings {
+            //    println!("{}", voicing);
+            //}
 
             //let diagram = chord.get_diagram(min_fret, tuning);
             //println!("{}", diagram);
