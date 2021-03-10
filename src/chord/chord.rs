@@ -70,7 +70,7 @@ impl Chord {
     }
 
     pub fn get_voicings(&self, min_fret: FretID, tuning: Tuning) -> Vec<ChordDiagram> {
-        let max_fret = 12;
+        let max_fret = 15;
         let max_span = 4;
         let roots = tuning.get_roots();
         let mut fret_note_sets = vec![];
