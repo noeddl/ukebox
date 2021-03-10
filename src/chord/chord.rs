@@ -79,8 +79,8 @@ impl Chord {
             let mut fret_note_set = vec![];
             for fret in min_fret..max_fret + 1 {
                 let note = *root + fret;
-                if self.contains(&note) {
-                    fret_note_set.push((fret, self.get_note(note.pitch_class).unwrap()));
+                if let Some(note) = self.get_note(note.pitch_class) {
+                    fret_note_set.push((fret, note));
                 }
             }
             fret_note_sets.push(fret_note_set);
