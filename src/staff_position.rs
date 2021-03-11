@@ -1,4 +1,4 @@
-use crate::note::StaffSteps;
+use crate::StaffSteps;
 use std::ops::Add;
 
 const STAFF_POSITION_COUNT: StaffSteps = 7;

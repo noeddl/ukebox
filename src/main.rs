@@ -1,8 +1,8 @@
 use structopt::StructOpt;
-use ukebox::chord::Chord;
-use ukebox::chord::FretID;
-use ukebox::chord::Tuning;
-use ukebox::diagram::FretPattern;
+use ukebox::Chord;
+use ukebox::FretID;
+use ukebox::FretPattern;
+use ukebox::Tuning;
 
 #[derive(StructOpt)]
 struct Ukebox {

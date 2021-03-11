@@ -1,6 +1,6 @@
-use crate::chord::{Chord, FretID, Tuning};
-use crate::note::{PitchClass, Semitones};
 use crate::STRING_COUNT;
+use crate::{Chord, FretID, Tuning};
+use crate::{PitchClass, Semitones};
 use std::convert::{TryFrom, TryInto};
 use std::fmt;
 use std::ops::{Add, Index};

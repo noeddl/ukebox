@@ -1,5 +1,5 @@
-use crate::note::Interval;
-use crate::note::PitchClass;
+use crate::Interval;
+use crate::PitchClass;
 use std::convert::TryFrom;
 use std::fmt;
 use std::str::FromStr;

@@ -1,7 +1,7 @@
-use crate::chord::FretID;
-use crate::chord::Tuning;
-use crate::diagram::FretPattern;
-use crate::note::Note;
+use crate::FretID;
+use crate::FretPattern;
+use crate::Note;
+use crate::Tuning;
 use crate::STRING_COUNT;
 use itertools::izip;
 use std::fmt;

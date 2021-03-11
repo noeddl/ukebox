@@ -1,5 +1,5 @@
-use crate::note::Semitones;
-use crate::note::StaffSteps;
+use crate::Semitones;
+use crate::StaffSteps;
 use std::fmt;
 use std::str::FromStr;
 

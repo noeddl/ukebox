@@ -1,6 +1,6 @@
-use crate::note::Interval;
-use crate::note::Note;
-use crate::note::Semitones;
+use crate::Interval;
+use crate::Note;
+use crate::Semitones;
 use crate::STRING_COUNT;
 use std::convert::TryInto;
 use std::str::FromStr;

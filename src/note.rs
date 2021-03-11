@@ -1,7 +1,7 @@
-use crate::note::Interval;
-use crate::note::PitchClass;
-use crate::note::Semitones;
-use crate::note::StaffPosition;
+use crate::Interval;
+use crate::PitchClass;
+use crate::Semitones;
+use crate::StaffPosition;
 use std::fmt;
 use std::ops::Add;
 use std::ops::Sub;

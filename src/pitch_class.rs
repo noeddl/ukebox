@@ -1,5 +1,5 @@
 #![allow(clippy::suspicious_arithmetic_impl)]
-use crate::note::Semitones;
+use crate::Semitones;
 use std::ops::Add;
 use std::ops::Sub;
 
