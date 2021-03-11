@@ -48,18 +48,18 @@ impl Chord {
     }
 
     /// Return `true` if the chord contains the given `note`.
-    /// Both the sharp and the flat version of the same note should match,
-    /// e.g. both `D#` and `Eb`.
+    /// The sharp and the flat version of the same note do not match,
+    /// e.g. `D#` and `Eb` are treated as different notes.
     pub fn contains(&self, note: &Note) -> bool {
-        self.notes().any(|n| n.pitch_class == note.pitch_class)
+        self.notes().any(|n| n == *note)
     }
 
     /// Return `true` if `notes` contains exactly the chord's notes.
+    /// The sharp and the flat version of the same note do not match,
+    /// e.g. `D#` and `Eb` are treated as different notes.
     /// Duplicates are allowed.
     pub fn consists_of(&self, notes: &[Note]) -> bool {
-        let pitches: Vec<PitchClass> = notes.iter().map(|n| n.pitch_class).collect();
-        self.notes().all(|n| pitches.contains(&n.pitch_class))
-            && notes.iter().all(|n| self.contains(n))
+        self.notes().all(|n| notes.contains(&n)) && notes.iter().all(|n| self.contains(n))
     }
 
     /// Given `pitch_class` return the matching note in the chord in case it exists.
@@ -776,7 +776,7 @@ mod tests {
         case("C", "E", true),
         case("C", "D", false),
         case("Cm", "Eb", true),
-        case("Cm", "D#", true)
+        case("Cm", "D#", false)
     )]
     fn test_contains(chord: &str, note: &str, contains: bool) {
         let c = Chord::from_str(chord).unwrap();
