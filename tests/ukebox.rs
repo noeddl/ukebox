@@ -281,6 +281,7 @@ fn test_transpose(
 #[rstest(
     chart,
     names,
+    case("0000", "Am7 - A minor 7th"),
     case("0003", "C - C major"),
     case("0013", "Csus4 - C suspended 4th\nFsus2 - F suspended 2nd"),
     case("10 10 10 10", "Gm7 - G minor 7th")
