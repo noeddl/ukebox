@@ -59,7 +59,7 @@ impl ChordDiagram {
         };
 
         // Create a line representing the string with the fret to be pressed.
-        let mut string = "".to_owned();
+        let mut string = "".to_string();
 
         for i in self.base_fret..self.base_fret + self.max_span {
             let c = match fret {
