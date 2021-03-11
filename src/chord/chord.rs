@@ -70,8 +70,11 @@ impl Chord {
     }
 
     pub fn get_voicings(&self, min_fret: FretID, tuning: Tuning) -> Vec<ChordDiagram> {
+        // TODO: Turn these hard-coded values into command-line arguments.
         let max_fret = 15;
         let max_span = 4;
+
+        // TODO: Clean up the following mess of code.
         let roots = tuning.get_roots();
         let mut fret_note_sets = vec![];
 
