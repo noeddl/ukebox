@@ -793,6 +793,8 @@ mod tests {
         case("C", vec!["C", "D", "G"], false),
         case("C", vec!["C", "E"], false),
         case("C", vec!["G", "C", "E", "D"], false),
+        case("Cm", vec!["C", "Eb", "G"], true),
+        case("Cm", vec!["C", "D#", "G"], false),
     )]
     fn test_consists_of(chord: &str, note_strs: Vec<&str>, consists_of: bool) {
         let c = Chord::from_str(chord).unwrap();
