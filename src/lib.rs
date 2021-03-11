@@ -31,4 +31,4 @@ pub type Semitones = u8;
 
 /// The number of steps in a staff to move from one staff position
 /// to another.
-type StaffSteps = u8;
+pub type StaffSteps = u8;
