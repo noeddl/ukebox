@@ -1,11 +1,10 @@
-use crate::STRING_COUNT;
-use crate::{Chord, FretID, Tuning};
-use crate::{PitchClass, Semitones};
 use std::convert::{TryFrom, TryInto};
 use std::fmt;
 use std::ops::{Add, Index};
 use std::slice::Iter;
 use std::str::FromStr;
+
+use crate::{Chord, FretID, PitchClass, Semitones, Tuning, STRING_COUNT};
 
 /// Custom error for strings that cannot be parsed into a fret pattern.
 #[derive(Debug)]
@@ -153,9 +152,10 @@ impl Add<Semitones> for FretPattern {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use rstest::rstest;
     use Tuning;
+
+    use super::*;
 
     #[rstest(
         s, frets,

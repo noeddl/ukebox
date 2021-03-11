@@ -1,8 +1,9 @@
+use std::process::Command;
+
 use assert_cmd::prelude::*; // Add methods on commands
 use indoc::indoc;
 use predicates::prelude::*; // Used for writing assertions
-use rstest::rstest;
-use std::process::Command; // Run programs
+use rstest::rstest; // Run programs
 
 #[test]
 fn test_no_args() -> Result<(), Box<dyn std::error::Error>> {

@@ -1,5 +1,6 @@
-use crate::StaffSteps;
 use std::ops::Add;
+
+use crate::StaffSteps;
 
 const STAFF_POSITION_COUNT: StaffSteps = 7;
 
@@ -57,9 +58,10 @@ impl Add<StaffSteps> for StaffPosition {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use rstest::rstest;
     use StaffPosition::*;
+
+    use super::*;
 
     #[rstest(
         n,

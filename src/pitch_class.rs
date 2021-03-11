@@ -1,7 +1,7 @@
 #![allow(clippy::suspicious_arithmetic_impl)]
+use std::ops::{Add, Sub};
+
 use crate::Semitones;
-use std::ops::Add;
-use std::ops::Sub;
 
 /// Number of pitch classes.
 const PITCH_CLASS_COUNT: Semitones = 12;
@@ -114,9 +114,10 @@ impl Sub<Semitones> for PitchClass {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use rstest::rstest;
     use PitchClass::*;
+
+    use super::*;
 
     #[rstest(
         n,

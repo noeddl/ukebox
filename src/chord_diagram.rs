@@ -1,10 +1,8 @@
-use crate::FretID;
-use crate::FretPattern;
-use crate::Note;
-use crate::Tuning;
-use crate::STRING_COUNT;
-use itertools::izip;
 use std::fmt;
+
+use itertools::izip;
+
+use crate::{FretID, FretPattern, Note, Tuning, STRING_COUNT};
 
 pub struct ChordDiagram {
     frets: FretPattern,
@@ -103,11 +101,13 @@ impl fmt::Display for ChordDiagram {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-    use crate::chord::Chord;
+    use std::str::FromStr;
+
     use indoc::indoc;
     use rstest::rstest;
-    use std::str::FromStr;
+
+    use super::*;
+    use crate::chord::Chord;
 
     #[rstest(
         root_name,
