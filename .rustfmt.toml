@@ -1,0 +1,4 @@
+# Remove comments and run cargo fmt on Rust nightly.
+
+#group_imports = "StdExternalCrate"
+#imports_granularity = "Module"
