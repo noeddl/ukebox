@@ -50,8 +50,10 @@ fn main() {
                 // Add semitones (e.g. 1, +1).
                 _ => chord + transpose as u8,
             };
-            let diagram = chord.get_diagram(min_fret, tuning);
-            println!("{}", diagram);
+            let voicings = chord.get_voicings(min_fret, tuning);
+
+            println!("{}", format!("[{}]\n", chord));
+            println!("{}", voicings[0]);
         }
         Subcommand::Name { fret_pattern } => {
             let chords = fret_pattern.get_chords(tuning);

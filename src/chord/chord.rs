@@ -1,13 +1,15 @@
-use crate::chord::ChordShapeSet;
 use crate::chord::ChordType;
 use crate::chord::FretID;
 use crate::chord::Tuning;
 use crate::diagram::ChordDiagram;
+use crate::diagram::FretPattern;
 use crate::note::Note;
 use crate::note::PitchClass;
 use crate::note::Semitones;
+use itertools::Itertools;
 use regex::Regex;
 use std::convert::TryFrom;
+use std::convert::TryInto;
 use std::error::Error;
 use std::fmt;
 use std::ops::Add;
@@ -29,7 +31,7 @@ impl fmt::Display for ParseChordError {
 }
 
 /// A chord such as C, Cm and so on.
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Chord {
     pub root: Note,
     pub chord_type: ChordType,
@@ -46,10 +48,18 @@ impl Chord {
     }
 
     /// Return `true` if the chord contains the given `note`.
-    /// Both the sharp and the flat version of the same note should match,
-    /// e.g. both `D#` and `Eb`.
-    pub fn contains(&self, note: Note) -> bool {
-        self.notes().any(|n| n.pitch_class == note.pitch_class)
+    /// The sharp and the flat version of the same note do not match,
+    /// e.g. `D#` and `Eb` are treated as different notes.
+    pub fn contains(&self, note: &Note) -> bool {
+        self.notes().any(|n| n == *note)
+    }
+
+    /// Return `true` if `notes` contains exactly the chord's notes.
+    /// The sharp and the flat version of the same note do not match,
+    /// e.g. `D#` and `Eb` are treated as different notes.
+    /// Duplicates are allowed.
+    pub fn consists_of(&self, notes: &[Note]) -> bool {
+        self.notes().all(|n| notes.contains(&n)) && notes.iter().all(|n| self.contains(n))
     }
 
     /// Given `pitch_class` return the matching note in the chord in case it exists.
@@ -59,12 +69,53 @@ impl Chord {
         self.notes().find(|n| n.pitch_class == pitch_class)
     }
 
-    pub fn get_diagram(self, min_fret: FretID, tuning: Tuning) -> ChordDiagram {
-        let chord_shapes = ChordShapeSet::new(self.chord_type);
+    pub fn get_voicings(&self, min_fret: FretID, tuning: Tuning) -> Vec<ChordDiagram> {
+        // TODO: Turn these hard-coded values into command-line arguments.
+        let max_fret = 15;
+        let max_span = 4;
 
-        let frets = chord_shapes.get_config(self.root, min_fret, tuning);
+        // TODO: Clean up the following mess of code.
+        let roots = tuning.get_roots();
+        let mut fret_note_sets = vec![];
 
-        ChordDiagram::new(self, frets, tuning)
+        for root in roots.iter().rev() {
+            let mut fret_note_set = vec![];
+            for fret in min_fret..max_fret + 1 {
+                let note = *root + fret;
+                if let Some(note) = self.get_note(note.pitch_class) {
+                    fret_note_set.push((fret, note));
+                }
+            }
+            fret_note_sets.push(fret_note_set);
+        }
+
+        let mut diagrams = vec![];
+
+        for fret_note_set in fret_note_sets.into_iter().multi_cartesian_product() {
+            let note_set: [Note; 4] = fret_note_set
+                .iter()
+                .rev()
+                .map(|x| x.1)
+                .collect::<Vec<Note>>()
+                .try_into()
+                .unwrap();
+            if self.consists_of(&note_set) {
+                let fret_set: [FretID; 4] = fret_note_set
+                    .iter()
+                    .rev()
+                    .map(|x| x.0)
+                    .collect::<Vec<FretID>>()
+                    .try_into()
+                    .unwrap();
+                let fret_pattern: FretPattern = fret_set.into();
+                if fret_pattern.get_span() < max_span {
+                    let diagram = ChordDiagram::new(fret_pattern, tuning, note_set, max_span);
+                    diagrams.push(diagram);
+                }
+            }
+        }
+
+        diagrams
     }
 }
 
@@ -728,12 +779,33 @@ mod tests {
         case("C", "E", true),
         case("C", "D", false),
         case("Cm", "Eb", true),
-        case("Cm", "D#", true)
+        case("Cm", "D#", false)
     )]
     fn test_contains(chord: &str, note: &str, contains: bool) {
         let c = Chord::from_str(chord).unwrap();
         let n = Note::from_str(note).unwrap();
-        assert_eq!(c.contains(n), contains);
+        assert_eq!(c.contains(&n), contains);
+    }
+
+    #[rstest(
+        chord,
+        note_strs,
+        consists_of,
+        case("C", vec!["C", "E", "G"], true),
+        case("C", vec!["G", "C", "E", "C"], true),
+        case("C", vec!["C", "D", "G"], false),
+        case("C", vec!["C", "E"], false),
+        case("C", vec!["G", "C", "E", "D"], false),
+        case("Cm", vec!["C", "Eb", "G"], true),
+        case("Cm", vec!["C", "D#", "G"], false),
+    )]
+    fn test_consists_of(chord: &str, note_strs: Vec<&str>, consists_of: bool) {
+        let c = Chord::from_str(chord).unwrap();
+        let notes: Vec<Note> = note_strs
+            .iter()
+            .map(|s| Note::from_str(s).unwrap())
+            .collect();
+        assert_eq!(c.consists_of(&notes), consists_of);
     }
 
     #[rstest(
