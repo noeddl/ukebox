@@ -7,7 +7,7 @@ use std::str::FromStr;
 use itertools::Itertools;
 use regex::Regex;
 
-use crate::{ChordDiagram, ChordType, FretID, FretPattern, Note, PitchClass, Semitones, Tuning};
+use crate::{ChordDiagram, ChordType, FretID, Note, PitchClass, Semitones, Tuning, UkeString};
 
 /// Custom error for strings that cannot be parsed into chords.
 #[derive(Debug)]
@@ -76,7 +76,7 @@ impl Chord {
             for fret in min_fret..max_fret + 1 {
                 let note = *root + fret;
                 if let Some(note) = self.get_note(note.pitch_class) {
-                    fret_note_set.push((fret, note));
+                    fret_note_set.push((*root, fret, note));
                 }
             }
             fret_note_sets.push(fret_note_set);
@@ -85,26 +85,12 @@ impl Chord {
         let mut diagrams = vec![];
 
         for fret_note_set in fret_note_sets.into_iter().multi_cartesian_product() {
-            let note_set: [Note; 4] = fret_note_set
-                .iter()
-                .rev()
-                .map(|x| x.1)
-                .collect::<Vec<Note>>()
-                .try_into()
-                .unwrap();
-            if self.consists_of(&note_set) {
-                let fret_set: [FretID; 4] = fret_note_set
-                    .iter()
-                    .rev()
-                    .map(|x| x.0)
-                    .collect::<Vec<FretID>>()
-                    .try_into()
-                    .unwrap();
-                let fret_pattern: FretPattern = fret_set.into();
-                if fret_pattern.get_span() < max_span {
-                    let diagram = ChordDiagram::new(fret_pattern, tuning, note_set, max_span);
-                    diagrams.push(diagram);
-                }
+            let frets: Vec<UkeString> = fret_note_set.into_iter().rev().collect();
+            let frets = frets.try_into().unwrap();
+            let diagram = ChordDiagram::new(frets, max_span);
+            let notes: Vec<Note> = diagram.notes().collect();
+            if self.consists_of(&notes) && diagram.get_span() < max_span {
+                diagrams.push(diagram);
             }
         }
 
