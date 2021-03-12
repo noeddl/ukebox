@@ -1,8 +1,8 @@
-use crate::note::Interval;
-use crate::note::PitchClass;
 use std::convert::TryFrom;
 use std::fmt;
 use std::str::FromStr;
+
+use crate::{Interval, PitchClass};
 
 /// The type of the chord depending on the intervals it contains.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
@@ -161,10 +161,11 @@ impl TryFrom<&[PitchClass]> for ChordType {
 #[cfg(test)]
 mod tests {
     #![allow(clippy::many_single_char_names)]
-    use super::*;
     use rstest::rstest;
     use ChordType::*;
     use PitchClass::*;
+
+    use super::*;
 
     #[rstest(
         pitches, chord_type,

@@ -1,11 +1,8 @@
-use crate::note::Interval;
-use crate::note::PitchClass;
-use crate::note::Semitones;
-use crate::note::StaffPosition;
 use std::fmt;
-use std::ops::Add;
-use std::ops::Sub;
+use std::ops::{Add, Sub};
 use std::str::FromStr;
+
+use crate::{Interval, PitchClass, Semitones, StaffPosition};
 
 /// Custom error for strings that cannot be parsed into notes.
 #[derive(Debug)]
@@ -216,10 +213,11 @@ impl Sub<Semitones> for Note {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use rstest::rstest;
     use Interval::*;
     use PitchClass::*;
+
+    use super::*;
 
     #[rstest(
         s,

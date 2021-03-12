@@ -1,20 +1,13 @@
-use crate::chord::ChordType;
-use crate::chord::FretID;
-use crate::chord::Tuning;
-use crate::diagram::ChordDiagram;
-use crate::diagram::FretPattern;
-use crate::note::Note;
-use crate::note::PitchClass;
-use crate::note::Semitones;
-use itertools::Itertools;
-use regex::Regex;
-use std::convert::TryFrom;
-use std::convert::TryInto;
+use std::convert::{TryFrom, TryInto};
 use std::error::Error;
 use std::fmt;
-use std::ops::Add;
-use std::ops::Sub;
+use std::ops::{Add, Sub};
 use std::str::FromStr;
+
+use itertools::Itertools;
+use regex::Regex;
+
+use crate::{ChordDiagram, ChordType, FretID, FretPattern, Note, PitchClass, Semitones, Tuning};
 
 /// Custom error for strings that cannot be parsed into chords.
 #[derive(Debug)]
@@ -194,9 +187,10 @@ impl Sub<Semitones> for Chord {
 #[cfg(test)]
 mod tests {
     #![allow(clippy::many_single_char_names)]
-    use super::*;
     use rstest::rstest;
     use PitchClass::*;
+
+    use super::*;
 
     #[rstest(
         chord,

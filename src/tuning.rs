@@ -1,10 +1,9 @@
-use crate::note::Interval;
-use crate::note::Note;
-use crate::note::Semitones;
-use crate::STRING_COUNT;
 use std::convert::TryInto;
 use std::str::FromStr;
+
 use structopt::clap::arg_enum;
+
+use crate::{Interval, Note, Semitones, STRING_COUNT};
 
 // Using clap's `arg_enum` macro allows the specification of all Tuning
 // variants as `possible_values` for the CLI `--tuning` option.

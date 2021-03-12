@@ -1,7 +1,7 @@
-use crate::note::Semitones;
-use crate::note::StaffSteps;
 use std::fmt;
 use std::str::FromStr;
+
+use crate::{Semitones, StaffSteps};
 
 /// Custom error for strings that cannot be parsed into intervals.
 #[derive(Debug)]
