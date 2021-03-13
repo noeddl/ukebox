@@ -1,4 +1,5 @@
 use std::fmt;
+use std::slice::Iter;
 
 use crate::{FretID, Note, Semitones, UkeString, STRING_COUNT};
 
@@ -13,6 +14,10 @@ impl ChordDiagram {
             uke_strings,
             max_span,
         }
+    }
+
+    pub fn uke_strings(&self) -> Iter<'_, UkeString> {
+        self.uke_strings.iter()
     }
 
     pub fn roots(&self) -> impl Iterator<Item = Note> + '_ {
@@ -87,18 +92,12 @@ impl ChordDiagram {
         };
 
         // Create a line representing the string with the fret to be pressed.
-        let mut string = "".to_string();
+        let s: String = (base_fret..base_fret + self.max_span)
+            .map(|i| if fret == i { 'o' } else { '-' })
+            .map(|c| format!("-{}-|", c))
+            .collect();
 
-        for i in base_fret..base_fret + self.max_span {
-            let c = match fret {
-                fret if fret == i => "o",
-                _ => "-",
-            };
-
-            string.push_str(&format!("-{}-|", c));
-        }
-
-        format!("{} {}{}{}- {}", root_str, sym, nut, string, note)
+        format!("{} {}{}{}- {}\n", root_str, sym, nut, s, note)
     }
 }
 
@@ -111,14 +110,12 @@ impl fmt::Display for ChordDiagram {
         // of the root notes (the names of the strings).
         let root_width = self.get_root_width();
 
-        let mut s = "".to_string();
-
         // Create a diagram for each ukulele string.
-        for uke_string in self.uke_strings.iter().rev() {
-            let sd = self.format_line(*uke_string, base_fret, root_width);
-            s.push_str(&sd);
-            s.push('\n');
-        }
+        let mut s: String = self
+            .uke_strings()
+            .rev()
+            .map(|us| self.format_line(*us, base_fret, root_width))
+            .collect();
 
         // If the fretboard section shown does not include the nut,
         // indicate the number of the first fret shown.
