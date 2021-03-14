@@ -67,18 +67,21 @@ impl Chord {
         let max_fret = 15;
         let max_span = 4;
 
-        // TODO: Clean up the following mess of code.
         let roots = tuning.get_roots();
         let mut fret_note_sets = vec![];
 
         for root in roots.iter().rev() {
-            let mut fret_note_set = vec![];
-            for fret in min_fret..max_fret + 1 {
-                let note = *root + fret;
-                if let Some(note) = self.get_note(note.pitch_class) {
-                    fret_note_set.push((*root, fret, note));
-                }
-            }
+            let fret_note_set: Vec<UkeString> = self
+                .notes()
+                // Allow each note to be checked twice on the fretboard.
+                .cartesian_product(vec![0, 12])
+                // Determine the fret on which `note` is played.
+                .map(|(note, st)| (*root, (note.pitch_class - root.pitch_class) + st, note))
+                // Only keep frets within the given boundaries.
+                .filter(|(_r, fret, _n)| fret >= &min_fret && fret <= &max_fret)
+                // Sort by fret ID.
+                .sorted_by(|a, b| Ord::cmp(&a.1, &b.1))
+                .collect();
             fret_note_sets.push(fret_note_set);
         }
 
