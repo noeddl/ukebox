@@ -86,19 +86,17 @@ impl Chord {
             })
             .collect();
 
-        let mut diagrams = vec![];
-
-        for fret_note_set in fret_note_sets.into_iter().multi_cartesian_product() {
-            let frets: Vec<UkeString> = fret_note_set.into_iter().rev().collect();
-            let frets = frets.try_into().unwrap();
-            let diagram = ChordDiagram::new(frets, max_span);
-            let notes: Vec<Note> = diagram.notes().collect();
-            if self.consists_of(&notes) && diagram.get_span() < max_span {
-                diagrams.push(diagram);
-            }
-        }
-
-        diagrams
+        fret_note_sets
+            .into_iter()
+            .multi_cartesian_product()
+            .map(|fret_note_set| fret_note_set.into_iter().rev().collect::<Vec<UkeString>>())
+            .map(|fret_note_set| fret_note_set.try_into().unwrap())
+            .map(|frets| ChordDiagram::new(frets, max_span))
+            .filter(|diagram| {
+                let notes: Vec<Note> = diagram.notes().collect();
+                self.consists_of(&notes) && diagram.get_span() < max_span
+            })
+            .collect()
     }
 }
 
