@@ -67,9 +67,8 @@ impl Chord {
         let max_fret = 15;
         let max_span = 4;
 
-        let roots = tuning.get_roots();
-
-        let fret_note_sets: Vec<Vec<UkeString>> = roots
+        tuning
+            .get_roots()
             .iter()
             .rev()
             .map(|root| {
@@ -82,12 +81,8 @@ impl Chord {
                     .filter(|(_r, fret, _n)| fret >= &min_fret && fret <= &max_fret)
                     // Sort by fret ID.
                     .sorted_by(|a, b| Ord::cmp(&a.1, &b.1))
-                    .collect()
+                    .collect::<Vec<UkeString>>()
             })
-            .collect();
-
-        fret_note_sets
-            .into_iter()
             .multi_cartesian_product()
             .map(|fret_note_set| fret_note_set.into_iter().rev().collect::<Vec<UkeString>>())
             .map(|fret_note_set| fret_note_set.try_into().unwrap())
