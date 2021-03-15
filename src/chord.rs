@@ -87,10 +87,7 @@ impl Chord {
             .map(|fret_note_set| fret_note_set.into_iter().rev().collect::<Vec<UkeString>>())
             .map(|fret_note_set| fret_note_set.try_into().unwrap())
             .map(|frets| ChordDiagram::new(frets, max_span))
-            .filter(|diagram| {
-                let notes: Vec<Note> = diagram.notes().collect();
-                self.consists_of(&notes) && diagram.get_span() < max_span
-            })
+            .filter(|diagram| diagram.depicts(self) && diagram.get_span() < max_span)
             .collect()
     }
 }

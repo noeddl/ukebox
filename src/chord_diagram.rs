@@ -1,7 +1,7 @@
 use std::fmt;
 use std::slice::Iter;
 
-use crate::{FretID, Note, Semitones, UkeString, STRING_COUNT};
+use crate::{Chord, FretID, Note, Semitones, UkeString, STRING_COUNT};
 
 pub struct ChordDiagram {
     uke_strings: [UkeString; STRING_COUNT],
@@ -30,6 +30,13 @@ impl ChordDiagram {
 
     pub fn notes(&self) -> impl Iterator<Item = Note> + '_ {
         self.uke_strings.iter().map(|(_r, _f, n)| *n)
+    }
+
+    /// Return `true` if the diagram is a valid depiction of how to
+    /// play the given `chord`.
+    pub fn depicts(&self, chord: &Chord) -> bool {
+        let notes: Vec<Note> = self.notes().collect();
+        chord.consists_of(&notes)
     }
 
     /// Return the lowest fret at which a string is pressed down.
