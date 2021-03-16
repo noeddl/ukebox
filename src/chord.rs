@@ -70,7 +70,13 @@ impl Chord {
         tuning
             .get_roots()
             .iter()
+            // We have to reverse the order of root notes to end up with a certain order
+            // of the generated voicings (which is however still not the final order
+            // that I want).
+            // TODO: Take care of sorting voicings in ChordDiagram.
             .rev()
+            // For each ukulele string, keep track of all the frets that when pressed down
+            // while playing the string result in a note of the chord.
             .map(|root| {
                 self.notes()
                     // Allow each note to be checked twice on the fretboard.
@@ -83,10 +89,17 @@ impl Chord {
                     .sorted_by(|a, b| Ord::cmp(&a.1, &b.1))
                     .collect::<Vec<UkeString>>()
             })
+            // At this point, we have collected all possible positions of the notes in the chord
+            // on each ukulele string. Now let's check all combinations and determine the ones
+            // that result in a valid voicing of the chord.
             .multi_cartesian_product()
+            // Reverse once again to make up for the reversal above.
             .map(|fret_note_set| fret_note_set.into_iter().rev().collect::<Vec<UkeString>>())
+            // ChordDiagram wants an array of UkeStrings.
             .map(|fret_note_set| fret_note_set.try_into().unwrap())
+            // Create diagram from the UkeString array.
             .map(|frets| ChordDiagram::new(frets, max_span))
+            // Only keep valid diagrams.
             .filter(|diagram| diagram.depicts(self) && diagram.get_span() < max_span)
             .collect()
     }
