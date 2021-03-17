@@ -43,14 +43,4 @@ impl Tuning {
             .try_into()
             .unwrap()
     }
-
-    /// Get the width of the space that we need to print the name
-    /// of the root notes (the names of the strings) for this tuning.
-    pub fn get_root_width(self) -> usize {
-        match self {
-            Self::C => 1,
-            Self::D => 2, // We need 2 here because of F#.
-            Self::G => 1,
-        }
-    }
 }
