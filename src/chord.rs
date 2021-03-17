@@ -94,11 +94,11 @@ impl Chord {
             // that result in a valid voicing of the chord.
             .multi_cartesian_product()
             // Reverse once again to make up for the reversal above.
-            .map(|fret_note_set| fret_note_set.into_iter().rev().collect::<Vec<UkeString>>())
+            .map(|us_vec| us_vec.into_iter().rev().collect::<Vec<UkeString>>())
             // ChordDiagram wants an array of UkeStrings.
-            .map(|fret_note_set| fret_note_set.try_into().unwrap())
+            .map(|us_vec| us_vec.try_into().unwrap())
             // Create diagram from the UkeString array.
-            .map(|frets| ChordDiagram::new(frets, max_span))
+            .map(|us_array| ChordDiagram::new(us_array, max_span))
             // Only keep valid diagrams.
             .filter(|diagram| diagram.depicts(self) && diagram.get_span() < max_span)
             .collect()
