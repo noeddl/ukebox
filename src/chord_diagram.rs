@@ -70,6 +70,8 @@ impl ChordDiagram {
         }
     }
 
+    /// Get the width of the space that we need to print the names
+    /// of the root notes (the names of the strings).
     pub fn get_root_width(&self) -> usize {
         self.roots().map(|n| format!("{}", n).len()).max().unwrap()
     }
