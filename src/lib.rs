@@ -32,3 +32,8 @@ pub type Semitones = u8;
 /// The number of steps in a staff to move from one staff position
 /// to another.
 pub type StaffSteps = u8;
+
+/// A certain configuration of a ukulele string consisting of
+/// the string's root note, the ID of a fret on this string and
+/// the note that is played if this fret is pressed down.
+pub type UkeString = (Note, FretID, Note);

@@ -7,7 +7,7 @@ use std::str::FromStr;
 use itertools::Itertools;
 use regex::Regex;
 
-use crate::{ChordDiagram, ChordType, FretID, FretPattern, Note, PitchClass, Semitones, Tuning};
+use crate::{ChordDiagram, ChordType, FretID, Note, PitchClass, Semitones, Tuning, UkeString};
 
 /// Custom error for strings that cannot be parsed into chords.
 #[derive(Debug)]
@@ -67,48 +67,41 @@ impl Chord {
         let max_fret = 15;
         let max_span = 4;
 
-        // TODO: Clean up the following mess of code.
-        let roots = tuning.get_roots();
-        let mut fret_note_sets = vec![];
-
-        for root in roots.iter().rev() {
-            let mut fret_note_set = vec![];
-            for fret in min_fret..max_fret + 1 {
-                let note = *root + fret;
-                if let Some(note) = self.get_note(note.pitch_class) {
-                    fret_note_set.push((fret, note));
-                }
-            }
-            fret_note_sets.push(fret_note_set);
-        }
-
-        let mut diagrams = vec![];
-
-        for fret_note_set in fret_note_sets.into_iter().multi_cartesian_product() {
-            let note_set: [Note; 4] = fret_note_set
-                .iter()
-                .rev()
-                .map(|x| x.1)
-                .collect::<Vec<Note>>()
-                .try_into()
-                .unwrap();
-            if self.consists_of(&note_set) {
-                let fret_set: [FretID; 4] = fret_note_set
-                    .iter()
-                    .rev()
-                    .map(|x| x.0)
-                    .collect::<Vec<FretID>>()
-                    .try_into()
-                    .unwrap();
-                let fret_pattern: FretPattern = fret_set.into();
-                if fret_pattern.get_span() < max_span {
-                    let diagram = ChordDiagram::new(fret_pattern, tuning, note_set, max_span);
-                    diagrams.push(diagram);
-                }
-            }
-        }
-
-        diagrams
+        tuning
+            .get_roots()
+            .iter()
+            // We have to reverse the order of root notes to end up with a certain order
+            // of the generated voicings (which is however still not the final order
+            // that I want).
+            // TODO: Take care of sorting voicings in ChordDiagram.
+            .rev()
+            // For each ukulele string, keep track of all the frets that when pressed down
+            // while playing the string result in a note of the chord.
+            .map(|root| {
+                self.notes()
+                    // Allow each note to be checked twice on the fretboard.
+                    .cartesian_product(vec![0, 12])
+                    // Determine the fret on which `note` is played.
+                    .map(|(note, st)| (*root, (note.pitch_class - root.pitch_class) + st, note))
+                    // Only keep frets within the given boundaries.
+                    .filter(|(_r, fret, _n)| fret >= &min_fret && fret <= &max_fret)
+                    // Sort by fret ID.
+                    .sorted_by(|a, b| Ord::cmp(&a.1, &b.1))
+                    .collect::<Vec<UkeString>>()
+            })
+            // At this point, we have collected all possible positions of the notes in the chord
+            // on each ukulele string. Now let's check all combinations and determine the ones
+            // that result in a valid voicing of the chord.
+            .multi_cartesian_product()
+            // Reverse once again to make up for the reversal above.
+            .map(|us_vec| us_vec.into_iter().rev().collect::<Vec<UkeString>>())
+            // ChordDiagram wants an array of UkeStrings.
+            .map(|us_vec| us_vec.try_into().unwrap())
+            // Create diagram from the UkeString array.
+            .map(|us_array| ChordDiagram::new(us_array, max_span))
+            // Only keep valid diagrams.
+            .filter(|diagram| diagram.depicts(self) && diagram.get_span() < max_span)
+            .collect()
     }
 }
 
