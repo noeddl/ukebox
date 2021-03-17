@@ -144,44 +144,6 @@ mod tests {
     use super::*;
     use crate::{Chord, Tuning};
 
-    // #[rstest(
-    //     root_name,
-    //     min_fret,
-    //     fret,
-    //     note_name,
-    //     diagram,
-    //     case("C", 0, 0, "C", "C o||---|---|---|---|- C"),
-    //     case("C", 0, 4, "E", "C  ||---|---|---|-o-|- E"),
-    //     case("C", 0, 2, "D", "C  ||---|-o-|---|---|- D"),
-    //     case("G", 0, 4, "B", "G  ||---|---|---|-o-|- B"),
-    //     case("C", 5, 7, "G", "C  -|---|---|-o-|---|- G"),
-    //     case("C", 0, 1, "C#", "C  ||-o-|---|---|---|- C#"),
-    //     case("C", 0, 1, "Db", "C  ||-o-|---|---|---|- Db"),
-    //     case("C", 5, 6, "F#", "C  -|---|-o-|---|---|- F#"),
-    //     case("C", 5, 6, "Gb", "C  -|---|-o-|---|---|- Gb"),
-    //     case("F#", 0, 0, "F#", "F# o||---|---|---|---|- F#"),
-    //     case("F#", 0, 4, "A#", "F#  ||---|---|---|-o-|- A#"),
-    //     case("F#", 5, 7, "D", "F#  -|---|-o-|---|---|- D")
-    // )]
-    // fn test_format_line(
-    //     root_name: &str,
-    //     min_fret: FretID,
-    //     fret: FretID,
-    //     note_name: &str,
-    //     diagram: &str,
-    // ) {
-    //     let chord = Chord::from_str(root_name).unwrap();
-    //     let chord_diagrams = chord.get_voicings(min_fret, Tuning::C);
-    //     let chord_diagram = &chord_diagrams[0];
-
-    //     let root = Note::from_str(root_name).unwrap();
-    //     let note = Note::from_str(note_name).unwrap();
-
-    //     let sd = chord_diagram.format_line((root, fret, note));
-
-    //     assert_eq!(sd, diagram);
-    // }
-
     #[rstest(chord_name, min_fret, tuning, diagram,
         case(
             "C",
