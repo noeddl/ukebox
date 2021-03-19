@@ -1,19 +1,15 @@
 use std::slice::Iter;
 
-use crate::{Chord, FretID, Note, Semitones, UkeString, STRING_COUNT};
+use crate::{Chord, FretID, Note, UkeString, STRING_COUNT};
 
 #[derive(Debug, Clone, Copy)]
 pub struct Voicing {
     uke_strings: [UkeString; STRING_COUNT],
-    max_span: Semitones,
 }
 
 impl Voicing {
-    pub fn new(uke_strings: [UkeString; STRING_COUNT], max_span: Semitones) -> Self {
-        Self {
-            uke_strings,
-            max_span,
-        }
+    pub fn new(uke_strings: [UkeString; STRING_COUNT]) -> Self {
+        Self { uke_strings }
     }
 
     pub fn uke_strings(&self) -> Iter<'_, UkeString> {

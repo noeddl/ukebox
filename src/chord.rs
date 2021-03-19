@@ -98,7 +98,7 @@ impl Chord {
             // Voicing wants an array of UkeStrings.
             .map(|us_vec| us_vec.try_into().unwrap())
             // Create diagram from the UkeString array.
-            .map(|us_array| Voicing::new(us_array, max_span))
+            .map(Voicing::new)
             // Only keep valid diagrams.
             .filter(|diagram| diagram.depicts(self) && diagram.get_span() < max_span)
             .collect()
