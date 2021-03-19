@@ -7,7 +7,7 @@ use std::str::FromStr;
 use itertools::Itertools;
 use regex::Regex;
 
-use crate::{ChordDiagram, ChordType, FretID, Note, PitchClass, Semitones, Tuning, UkeString};
+use crate::{ChordType, FretID, Note, PitchClass, Semitones, Tuning, UkeString, Voicing};
 
 /// Custom error for strings that cannot be parsed into chords.
 #[derive(Debug)]
@@ -62,7 +62,7 @@ impl Chord {
         self.notes().find(|n| n.pitch_class == pitch_class)
     }
 
-    pub fn get_voicings(&self, min_fret: FretID, tuning: Tuning) -> Vec<ChordDiagram> {
+    pub fn get_voicings(&self, min_fret: FretID, tuning: Tuning) -> Vec<Voicing> {
         // TODO: Turn these hard-coded values into command-line arguments.
         let max_fret = 15;
         let max_span = 4;
@@ -73,7 +73,7 @@ impl Chord {
             // We have to reverse the order of root notes to end up with a certain order
             // of the generated voicings (which is however still not the final order
             // that I want).
-            // TODO: Take care of sorting voicings in ChordDiagram.
+            // TODO: Take care of sorting voicings in Voicing.
             .rev()
             // For each ukulele string, keep track of all the frets that when pressed down
             // while playing the string result in a note of the chord.
@@ -95,10 +95,10 @@ impl Chord {
             .multi_cartesian_product()
             // Reverse once again to make up for the reversal above.
             .map(|us_vec| us_vec.into_iter().rev().collect::<Vec<UkeString>>())
-            // ChordDiagram wants an array of UkeStrings.
+            // Voicing wants an array of UkeStrings.
             .map(|us_vec| us_vec.try_into().unwrap())
             // Create diagram from the UkeString array.
-            .map(|us_array| ChordDiagram::new(us_array, max_span))
+            .map(|us_array| Voicing::new(us_array, max_span))
             // Only keep valid diagrams.
             .filter(|diagram| diagram.depicts(self) && diagram.get_span() < max_span)
             .collect()

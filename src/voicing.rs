@@ -3,12 +3,12 @@ use std::slice::Iter;
 
 use crate::{Chord, FretID, Note, Semitones, UkeString, STRING_COUNT};
 
-pub struct ChordDiagram {
+pub struct Voicing {
     uke_strings: [UkeString; STRING_COUNT],
     max_span: Semitones,
 }
 
-impl ChordDiagram {
+impl Voicing {
     pub fn new(uke_strings: [UkeString; STRING_COUNT], max_span: Semitones) -> Self {
         Self {
             uke_strings,
@@ -110,7 +110,7 @@ impl ChordDiagram {
     }
 }
 
-impl fmt::Display for ChordDiagram {
+impl fmt::Display for Voicing {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         // Determine from which fret to show the fretboard.
         let base_fret = self.get_base_fret();
