@@ -54,8 +54,8 @@ impl Voicing {
     }
 }
 
-impl From<Vec<UkeString>> for Voicing {
-    fn from(uke_strings: Vec<UkeString>) -> Self {
+impl From<&[UkeString]> for Voicing {
+    fn from(uke_strings: &[UkeString]) -> Self {
         Self {
             // Let's assume that all the Vecs coming in here have the correct size.
             uke_strings: uke_strings.try_into().unwrap(),

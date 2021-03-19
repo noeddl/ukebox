@@ -96,7 +96,7 @@ impl Chord {
             // Reverse once again to make up for the reversal above.
             .map(|us_vec| us_vec.into_iter().rev().collect::<Vec<UkeString>>())
             // Create voicing from the UkeString vec.
-            .map(Voicing::from)
+            .map(|us_vec| Voicing::from(&us_vec[..]))
             // Only keep valid voicings.
             .filter(|voicing| voicing.depicts(self) && voicing.get_span() < max_span)
             .collect()
