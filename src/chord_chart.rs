@@ -31,7 +31,7 @@ impl ChordChart {
     pub fn get_root_width(&self) -> usize {
         self.voicing
             .roots()
-            .map(|n| format!("{}", n).len())
+            .map(|n| n.to_string().len())
             .max()
             .unwrap()
     }
