@@ -1,3 +1,4 @@
+use std::convert::TryInto;
 use std::slice::Iter;
 
 use crate::{Chord, FretID, Note, UkeString, STRING_COUNT};
@@ -50,5 +51,14 @@ impl Voicing {
 
     pub fn get_span(&self) -> FretID {
         self.get_max_fret() - self.get_min_fret()
+    }
+}
+
+impl From<Vec<UkeString>> for Voicing {
+    fn from(uke_strings: Vec<UkeString>) -> Self {
+        Self {
+            // Let's assume that all the Vecs coming in here have the correct size.
+            uke_strings: uke_strings.try_into().unwrap(),
+        }
     }
 }

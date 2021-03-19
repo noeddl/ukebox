@@ -1,4 +1,4 @@
-use std::convert::{TryFrom, TryInto};
+use std::convert::TryFrom;
 use std::error::Error;
 use std::fmt;
 use std::ops::{Add, Sub};
@@ -95,10 +95,8 @@ impl Chord {
             .multi_cartesian_product()
             // Reverse once again to make up for the reversal above.
             .map(|us_vec| us_vec.into_iter().rev().collect::<Vec<UkeString>>())
-            // Voicing wants an array of UkeStrings.
-            .map(|us_vec| us_vec.try_into().unwrap())
-            // Create diagram from the UkeString array.
-            .map(Voicing::new)
+            // Create diagram from the UkeString vec.
+            .map(Voicing::from)
             // Only keep valid diagrams.
             .filter(|diagram| diagram.depicts(self) && diagram.get_span() < max_span)
             .collect()
