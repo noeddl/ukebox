@@ -95,10 +95,10 @@ impl Chord {
             .multi_cartesian_product()
             // Reverse once again to make up for the reversal above.
             .map(|us_vec| us_vec.into_iter().rev().collect::<Vec<UkeString>>())
-            // Create diagram from the UkeString vec.
+            // Create voicing from the UkeString vec.
             .map(Voicing::from)
-            // Only keep valid diagrams.
-            .filter(|diagram| diagram.depicts(self) && diagram.get_span() < max_span)
+            // Only keep valid voicings.
+            .filter(|voicing| voicing.depicts(self) && voicing.get_span() < max_span)
             .collect()
     }
 }
