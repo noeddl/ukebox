@@ -1,10 +1,10 @@
-use std::convert::{TryFrom, TryInto};
+use std::convert::TryInto;
 use std::fmt;
 use std::ops::{Add, Index};
 use std::slice::Iter;
 use std::str::FromStr;
 
-use crate::{Chord, FretID, PitchClass, Semitones, Tuning, STRING_COUNT};
+use crate::{FretID, Semitones, STRING_COUNT};
 
 /// Custom error for strings that cannot be parsed into a fret pattern.
 #[derive(Debug)]
@@ -60,39 +60,6 @@ impl FretPattern {
             max_fret if max_fret <= max_span => 1,
             _ => self.get_min_fret(),
         }
-    }
-
-    pub fn get_pitch_classes(&self, tuning: Tuning) -> Vec<PitchClass> {
-        let roots = tuning.get_roots();
-        let pitches: Vec<_> = self
-            .iter()
-            .zip(roots.iter())
-            .map(|(fret, note)| note.pitch_class + *fret)
-            .collect();
-
-        pitches
-    }
-
-    pub fn get_chords(&self, tuning: Tuning) -> Vec<Chord> {
-        let mut chords = vec![];
-        let mut pitches = self.get_pitch_classes(tuning);
-
-        pitches.sort();
-        pitches.dedup();
-
-        // Rotate pitch class list and collect all matching chords.
-        // For example, try [C, DSharp, GSharp], [DSharp, GSharp, C], [GSharp, C, FSharp].
-        for _ in 0..pitches.len() {
-            if let Ok(chord) = Chord::try_from(&pitches[..]) {
-                chords.push(chord);
-            }
-
-            pitches.rotate_left(1);
-        }
-
-        chords.sort();
-
-        chords
     }
 }
 
@@ -153,7 +120,6 @@ impl Add<Semitones> for FretPattern {
 #[cfg(test)]
 mod tests {
     use rstest::rstest;
-    use Tuning;
 
     use super::*;
 
@@ -191,27 +157,5 @@ mod tests {
         assert_eq!(fret_pattern.get_min_fret(), min_fret);
         assert_eq!(fret_pattern.get_max_fret(), max_fret);
         assert_eq!(fret_pattern.get_span(), span);
-    }
-
-    #[rstest(
-        frets, chord_str, tuning,
-        case([0, 0, 0, 3], "C", Tuning::C),
-        case([0, 0, 0, 3], "D", Tuning::D),
-        case([2, 2, 2, 0], "D", Tuning::C),
-    )]
-    fn test_get_chords(frets: [FretID; STRING_COUNT], chord_str: &str, tuning: Tuning) {
-        let fret_pattern = FretPattern::from(frets);
-        let chords = fret_pattern.get_chords(tuning);
-        let chord = Chord::from_str(chord_str).unwrap();
-        assert_eq!(chords, vec![chord]);
-    }
-
-    #[rstest(
-        frets,
-        case([1, 2, 3, 4]),
-    )]
-    fn test_get_chords_fail(frets: [FretID; STRING_COUNT]) {
-        let fret_pattern = FretPattern::from(frets);
-        assert!(fret_pattern.get_chords(Tuning::C).is_empty());
     }
 }

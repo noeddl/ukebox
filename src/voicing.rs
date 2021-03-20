@@ -1,7 +1,7 @@
-use std::convert::TryInto;
+use std::convert::{TryFrom, TryInto};
 use std::slice::Iter;
 
-use crate::{Chord, FretID, FretPattern, Note, Tuning, UkeString, STRING_COUNT};
+use crate::{Chord, FretID, FretPattern, Note, PitchClass, Tuning, UkeString, STRING_COUNT};
 
 #[derive(Debug, Clone, Copy)]
 pub struct Voicing {
@@ -68,6 +68,27 @@ impl Voicing {
     pub fn get_span(&self) -> FretID {
         self.get_max_fret() - self.get_min_fret()
     }
+
+    pub fn get_chords(&self) -> Vec<Chord> {
+        let mut chords = vec![];
+
+        let mut pitches: Vec<PitchClass> = self.notes().map(|n| n.pitch_class).collect();
+        pitches.sort();
+        pitches.dedup();
+
+        // Rotate pitch class list and collect all matching chords.
+        // For example, try [C, DSharp, GSharp], [DSharp, GSharp, C], [GSharp, C, FSharp].
+        for _ in 0..pitches.len() {
+            if let Ok(chord) = Chord::try_from(&pitches[..]) {
+                chords.push(chord);
+            }
+
+            pitches.rotate_left(1);
+        }
+
+        chords.sort();
+        chords
+    }
 }
 
 impl From<&[UkeString]> for Voicing {
@@ -76,5 +97,36 @@ impl From<&[UkeString]> for Voicing {
             // Let's assume that all the Vecs coming in here have the correct size.
             uke_strings: uke_strings.try_into().unwrap(),
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::str::FromStr;
+
+    use rstest::rstest;
+
+    use super::*;
+
+    #[rstest(
+        frets, chord_str, tuning,
+        case([0, 0, 0, 3], "C", Tuning::C),
+        case([0, 0, 0, 3], "D", Tuning::D),
+        case([2, 2, 2, 0], "D", Tuning::C),
+    )]
+    fn test_get_chords(frets: [FretID; STRING_COUNT], chord_str: &str, tuning: Tuning) {
+        let voicing = Voicing::new(frets, tuning);
+        let chords = voicing.get_chords();
+        let chord = Chord::from_str(chord_str).unwrap();
+        assert_eq!(chords, vec![chord]);
+    }
+
+    #[rstest(
+        frets,
+        case([1, 2, 3, 4]),
+    )]
+    fn test_get_chords_fail(frets: [FretID; STRING_COUNT]) {
+        let voicing = Voicing::new(frets, Tuning::C);
+        assert!(voicing.get_chords().is_empty());
     }
 }

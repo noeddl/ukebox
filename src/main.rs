@@ -1,5 +1,5 @@
 use structopt::StructOpt;
-use ukebox::{Chord, ChordChart, FretID, FretPattern, Tuning};
+use ukebox::{Chord, ChordChart, FretID, FretPattern, Tuning, Voicing};
 
 #[derive(StructOpt)]
 struct Ukebox {
@@ -55,7 +55,8 @@ fn main() {
             println!("{}", chart);
         }
         Subcommand::Name { fret_pattern } => {
-            let chords = fret_pattern.get_chords(tuning);
+            let voicing = Voicing::new(fret_pattern, tuning);
+            let chords = voicing.get_chords();
 
             if chords.is_empty() {
                 println!("No matching chord was found");
