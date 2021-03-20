@@ -138,24 +138,4 @@ mod tests {
     fn test_from_str_fail(s: &str) {
         assert!(FretPattern::from_str(s).is_err())
     }
-
-    #[rstest(
-        frets, min_fret, max_fret, span,
-        case([0, 0, 0, 0], 0, 0, 0),
-        case([1, 1, 1, 1], 1, 1, 0),
-        case([2, 0, 1, 3], 1, 3, 2),
-        case([5, 5, 5, 6], 5, 6, 1),
-        case([3, 0, 0, 12], 3, 12, 9),
-    )]
-    fn test_get_min_max_fret_and_span(
-        frets: [FretID; STRING_COUNT],
-        min_fret: FretID,
-        max_fret: FretID,
-        span: u8,
-    ) {
-        let fret_pattern = FretPattern::from(frets);
-        assert_eq!(fret_pattern.get_min_fret(), min_fret);
-        assert_eq!(fret_pattern.get_max_fret(), max_fret);
-        assert_eq!(fret_pattern.get_span(), span);
-    }
 }

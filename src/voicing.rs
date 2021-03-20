@@ -109,6 +109,26 @@ mod tests {
     use super::*;
 
     #[rstest(
+        frets, min_fret, max_fret, span,
+        case([0, 0, 0, 0], 0, 0, 0),
+        case([1, 1, 1, 1], 1, 1, 0),
+        case([2, 0, 1, 3], 1, 3, 2),
+        case([5, 5, 5, 6], 5, 6, 1),
+        case([3, 0, 0, 12], 3, 12, 9),
+    )]
+    fn test_get_min_max_fret_and_span(
+        frets: [FretID; STRING_COUNT],
+        min_fret: FretID,
+        max_fret: FretID,
+        span: u8,
+    ) {
+        let voicing = Voicing::new(frets, Tuning::C);
+        assert_eq!(voicing.get_min_fret(), min_fret);
+        assert_eq!(voicing.get_max_fret(), max_fret);
+        assert_eq!(voicing.get_span(), span);
+    }
+
+    #[rstest(
         frets, chord_str, tuning,
         case([0, 0, 0, 3], "C", Tuning::C),
         case([0, 0, 0, 3], "D", Tuning::D),
