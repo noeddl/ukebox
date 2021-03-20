@@ -1,7 +1,7 @@
 use std::convert::TryInto;
 use std::slice::Iter;
 
-use crate::{Chord, FretID, Note, UkeString, STRING_COUNT};
+use crate::{Chord, FretID, FretPattern, Note, Tuning, UkeString, STRING_COUNT};
 
 #[derive(Debug, Clone, Copy)]
 pub struct Voicing {
@@ -9,8 +9,24 @@ pub struct Voicing {
 }
 
 impl Voicing {
-    pub fn new(uke_strings: [UkeString; STRING_COUNT]) -> Self {
-        Self { uke_strings }
+    // Create a Voicing instance from a set of frets and a tuning.
+    // As there is no information about a certain chord for which
+    // the voicing is created, the computed `note`s in the resulting
+    // `UkeString`s will by default be sharp (for notes that can be sharp
+    // or flat).
+    pub fn new(fret_pattern: impl Into<FretPattern>, tuning: Tuning) -> Self {
+        let fret_pattern = fret_pattern.into();
+        let roots = tuning.get_roots();
+
+        let uke_strings: Vec<UkeString> = roots
+            .iter()
+            .zip(fret_pattern.iter())
+            .map(|(&root, &fret)| (root, fret, root + fret))
+            .collect();
+
+        Self {
+            uke_strings: uke_strings.try_into().unwrap(),
+        }
     }
 
     pub fn uke_strings(&self) -> Iter<'_, UkeString> {
