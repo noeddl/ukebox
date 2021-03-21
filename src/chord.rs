@@ -40,28 +40,6 @@ impl Chord {
         self.chord_type.intervals().map(move |i| self.root + i)
     }
 
-    /// Return `true` if the chord contains the given `note`.
-    /// The sharp and the flat version of the same note do not match,
-    /// e.g. `D#` and `Eb` are treated as different notes.
-    pub fn contains(&self, note: &Note) -> bool {
-        self.notes().any(|n| n == *note)
-    }
-
-    /// Return `true` if `notes` contains exactly the chord's notes.
-    /// The sharp and the flat version of the same note do not match,
-    /// e.g. `D#` and `Eb` are treated as different notes.
-    /// Duplicates are allowed.
-    pub fn consists_of(&self, notes: &[Note]) -> bool {
-        self.notes().all(|n| notes.contains(&n)) && notes.iter().all(|n| self.contains(n))
-    }
-
-    /// Given `pitch_class` return the matching note in the chord in case it exists.
-    /// This is to determine whether the sharp or flat version of the same note
-    /// should be presented for this chord.
-    pub fn get_note(&self, pitch_class: PitchClass) -> Option<Note> {
-        self.notes().find(|n| n.pitch_class == pitch_class)
-    }
-
     pub fn get_voicings(&self, min_fret: FretID, tuning: Tuning) -> Vec<Voicing> {
         // TODO: Turn these hard-coded values into command-line arguments.
         let max_fret = 15;
@@ -754,43 +732,6 @@ mod tests {
         let chord1 = Chord::try_from(&pitches[..]).unwrap();
         let chord2 = Chord::from_str(chord_name).unwrap();
         assert_eq!(chord1, chord2);
-    }
-
-    #[rstest(
-        chord,
-        note,
-        contains,
-        case("C", "C", true),
-        case("C", "E", true),
-        case("C", "D", false),
-        case("Cm", "Eb", true),
-        case("Cm", "D#", false)
-    )]
-    fn test_contains(chord: &str, note: &str, contains: bool) {
-        let c = Chord::from_str(chord).unwrap();
-        let n = Note::from_str(note).unwrap();
-        assert_eq!(c.contains(&n), contains);
-    }
-
-    #[rstest(
-        chord,
-        note_strs,
-        consists_of,
-        case("C", vec!["C", "E", "G"], true),
-        case("C", vec!["G", "C", "E", "C"], true),
-        case("C", vec!["C", "D", "G"], false),
-        case("C", vec!["C", "E"], false),
-        case("C", vec!["G", "C", "E", "D"], false),
-        case("Cm", vec!["C", "Eb", "G"], true),
-        case("Cm", vec!["C", "D#", "G"], false),
-    )]
-    fn test_consists_of(chord: &str, note_strs: Vec<&str>, consists_of: bool) {
-        let c = Chord::from_str(chord).unwrap();
-        let notes: Vec<Note> = note_strs
-            .iter()
-            .map(|s| Note::from_str(s).unwrap())
-            .collect();
-        assert_eq!(c.consists_of(&notes), consists_of);
     }
 
     #[rstest(
