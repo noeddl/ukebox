@@ -1,5 +1,5 @@
 use structopt::StructOpt;
-use ukebox::{Chord, FretID, FretPattern, Tuning};
+use ukebox::{Chord, ChordChart, FretID, FretPattern, Tuning, Voicing};
 
 #[derive(StructOpt)]
 struct Ukebox {
@@ -48,12 +48,15 @@ fn main() {
                 _ => chord + transpose as u8,
             };
             let voicings = chord.get_voicings(min_fret, tuning);
+            let voicing = voicings[0];
+            let chart = ChordChart::new(voicing, 4);
 
             println!("{}", format!("[{}]\n", chord));
-            println!("{}", voicings[0]);
+            println!("{}", chart);
         }
         Subcommand::Name { fret_pattern } => {
-            let chords = fret_pattern.get_chords(tuning);
+            let voicing = Voicing::new(fret_pattern, tuning);
+            let chords = voicing.get_chords();
 
             if chords.is_empty() {
                 println!("No matching chord was found");

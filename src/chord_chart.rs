@@ -1,59 +1,15 @@
 use std::fmt;
-use std::slice::Iter;
 
-use crate::{Chord, FretID, Note, Semitones, UkeString, STRING_COUNT};
+use crate::{FretID, Semitones, UkeString, Voicing};
 
-pub struct ChordDiagram {
-    uke_strings: [UkeString; STRING_COUNT],
+pub struct ChordChart {
+    voicing: Voicing,
     max_span: Semitones,
 }
 
-impl ChordDiagram {
-    pub fn new(uke_strings: [UkeString; STRING_COUNT], max_span: Semitones) -> Self {
-        Self {
-            uke_strings,
-            max_span,
-        }
-    }
-
-    pub fn uke_strings(&self) -> Iter<'_, UkeString> {
-        self.uke_strings.iter()
-    }
-
-    pub fn roots(&self) -> impl Iterator<Item = Note> + '_ {
-        self.uke_strings.iter().map(|(r, _f, _n)| *r)
-    }
-
-    pub fn frets(&self) -> impl Iterator<Item = FretID> + '_ {
-        self.uke_strings.iter().map(|(_r, f, _n)| *f)
-    }
-
-    pub fn notes(&self) -> impl Iterator<Item = Note> + '_ {
-        self.uke_strings.iter().map(|(_r, _f, n)| *n)
-    }
-
-    /// Return `true` if the diagram is a valid depiction of how to
-    /// play the given `chord`.
-    pub fn depicts(&self, chord: &Chord) -> bool {
-        let notes: Vec<Note> = self.notes().collect();
-        chord.consists_of(&notes)
-    }
-
-    /// Return the lowest fret at which a string is pressed down.
-    pub fn get_min_fret(&self) -> FretID {
-        match self.frets().filter(|&x| x > 0).min() {
-            Some(x) => x,
-            // Special case [0, 0, 0, 0]: no string is pressed down.
-            _ => 0,
-        }
-    }
-
-    pub fn get_max_fret(&self) -> FretID {
-        self.frets().max().unwrap()
-    }
-
-    pub fn get_span(&self) -> FretID {
-        self.get_max_fret() - self.get_min_fret()
+impl ChordChart {
+    pub fn new(voicing: Voicing, max_span: Semitones) -> Self {
+        Self { voicing, max_span }
     }
 
     /// Determine from which fret to show the fretboard.
@@ -62,18 +18,22 @@ impl ChordDiagram {
     /// beginning at the first fret, otherwise use the leftmost fret
     /// needed for the chords to be played.
     pub fn get_base_fret(&self) -> FretID {
-        let max_fret = self.get_max_fret();
+        let max_fret = self.voicing.get_max_fret();
 
         match max_fret {
             max_fret if max_fret <= self.max_span => 1,
-            _ => self.get_min_fret(),
+            _ => self.voicing.get_min_fret(),
         }
     }
 
     /// Get the width of the space that we need to print the names
     /// of the root notes (the names of the strings).
     pub fn get_root_width(&self) -> usize {
-        self.roots().map(|n| format!("{}", n).len()).max().unwrap()
+        self.voicing
+            .roots()
+            .map(|n| n.to_string().len())
+            .max()
+            .unwrap()
     }
 
     /// Format a line that represents a ukulele string in a chord diagram.
@@ -110,7 +70,7 @@ impl ChordDiagram {
     }
 }
 
-impl fmt::Display for ChordDiagram {
+impl fmt::Display for ChordChart {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         // Determine from which fret to show the fretboard.
         let base_fret = self.get_base_fret();
@@ -121,6 +81,7 @@ impl fmt::Display for ChordDiagram {
 
         // Create a diagram for each ukulele string.
         let mut s: String = self
+            .voicing
             .uke_strings()
             .rev()
             .map(|us| self.format_line(*us, base_fret, root_width))
@@ -262,8 +223,9 @@ mod tests {
     )]
     fn test_to_diagram(chord_name: &str, min_fret: FretID, tuning: Tuning, diagram: &str) {
         let chord = Chord::from_str(chord_name).unwrap();
-        let chord_diagrams = chord.get_voicings(min_fret, tuning);
-        let chord_diagram = &chord_diagrams[0];
-        assert_eq!(chord_diagram.to_string(), diagram);
+        let voicings = chord.get_voicings(min_fret, tuning);
+        let voicing = voicings[0];
+        let chord_chart = ChordChart::new(voicing, 4);
+        assert_eq!(chord_chart.to_string(), diagram);
     }
 }

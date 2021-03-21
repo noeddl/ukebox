@@ -41,11 +41,10 @@ impl Note {
 }
 
 impl PartialEq for Note {
-    /// Treat two notes as equal if they are represented by the same symbol.
-    /// For example, `B sharp`, `C` and `D double flat` are all casually
-    /// called `C`.
+    /// Treat two notes as equal if they have the same pitch class.
+    /// For example, `B sharp`, `C` and `D double flat` should all match.
     fn eq(&self, other: &Self) -> bool {
-        self.to_string() == other.to_string()
+        self.pitch_class == other.pitch_class
     }
 }
 
