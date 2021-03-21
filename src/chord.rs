@@ -98,7 +98,7 @@ impl Chord {
             // Create voicing from the UkeString vec.
             .map(|us_vec| Voicing::from(&us_vec[..]))
             // Only keep valid voicings.
-            .filter(|voicing| voicing.depicts(self) && voicing.get_span() < max_span)
+            .filter(|voicing| voicing.spells_out(self) && voicing.get_span() < max_span)
             .collect()
     }
 }
