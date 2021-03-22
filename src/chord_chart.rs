@@ -22,7 +22,7 @@ impl ChordChart {
 
         match max_fret {
             max_fret if max_fret <= self.max_span => 1,
-            _ => self.voicing.get_min_fret(),
+            _ => self.voicing.get_min_pressed_fret(),
         }
     }
 
