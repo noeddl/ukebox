@@ -42,7 +42,6 @@ impl Chord {
 
     pub fn voicings(&self, tuning: Tuning) -> impl Iterator<Item = Voicing> + '_ {
         // TODO: Turn these hard-coded values into command-line arguments.
-        let max_fret = 15;
         let max_span = 4;
 
         tuning
@@ -55,8 +54,6 @@ impl Chord {
                     .cartesian_product(vec![0, 12])
                     // Determine the fret on which `note` is played.
                     .map(|(note, st)| (root, (note.pitch_class - root.pitch_class) + st, note))
-                    // Only keep frets within the given boundaries.
-                    .filter(|(_r, fret, _n)| fret <= &max_fret)
                     .collect::<Vec<UkeString>>()
             })
             // At this point, we have collected all possible positions of the notes in the chord

@@ -282,9 +282,11 @@ fn test_transpose(
 #[rstest(
     chord,
     min_fret,
+    max_fret,
     chart,
     case(
         "C#",
+        None,
         None,
         indoc!("
             [C# - C# major]
@@ -334,6 +336,7 @@ fn test_transpose(
     case(
         "C#",
         Some("5"),
+        None,
         indoc!("
             [C# - C# major]
 
@@ -368,10 +371,62 @@ fn test_transpose(
                  11
         ")
     ),
+    case(
+        "C#",
+        None,
+        Some("10"),
+        indoc!("
+            [C# - C# major]
+
+            A  ||---|---|---|-o-|- C#
+            E  ||-o-|---|---|---|- F
+            C  ||-o-|---|---|---|- C#
+            G  ||-o-|---|---|---|- G#
+
+            A  -|-o-|---|---|---|- C#
+            E  -|-o-|---|---|---|- G#
+            C  -|---|-o-|---|---|- F
+            G  -|---|---|-o-|---|- C#
+                  4
+
+            A  -|---|---|-o-|---|- F
+            E  -|---|---|---|-o-|- C#
+            C  -|---|---|-o-|---|- G#
+            G  -|-o-|---|---|---|- C#
+                  6
+
+            A  -|-o-|---|---|---|- F
+            E  -|---|-o-|---|---|- C#
+            C  -|-o-|---|---|---|- G#
+            G  -|---|---|-o-|---|- F
+                  8
+        ")
+    ),
+    case(
+        "C#",
+        Some("5"),
+        Some("10"),
+        indoc!("
+            [C# - C# major]
+
+            A  -|---|---|-o-|---|- F
+            E  -|---|---|---|-o-|- C#
+            C  -|---|---|-o-|---|- G#
+            G  -|-o-|---|---|---|- C#
+                  6
+
+            A  -|-o-|---|---|---|- F
+            E  -|---|-o-|---|---|- C#
+            C  -|-o-|---|---|---|- G#
+            G  -|---|---|-o-|---|- F
+                  8
+        ")
+    ),
 )]
 fn test_all(
     chord: &str,
     min_fret: Option<&str>,
+    max_fret: Option<&str>,
     chart: &'static str,
 ) -> Result<(), Box<dyn std::error::Error + 'static>> {
     let mut cmd = Command::cargo_bin("ukebox")?;
@@ -379,6 +434,10 @@ fn test_all(
 
     if let Some(fret) = min_fret {
         cmd.arg("--min-fret").arg(fret);
+    }
+
+    if let Some(fret) = max_fret {
+        cmd.arg("--max-fret").arg(fret);
     }
 
     cmd.arg(chord);

@@ -20,6 +20,9 @@ enum Subcommand {
         /// Minimal fret (= minimal position) from which to play <chord>
         #[structopt(short = "f", long, default_value = "0")]
         min_fret: FretID,
+        /// Maximal fret up to which to play <chord>
+        #[structopt(long, default_value = "15")]
+        max_fret: FretID,
         /// Number of semitones to add (e.g. 1, +1) or to subtract (e.g. -1)
         #[structopt(long, allow_hyphen_values = true, default_value = "0")]
         transpose: i8,
@@ -41,6 +44,7 @@ fn main() {
         Subcommand::Chart {
             all,
             min_fret,
+            max_fret,
             transpose,
             chord,
         } => {
@@ -56,7 +60,7 @@ fn main() {
 
             let voicings = chord
                 .voicings(tuning)
-                .filter(|v| v.get_min_fret() >= min_fret);
+                .filter(|v| v.get_min_fret() >= min_fret && v.get_max_fret() <= max_fret);
 
             for voicing in voicings {
                 let chart = ChordChart::new(voicing, 4);
