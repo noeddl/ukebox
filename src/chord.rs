@@ -46,8 +46,7 @@ impl Chord {
         let max_span = 4;
 
         tuning
-            .get_roots()
-            .iter()
+            .roots()
             // For each ukulele string, keep track of all the frets that when pressed down
             // while playing the string result in a note of the chord.
             .map(|root| {
@@ -55,7 +54,7 @@ impl Chord {
                     // Allow each note to be checked twice on the fretboard.
                     .cartesian_product(vec![0, 12])
                     // Determine the fret on which `note` is played.
-                    .map(|(note, st)| (*root, (note.pitch_class - root.pitch_class) + st, note))
+                    .map(|(note, st)| (root, (note.pitch_class - root.pitch_class) + st, note))
                     // Only keep frets within the given boundaries.
                     .filter(|(_r, fret, _n)| fret >= &min_fret && fret <= &max_fret)
                     .collect::<Vec<UkeString>>()

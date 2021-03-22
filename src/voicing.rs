@@ -23,12 +23,11 @@ impl Voicing {
     // or flat).
     pub fn new(fret_pattern: impl Into<FretPattern>, tuning: Tuning) -> Self {
         let fret_pattern = fret_pattern.into();
-        let roots = tuning.get_roots();
 
-        let uke_strings: Vec<UkeString> = roots
-            .iter()
+        let uke_strings: Vec<UkeString> = tuning
+            .roots()
             .zip(fret_pattern.iter())
-            .map(|(&root, &fret)| (root, fret, root + fret))
+            .map(|(root, &fret)| (root, fret, root + fret))
             .collect();
 
         Self {
