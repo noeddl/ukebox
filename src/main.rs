@@ -20,7 +20,7 @@ enum Subcommand {
         #[structopt(short, long)]
         all: bool,
         /// Minimal fret (= minimal position) from which to play <chord>
-        #[structopt(short = "f", long, default_value = "0")]
+        #[structopt(long, default_value = "0")]
         min_fret: FretID,
         /// Maximal fret up to which to play <chord>
         #[structopt(long, default_value = "15")]
