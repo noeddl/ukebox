@@ -139,16 +139,6 @@ mod tests {
             ")
         ),
         case(
-            "Cm",
-            Tuning::C,
-            indoc!("
-                A  ||---|---|-o-|---|- C
-                E  ||---|---|-o-|---|- G
-                C  ||---|---|-o-|---|- Eb
-                G o||---|---|---|---|- G
-            "),
-        ),
-        case(
             "C#m",
             Tuning::C,
             indoc!("

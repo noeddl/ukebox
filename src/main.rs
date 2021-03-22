@@ -1,5 +1,5 @@
 use structopt::StructOpt;
-use ukebox::{Chord, ChordChart, FretID, FretPattern, Tuning, Voicing};
+use ukebox::{Chord, ChordChart, FretID, FretPattern, Semitones, Tuning, Voicing};
 
 #[derive(StructOpt)]
 struct Ukebox {
@@ -23,6 +23,9 @@ enum Subcommand {
         /// Maximal fret up to which to play <chord>
         #[structopt(long, default_value = "15")]
         max_fret: FretID,
+        /// Maximal span between the first and the last fret pressed down when playing <chord>
+        #[structopt(long, default_value = "4")]
+        max_span: Semitones,
         /// Number of semitones to add (e.g. 1, +1) or to subtract (e.g. -1)
         #[structopt(long, allow_hyphen_values = true, default_value = "0")]
         transpose: i8,
@@ -45,6 +48,7 @@ fn main() {
             all,
             min_fret,
             max_fret,
+            max_span,
             transpose,
             chord,
         } => {
@@ -58,9 +62,11 @@ fn main() {
 
             println!("{}", format!("[{}]\n", chord));
 
-            let voicings = chord
-                .voicings(tuning)
-                .filter(|v| v.get_min_fret() >= min_fret && v.get_max_fret() <= max_fret);
+            let voicings = chord.voicings(tuning).filter(|v| {
+                v.get_min_fret() >= min_fret
+                    && v.get_max_fret() <= max_fret
+                    && v.get_span() < max_span
+            });
 
             for voicing in voicings {
                 let chart = ChordChart::new(voicing, 4);

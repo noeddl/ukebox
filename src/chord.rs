@@ -41,9 +41,6 @@ impl Chord {
     }
 
     pub fn voicings(&self, tuning: Tuning) -> impl Iterator<Item = Voicing> + '_ {
-        // TODO: Turn these hard-coded values into command-line arguments.
-        let max_span = 4;
-
         tuning
             .roots()
             // For each ukulele string, keep track of all the frets that when pressed down
@@ -63,7 +60,7 @@ impl Chord {
             // Create voicing from the UkeString vec.
             .map(|us_vec| Voicing::from(&us_vec[..]))
             // Only keep valid voicings.
-            .filter(|voicing| voicing.spells_out(self) && voicing.get_span() < max_span)
+            .filter(|voicing| voicing.spells_out(self))
             .sorted()
     }
 }

@@ -214,6 +214,38 @@ fn test_min_fret(
 
 #[rstest(
     chord,
+    max_span,
+    chart,
+    case(
+        "C#",
+        "3",
+        indoc!("
+            [C# - C# major]
+
+            A  -|-o-|---|---|---|- C#
+            E  -|-o-|---|---|---|- G#
+            C  -|---|-o-|---|---|- F
+            G  -|---|---|-o-|---|- C#
+                  4
+        ")
+    ),
+)]
+fn test_max_span(
+    chord: &str,
+    max_span: &str,
+    chart: &'static str,
+) -> Result<(), Box<dyn std::error::Error + 'static>> {
+    let mut cmd = Command::cargo_bin("ukebox")?;
+    cmd.arg("chart");
+    cmd.arg("--max-span").arg(max_span);
+    cmd.arg(chord);
+    cmd.assert().success().stdout(format!("{}\n", chart));
+
+    Ok(())
+}
+
+#[rstest(
+    chord,
     semitones,
     chart,
     case(
