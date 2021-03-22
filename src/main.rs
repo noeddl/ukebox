@@ -14,6 +14,9 @@ struct Ukebox {
 enum Subcommand {
     /// Chord chart lookup
     Chart {
+        /// Print out all voicings of <chord> that fulfill the given conditions
+        #[structopt(short, long)]
+        all: bool,
         /// Minimal fret (= minimal position) from which to play <chord>
         #[structopt(short = "f", long, default_value = "0")]
         min_fret: FretID,
@@ -36,6 +39,7 @@ fn main() {
 
     match args.cmd {
         Subcommand::Chart {
+            all,
             min_fret,
             transpose,
             chord,
@@ -47,12 +51,19 @@ fn main() {
                 // Add semitones (e.g. 1, +1).
                 _ => chord + transpose as u8,
             };
-            let voicings = chord.get_voicings(min_fret, tuning);
-            let voicing = voicings[0];
-            let chart = ChordChart::new(voicing, 4);
 
             println!("{}", format!("[{}]\n", chord));
-            println!("{}", chart);
+
+            let voicings = chord.get_voicings(min_fret, tuning);
+
+            for voicing in voicings {
+                let chart = ChordChart::new(voicing, 4);
+                println!("{}", chart);
+
+                if !all {
+                    break;
+                }
+            }
         }
         Subcommand::Name { fret_pattern } => {
             let voicing = Voicing::new(fret_pattern, tuning);
