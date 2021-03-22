@@ -1,3 +1,5 @@
+use std::cmp::max;
+
 use structopt::StructOpt;
 use ukebox::{Chord, ChordChart, FretID, FretPattern, Semitones, Tuning, Voicing};
 
@@ -69,7 +71,8 @@ fn main() {
             });
 
             for voicing in voicings {
-                let chart = ChordChart::new(voicing, 4);
+                let width = max(max_span, 4);
+                let chart = ChordChart::new(voicing, width);
                 println!("{}", chart);
 
                 if !all {

@@ -4,12 +4,13 @@ use crate::{FretID, Semitones, UkeString, Voicing};
 
 pub struct ChordChart {
     voicing: Voicing,
-    max_span: Semitones,
+    /// Number of frets to use to display the chord voicing
+    width: Semitones,
 }
 
 impl ChordChart {
-    pub fn new(voicing: Voicing, max_span: Semitones) -> Self {
-        Self { voicing, max_span }
+    pub fn new(voicing: Voicing, width: Semitones) -> Self {
+        Self { voicing, width }
     }
 
     /// Determine from which fret to show the fretboard.
@@ -21,7 +22,7 @@ impl ChordChart {
         let max_fret = self.voicing.get_max_fret();
 
         match max_fret {
-            max_fret if max_fret <= self.max_span => 1,
+            max_fret if max_fret <= self.width => 1,
             _ => self.voicing.get_min_pressed_fret(),
         }
     }
@@ -61,7 +62,7 @@ impl ChordChart {
         };
 
         // Create a line representing the string with the fret to be pressed.
-        let s: String = (base_fret..base_fret + self.max_span)
+        let s: String = (base_fret..base_fret + self.width)
             .map(|i| if fret == i { 'o' } else { '-' })
             .map(|c| format!("-{}-|", c))
             .collect();
