@@ -1,3 +1,4 @@
+use std::cmp::Ordering;
 use std::convert::{TryFrom, TryInto};
 use std::slice::Iter;
 
@@ -5,7 +6,7 @@ use itertools::Itertools;
 
 use crate::{Chord, FretID, FretPattern, Note, PitchClass, Tuning, UkeString, STRING_COUNT};
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Voicing {
     uke_strings: [UkeString; STRING_COUNT],
 }
@@ -99,6 +100,26 @@ impl Voicing {
     }
 }
 
+impl PartialOrd for Voicing {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl Ord for Voicing {
+    fn cmp(&self, other: &Self) -> Ordering {
+        // In order to iterate over frets in reversed order, we could implement
+        // DoubleEndedIterator ... or use this hack.
+        let frets1: Vec<FretID> = self.frets().collect();
+        let frets2: Vec<FretID> = other.frets().collect();
+
+        match self.get_min_fret().cmp(&other.get_min_fret()) {
+            Ordering::Equal => frets1.iter().rev().cmp(frets2.iter().rev()),
+            other => other,
+        }
+    }
+}
+
 impl From<&[UkeString]> for Voicing {
     fn from(uke_strings: &[UkeString]) -> Self {
         Self {
@@ -115,6 +136,18 @@ mod tests {
     use rstest::rstest;
 
     use super::*;
+
+    #[rstest(
+        frets1, frets2,
+        case([0, 0, 0, 0], [0, 0, 0, 1]),
+        case([0, 3, 3, 3], [0, 0, 3, 6]),
+        case([0, 0, 8, 6], [0, 7, 8, 6]),
+    )]
+    fn test_compare(frets1: [FretID; STRING_COUNT], frets2: [FretID; STRING_COUNT]) {
+        let voicing1 = Voicing::new(frets1, Tuning::C);
+        let voicing2 = Voicing::new(frets2, Tuning::C);
+        assert!(voicing1 < voicing2);
+    }
 
     #[rstest(
         frets, min_fret, max_fret, span,
