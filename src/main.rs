@@ -54,7 +54,7 @@ fn main() {
 
             println!("{}", format!("[{}]\n", chord));
 
-            let voicings = chord.get_voicings(min_fret, tuning);
+            let voicings = chord.voicings(min_fret, tuning);
 
             for voicing in voicings {
                 let chart = ChordChart::new(voicing, 4);

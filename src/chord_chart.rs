@@ -223,8 +223,7 @@ mod tests {
     )]
     fn test_to_diagram(chord_name: &str, min_fret: FretID, tuning: Tuning, diagram: &str) {
         let chord = Chord::from_str(chord_name).unwrap();
-        let voicings = chord.get_voicings(min_fret, tuning);
-        let voicing = voicings[0];
+        let voicing = chord.voicings(min_fret, tuning).next().unwrap();
         let chord_chart = ChordChart::new(voicing, 4);
         assert_eq!(chord_chart.to_string(), diagram);
     }

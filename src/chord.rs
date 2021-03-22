@@ -40,7 +40,7 @@ impl Chord {
         self.chord_type.intervals().map(move |i| self.root + i)
     }
 
-    pub fn get_voicings(&self, min_fret: FretID, tuning: Tuning) -> Vec<Voicing> {
+    pub fn voicings(&self, min_fret: FretID, tuning: Tuning) -> impl Iterator<Item = Voicing> + '_ {
         // TODO: Turn these hard-coded values into command-line arguments.
         let max_fret = 15;
         let max_span = 4;
@@ -69,7 +69,6 @@ impl Chord {
             // Only keep valid voicings.
             .filter(|voicing| voicing.spells_out(self) && voicing.get_span() < max_span)
             .sorted()
-            .collect()
     }
 }
 
