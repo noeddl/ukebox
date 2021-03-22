@@ -107,10 +107,9 @@ mod tests {
     use super::*;
     use crate::{Chord, Tuning};
 
-    #[rstest(chord_name, min_fret, tuning, diagram,
+    #[rstest(chord_name, tuning, diagram,
         case(
             "C",
-            0,
             Tuning::C,
             indoc!("
                 A  ||---|---|-o-|---|- C
@@ -120,20 +119,7 @@ mod tests {
             "),
         ),
         case(
-            "C",
-            1,
-            Tuning::C,
-            indoc!("
-                A  -|-o-|---|---|---|- C
-                E  -|-o-|---|---|---|- G
-                C  -|---|-o-|---|---|- E
-                G  -|---|---|-o-|---|- C
-                      3
-            ")
-        ),
-        case(
             "C#",
-            0,
             Tuning::C,
             indoc!("
                 A  ||---|---|---|-o-|- C#
@@ -144,7 +130,6 @@ mod tests {
         ),
         case(
             "Db",
-            0,
             Tuning::C,
             indoc!("
                 A  ||---|---|---|-o-|- Db
@@ -155,7 +140,6 @@ mod tests {
         ),
         case(
             "Cm",
-            0,
             Tuning::C,
             indoc!("
                 A  ||---|---|-o-|---|- C
@@ -166,7 +150,6 @@ mod tests {
         ),
         case(
             "C#m",
-            0,
             Tuning::C,
             indoc!("
                 A  ||---|---|---|-o-|- C#
@@ -177,7 +160,6 @@ mod tests {
         ),
         case(
             "Dbm",
-            0,
             Tuning::C,
             indoc!("
                 A  ||---|---|---|-o-|- Db
@@ -188,7 +170,6 @@ mod tests {
         ),
         case(
             "D",
-            0,
             Tuning::D,
             indoc!("
                 B   ||---|---|-o-|---|- D
@@ -198,20 +179,7 @@ mod tests {
             "),
         ),
         case(
-            "D",
-            5,
-            Tuning::D,
-            indoc!("
-                B   -|---|---|-o-|---|- F#
-                F#  -|---|---|---|-o-|- D
-                D   -|---|---|-o-|---|- A
-                A   -|-o-|---|---|---|- D
-                       5
-            "),
-        ),
-        case(
             "G",
-            0,
             Tuning::G,
             indoc!("
                 E  ||---|---|-o-|---|- G
@@ -221,9 +189,9 @@ mod tests {
             "),
         ),
     )]
-    fn test_to_diagram(chord_name: &str, min_fret: FretID, tuning: Tuning, diagram: &str) {
+    fn test_to_diagram(chord_name: &str, tuning: Tuning, diagram: &str) {
         let chord = Chord::from_str(chord_name).unwrap();
-        let voicing = chord.voicings(min_fret, tuning).next().unwrap();
+        let voicing = chord.voicings(tuning).next().unwrap();
         let chord_chart = ChordChart::new(voicing, 4);
         assert_eq!(chord_chart.to_string(), diagram);
     }

@@ -54,7 +54,9 @@ fn main() {
 
             println!("{}", format!("[{}]\n", chord));
 
-            let voicings = chord.voicings(min_fret, tuning);
+            let voicings = chord
+                .voicings(tuning)
+                .filter(|v| v.get_min_fret() >= min_fret);
 
             for voicing in voicings {
                 let chart = ChordChart::new(voicing, 4);

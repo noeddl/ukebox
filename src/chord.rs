@@ -7,7 +7,7 @@ use std::str::FromStr;
 use itertools::Itertools;
 use regex::Regex;
 
-use crate::{ChordType, FretID, Note, PitchClass, Semitones, Tuning, UkeString, Voicing};
+use crate::{ChordType, Note, PitchClass, Semitones, Tuning, UkeString, Voicing};
 
 /// Custom error for strings that cannot be parsed into chords.
 #[derive(Debug)]
@@ -40,7 +40,7 @@ impl Chord {
         self.chord_type.intervals().map(move |i| self.root + i)
     }
 
-    pub fn voicings(&self, min_fret: FretID, tuning: Tuning) -> impl Iterator<Item = Voicing> + '_ {
+    pub fn voicings(&self, tuning: Tuning) -> impl Iterator<Item = Voicing> + '_ {
         // TODO: Turn these hard-coded values into command-line arguments.
         let max_fret = 15;
         let max_span = 4;
@@ -56,7 +56,7 @@ impl Chord {
                     // Determine the fret on which `note` is played.
                     .map(|(note, st)| (root, (note.pitch_class - root.pitch_class) + st, note))
                     // Only keep frets within the given boundaries.
-                    .filter(|(_r, fret, _n)| fret >= &min_fret && fret <= &max_fret)
+                    .filter(|(_r, fret, _n)| fret <= &max_fret)
                     .collect::<Vec<UkeString>>()
             })
             // At this point, we have collected all possible positions of the notes in the chord
