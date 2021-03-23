@@ -51,6 +51,45 @@ fn test_unknown_pattern() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
+#[rstest(min_fret, case("22"), case("foo"))]
+fn test_invalid_min_fret(min_fret: &str) -> Result<(), Box<dyn std::error::Error>> {
+    let mut cmd = Command::cargo_bin("ukebox")?;
+    cmd.arg("chart");
+    cmd.arg("--min-fret").arg(min_fret);
+    cmd.arg("C");
+    cmd.assert().failure().stderr(predicate::str::contains(
+        "error: Invalid value for '--min-fret <min-fret>': must be a number between 0 and 21",
+    ));
+
+    Ok(())
+}
+
+#[rstest(max_fret, case("22"), case("foo"))]
+fn test_invalid_max_fret(max_fret: &str) -> Result<(), Box<dyn std::error::Error>> {
+    let mut cmd = Command::cargo_bin("ukebox")?;
+    cmd.arg("chart");
+    cmd.arg("--max-fret").arg(max_fret);
+    cmd.arg("C");
+    cmd.assert().failure().stderr(predicate::str::contains(
+        "error: Invalid value for '--max-fret <max-fret>': must be a number between 0 and 21",
+    ));
+
+    Ok(())
+}
+
+#[rstest(max_span, case("6"), case("foo"))]
+fn test_invalid_max_span(max_span: &str) -> Result<(), Box<dyn std::error::Error>> {
+    let mut cmd = Command::cargo_bin("ukebox")?;
+    cmd.arg("chart");
+    cmd.arg("--max-span").arg(max_span);
+    cmd.arg("C");
+    cmd.assert().failure().stderr(predicate::str::contains(
+        "error: Invalid value for '--max-span <max-span>': must be a number between 0 and 5",
+    ));
+
+    Ok(())
+}
+
 #[rstest(
     chord,
     chart,
