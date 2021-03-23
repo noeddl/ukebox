@@ -40,30 +40,6 @@ fn test_voicing() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-#[test]
-fn test_invalid_pattern() -> Result<(), Box<dyn std::error::Error>> {
-    let mut cmd = Command::cargo_bin("ukebox")?;
-    cmd.arg("name");
-    cmd.arg("blafoo");
-    cmd.assert().failure().stderr(predicate::str::contains(
-        "error: Invalid value for '<fret-pattern>': Fret pattern has wrong format (should be something like 1234 or \"7 8 9 10\")",
-    ));
-
-    Ok(())
-}
-
-#[test]
-fn test_unknown_pattern() -> Result<(), Box<dyn std::error::Error>> {
-    let mut cmd = Command::cargo_bin("ukebox")?;
-    cmd.arg("name");
-    cmd.arg("1234");
-    cmd.assert()
-        .success()
-        .stdout("No matching chord was found\n");
-
-    Ok(())
-}
-
 #[rstest(min_fret, case("22"), case("foo"))]
 fn test_invalid_min_fret(min_fret: &str) -> Result<(), Box<dyn std::error::Error>> {
     let mut cmd = Command::cargo_bin("ukebox")?;
@@ -99,6 +75,30 @@ fn test_invalid_max_span(max_span: &str) -> Result<(), Box<dyn std::error::Error
     cmd.assert().failure().stderr(predicate::str::contains(
         "error: Invalid value for '--max-span <max-span>': must be a number between 0 and 5",
     ));
+
+    Ok(())
+}
+
+#[test]
+fn test_invalid_pattern() -> Result<(), Box<dyn std::error::Error>> {
+    let mut cmd = Command::cargo_bin("ukebox")?;
+    cmd.arg("name");
+    cmd.arg("blafoo");
+    cmd.assert().failure().stderr(predicate::str::contains(
+        "error: Invalid value for '<fret-pattern>': Fret pattern has wrong format (should be something like 1234 or \"7 8 9 10\")",
+    ));
+
+    Ok(())
+}
+
+#[test]
+fn test_unknown_pattern() -> Result<(), Box<dyn std::error::Error>> {
+    let mut cmd = Command::cargo_bin("ukebox")?;
+    cmd.arg("name");
+    cmd.arg("1234");
+    cmd.assert()
+        .success()
+        .stdout("No matching chord was found\n");
 
     Ok(())
 }
