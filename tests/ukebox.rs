@@ -28,7 +28,7 @@ fn test_unknown_chord() -> Result<(), Box<dyn std::error::Error>> {
 }
 
 #[test]
-fn test_voicing() -> Result<(), Box<dyn std::error::Error>> {
+fn test_no_voicing_found() -> Result<(), Box<dyn std::error::Error>> {
     let mut cmd = Command::cargo_bin("ukebox")?;
     cmd.arg("chart");
     cmd.arg("--max-span").arg("0");
