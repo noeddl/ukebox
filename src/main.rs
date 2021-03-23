@@ -34,7 +34,7 @@ enum Subcommand {
         #[structopt(long, default_value = "0", validator = validate_fret_id)]
         min_fret: FretID,
         /// Maximal fret up to which to play <chord>
-        #[structopt(long, default_value = "15", validator = validate_fret_id)]
+        #[structopt(long, default_value = "12", validator = validate_fret_id)]
         max_fret: FretID,
         /// Maximal span between the first and the last fret pressed down when playing <chord>
         #[structopt(long, default_value = "4", validator = validate_span)]
