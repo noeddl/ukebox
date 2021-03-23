@@ -11,6 +11,9 @@ const MAX_FRET_ID: FretID = 21;
 /// Playing a chord that spans more than 5 frets seems anatomically impossible to me.
 const MAX_SPAN: Semitones = 5;
 
+/// Minimal number of frets to be shown in a chord chart.
+const MIN_CHART_WIDTH: Semitones = 4;
+
 #[derive(StructOpt)]
 struct Ukebox {
     /// Type of tuning to be used
@@ -99,7 +102,7 @@ fn main() {
             });
 
             for voicing in voicings {
-                let width = max(max_span, 4);
+                let width = max(max_span, MIN_CHART_WIDTH);
                 let chart = ChordChart::new(voicing, width);
                 println!("{}", chart);
 
