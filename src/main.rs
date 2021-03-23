@@ -3,6 +3,14 @@ use std::cmp::max;
 use structopt::StructOpt;
 use ukebox::{Chord, ChordChart, FretID, FretPattern, Semitones, Tuning, Voicing};
 
+/// Maximal possible fret ID.
+/// According to Wikipedia, the biggest ukulele type (baritone) has 21 frets.
+const MAX_FRET_ID: FretID = 21;
+
+/// Maximal span of frets.
+/// Playing a chord that spans more than 5 frets seems anatomically impossible to me.
+const MAX_SPAN: Semitones = 5;
+
 #[derive(StructOpt)]
 struct Ukebox {
     /// Type of tuning to be used
@@ -20,13 +28,13 @@ enum Subcommand {
         #[structopt(short, long)]
         all: bool,
         /// Minimal fret (= minimal position) from which to play <chord>
-        #[structopt(long, default_value = "0")]
+        #[structopt(long, default_value = "0", validator = validate_fret_id)]
         min_fret: FretID,
         /// Maximal fret up to which to play <chord>
-        #[structopt(long, default_value = "15")]
+        #[structopt(long, default_value = "15", validator = validate_fret_id)]
         max_fret: FretID,
         /// Maximal span between the first and the last fret pressed down when playing <chord>
-        #[structopt(long, default_value = "4")]
+        #[structopt(long, default_value = "4", validator = validate_span)]
         max_span: Semitones,
         /// Number of semitones to add (e.g. 1, +1) or to subtract (e.g. -1)
         #[structopt(long, allow_hyphen_values = true, default_value = "0")]
@@ -39,6 +47,26 @@ enum Subcommand {
         /// A compact chart representing the finger positions of the chord to be looked up
         fret_pattern: FretPattern,
     },
+}
+
+fn validate_fret_id(s: String) -> Result<(), String> {
+    if let Ok(fret) = s.parse::<FretID>() {
+        if fret <= MAX_FRET_ID {
+            return Ok(());
+        }
+    }
+
+    Err(String::from("must be a number between 0 and 21"))
+}
+
+fn validate_span(s: String) -> Result<(), String> {
+    if let Ok(span) = s.parse::<Semitones>() {
+        if span <= MAX_SPAN {
+            return Ok(());
+        }
+    }
+
+    Err(String::from("must be a number between 0 and 5"))
 }
 
 fn main() {
