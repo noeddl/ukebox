@@ -28,6 +28,19 @@ fn test_unknown_chord() -> Result<(), Box<dyn std::error::Error>> {
 }
 
 #[test]
+fn test_voicing() -> Result<(), Box<dyn std::error::Error>> {
+    let mut cmd = Command::cargo_bin("ukebox")?;
+    cmd.arg("chart");
+    cmd.arg("--max-span").arg("0");
+    cmd.arg("C");
+    cmd.assert()
+        .success()
+        .stdout("No matching chord voicing was found\n");
+
+    Ok(())
+}
+
+#[test]
 fn test_invalid_pattern() -> Result<(), Box<dyn std::error::Error>> {
     let mut cmd = Command::cargo_bin("ukebox")?;
     cmd.arg("name");

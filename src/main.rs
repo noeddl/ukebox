@@ -93,13 +93,20 @@ fn main() {
                 _ => chord + transpose as u8,
             };
 
-            println!("{}", format!("[{}]\n", chord));
+            let mut voicings = chord
+                .voicings(tuning)
+                .filter(|v| {
+                    v.get_min_fret() >= min_fret
+                        && v.get_max_fret() <= max_fret
+                        && v.get_span() < max_span
+                })
+                .peekable();
 
-            let voicings = chord.voicings(tuning).filter(|v| {
-                v.get_min_fret() >= min_fret
-                    && v.get_max_fret() <= max_fret
-                    && v.get_span() < max_span
-            });
+            if voicings.peek().is_none() {
+                println!("No matching chord voicing was found");
+            } else {
+                println!("{}", format!("[{}]\n", chord));
+            }
 
             for voicing in voicings {
                 let width = max(max_span, MIN_CHART_WIDTH);
