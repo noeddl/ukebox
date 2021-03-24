@@ -1,3 +1,4 @@
+use std::error::Error;
 use std::process::Command; // Run programs
 
 use assert_cmd::prelude::*; // Add methods on commands
@@ -6,7 +7,7 @@ use predicates::prelude::*; // Used for writing assertions
 use rstest::rstest;
 
 #[test]
-fn test_no_args() -> Result<(), Box<dyn std::error::Error>> {
+fn test_no_args() -> Result<(), Box<dyn Error>> {
     let mut cmd = Command::cargo_bin("ukebox")?;
     cmd.assert()
         .failure()
@@ -16,7 +17,7 @@ fn test_no_args() -> Result<(), Box<dyn std::error::Error>> {
 }
 
 #[test]
-fn test_unknown_chord() -> Result<(), Box<dyn std::error::Error>> {
+fn test_unknown_chord() -> Result<(), Box<dyn Error>> {
     let mut cmd = Command::cargo_bin("ukebox")?;
     cmd.arg("chart");
     cmd.arg("blafoo");
@@ -28,7 +29,7 @@ fn test_unknown_chord() -> Result<(), Box<dyn std::error::Error>> {
 }
 
 #[test]
-fn test_no_voicing_found() -> Result<(), Box<dyn std::error::Error>> {
+fn test_no_voicing_found() -> Result<(), Box<dyn Error>> {
     let mut cmd = Command::cargo_bin("ukebox")?;
     cmd.arg("chart");
     cmd.arg("--max-span").arg("0");
@@ -41,7 +42,7 @@ fn test_no_voicing_found() -> Result<(), Box<dyn std::error::Error>> {
 }
 
 #[rstest(min_fret, case("22"), case("foo"))]
-fn test_invalid_min_fret(min_fret: &str) -> Result<(), Box<dyn std::error::Error>> {
+fn test_invalid_min_fret(min_fret: &str) -> Result<(), Box<dyn Error>> {
     let mut cmd = Command::cargo_bin("ukebox")?;
     cmd.arg("chart");
     cmd.arg("--min-fret").arg(min_fret);
@@ -54,7 +55,7 @@ fn test_invalid_min_fret(min_fret: &str) -> Result<(), Box<dyn std::error::Error
 }
 
 #[rstest(max_fret, case("22"), case("foo"))]
-fn test_invalid_max_fret(max_fret: &str) -> Result<(), Box<dyn std::error::Error>> {
+fn test_invalid_max_fret(max_fret: &str) -> Result<(), Box<dyn Error>> {
     let mut cmd = Command::cargo_bin("ukebox")?;
     cmd.arg("chart");
     cmd.arg("--max-fret").arg(max_fret);
@@ -67,7 +68,7 @@ fn test_invalid_max_fret(max_fret: &str) -> Result<(), Box<dyn std::error::Error
 }
 
 #[rstest(max_span, case("6"), case("foo"))]
-fn test_invalid_max_span(max_span: &str) -> Result<(), Box<dyn std::error::Error>> {
+fn test_invalid_max_span(max_span: &str) -> Result<(), Box<dyn Error>> {
     let mut cmd = Command::cargo_bin("ukebox")?;
     cmd.arg("chart");
     cmd.arg("--max-span").arg(max_span);
@@ -80,7 +81,7 @@ fn test_invalid_max_span(max_span: &str) -> Result<(), Box<dyn std::error::Error
 }
 
 #[test]
-fn test_invalid_pattern() -> Result<(), Box<dyn std::error::Error>> {
+fn test_invalid_pattern() -> Result<(), Box<dyn Error>> {
     let mut cmd = Command::cargo_bin("ukebox")?;
     cmd.arg("name");
     cmd.arg("blafoo");
@@ -92,7 +93,7 @@ fn test_invalid_pattern() -> Result<(), Box<dyn std::error::Error>> {
 }
 
 #[test]
-fn test_unknown_pattern() -> Result<(), Box<dyn std::error::Error>> {
+fn test_unknown_pattern() -> Result<(), Box<dyn Error>> {
     let mut cmd = Command::cargo_bin("ukebox")?;
     cmd.arg("name");
     cmd.arg("1234");
@@ -140,10 +141,7 @@ fn test_unknown_pattern() -> Result<(), Box<dyn std::error::Error>> {
         ")
     ),
 )]
-fn test_chart(
-    chord: &str,
-    chart: &'static str,
-) -> Result<(), Box<dyn std::error::Error + 'static>> {
+fn test_chart(chord: &str, chart: &'static str) -> Result<(), Box<dyn Error + 'static>> {
     let mut cmd = Command::cargo_bin("ukebox")?;
     cmd.arg("chart").arg(chord);
     cmd.assert().success().stdout(format!("{}\n", chart));
@@ -196,7 +194,7 @@ fn test_tuning(
     chord: &str,
     tuning: &str,
     chart: &'static str,
-) -> Result<(), Box<dyn std::error::Error + 'static>> {
+) -> Result<(), Box<dyn Error + 'static>> {
     let mut cmd = Command::cargo_bin("ukebox")?;
     cmd.arg("chart");
     cmd.arg("--tuning").arg(tuning);
@@ -254,7 +252,7 @@ fn test_min_fret(
     chord: &str,
     min_fret: &str,
     chart: &'static str,
-) -> Result<(), Box<dyn std::error::Error + 'static>> {
+) -> Result<(), Box<dyn Error + 'static>> {
     let mut cmd = Command::cargo_bin("ukebox")?;
     cmd.arg("chart");
     cmd.arg("--min-fret").arg(min_fret);
@@ -298,7 +296,7 @@ fn test_max_span(
     chord: &str,
     max_span: &str,
     chart: &'static str,
-) -> Result<(), Box<dyn std::error::Error + 'static>> {
+) -> Result<(), Box<dyn Error + 'static>> {
     let mut cmd = Command::cargo_bin("ukebox")?;
     cmd.arg("chart");
     cmd.arg("--max-span").arg(max_span);
@@ -365,7 +363,7 @@ fn test_transpose(
     chord: &str,
     semitones: &str,
     chart: &'static str,
-) -> Result<(), Box<dyn std::error::Error + 'static>> {
+) -> Result<(), Box<dyn Error + 'static>> {
     let mut cmd = Command::cargo_bin("ukebox")?;
     cmd.arg("chart");
     cmd.arg("--transpose").arg(semitones);
@@ -500,7 +498,7 @@ fn test_all(
     min_fret: Option<&str>,
     max_fret: Option<&str>,
     chart: &'static str,
-) -> Result<(), Box<dyn std::error::Error + 'static>> {
+) -> Result<(), Box<dyn Error + 'static>> {
     let mut cmd = Command::cargo_bin("ukebox")?;
     cmd.arg("chart").arg("--all");
 
@@ -526,7 +524,7 @@ fn test_all(
     case("0013", "Csus4 - C suspended 4th\nFsus2 - F suspended 2nd"),
     case("10 10 10 10", "Gm7 - G minor 7th")
 )]
-fn test_name(chart: &str, names: &'static str) -> Result<(), Box<dyn std::error::Error + 'static>> {
+fn test_name(chart: &str, names: &'static str) -> Result<(), Box<dyn Error + 'static>> {
     let mut cmd = Command::cargo_bin("ukebox")?;
     cmd.arg("name").arg(chart);
     cmd.assert().success().stdout(format!("{}\n", names));
@@ -549,7 +547,7 @@ fn test_name_with_tuning(
     chart: &str,
     tuning: &str,
     names: &'static str,
-) -> Result<(), Box<dyn std::error::Error + 'static>> {
+) -> Result<(), Box<dyn Error + 'static>> {
     let mut cmd = Command::cargo_bin("ukebox")?;
     cmd.arg("name");
     cmd.arg("--tuning").arg(tuning);
