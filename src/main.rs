@@ -17,7 +17,7 @@ const MIN_CHART_WIDTH: Semitones = 4;
 #[derive(StructOpt)]
 struct Ukebox {
     /// Type of tuning to be used
-    #[structopt(short, long, global = true, default_value = "C", possible_values = &Tuning::variants())]
+    #[structopt(short, long, global = true, value_name = "TUNING", default_value = "C", possible_values = &Tuning::variants())]
     tuning: Tuning,
     #[structopt(subcommand)]
     cmd: Subcommand,
@@ -31,23 +31,30 @@ enum Subcommand {
         #[structopt(short, long)]
         all: bool,
         /// Minimal fret (= minimal position) from which to play <chord>
-        #[structopt(long, default_value = "0", validator = validate_fret_id)]
+        #[structopt(long, value_name = "FRET_ID", default_value = "0", validator = validate_fret_id)]
         min_fret: FretID,
         /// Maximal fret up to which to play <chord>
-        #[structopt(long, default_value = "12", validator = validate_fret_id)]
+        #[structopt(long, value_name = "FRET_ID", default_value = "12", validator = validate_fret_id)]
         max_fret: FretID,
         /// Maximal span between the first and the last fret pressed down when playing <chord>
-        #[structopt(long, default_value = "4", validator = validate_span)]
+        #[structopt(long, value_name = "FRET_COUNT", default_value = "4", validator = validate_span)]
         max_span: Semitones,
         /// Number of semitones to add (e.g. 1, +1) or to subtract (e.g. -1)
-        #[structopt(long, allow_hyphen_values = true, default_value = "0")]
+        #[structopt(
+            long,
+            value_name = "SEMITONES",
+            allow_hyphen_values = true,
+            default_value = "0"
+        )]
         transpose: i8,
         /// Name of the chord to be shown
+        #[structopt(value_name = "CHORD")]
         chord: Chord,
     },
     /// Chord name lookup
     Name {
         /// A compact chart representing the finger positions of the chord to be looked up
+        #[structopt(value_name = "FRET_PATTERN")]
         fret_pattern: FretPattern,
     },
 }
