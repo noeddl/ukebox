@@ -28,6 +28,58 @@ fn test_unknown_chord() -> Result<(), Box<dyn std::error::Error>> {
 }
 
 #[test]
+fn test_no_voicing_found() -> Result<(), Box<dyn std::error::Error>> {
+    let mut cmd = Command::cargo_bin("ukebox")?;
+    cmd.arg("chart");
+    cmd.arg("--max-span").arg("0");
+    cmd.arg("C");
+    cmd.assert()
+        .success()
+        .stdout("No matching chord voicing was found\n");
+
+    Ok(())
+}
+
+#[rstest(min_fret, case("22"), case("foo"))]
+fn test_invalid_min_fret(min_fret: &str) -> Result<(), Box<dyn std::error::Error>> {
+    let mut cmd = Command::cargo_bin("ukebox")?;
+    cmd.arg("chart");
+    cmd.arg("--min-fret").arg(min_fret);
+    cmd.arg("C");
+    cmd.assert().failure().stderr(predicate::str::contains(
+        "error: Invalid value for '--min-fret <min-fret>': must be a number between 0 and 21",
+    ));
+
+    Ok(())
+}
+
+#[rstest(max_fret, case("22"), case("foo"))]
+fn test_invalid_max_fret(max_fret: &str) -> Result<(), Box<dyn std::error::Error>> {
+    let mut cmd = Command::cargo_bin("ukebox")?;
+    cmd.arg("chart");
+    cmd.arg("--max-fret").arg(max_fret);
+    cmd.arg("C");
+    cmd.assert().failure().stderr(predicate::str::contains(
+        "error: Invalid value for '--max-fret <max-fret>': must be a number between 0 and 21",
+    ));
+
+    Ok(())
+}
+
+#[rstest(max_span, case("6"), case("foo"))]
+fn test_invalid_max_span(max_span: &str) -> Result<(), Box<dyn std::error::Error>> {
+    let mut cmd = Command::cargo_bin("ukebox")?;
+    cmd.arg("chart");
+    cmd.arg("--max-span").arg(max_span);
+    cmd.arg("C");
+    cmd.assert().failure().stderr(predicate::str::contains(
+        "error: Invalid value for '--max-span <max-span>': must be a number between 0 and 5",
+    ));
+
+    Ok(())
+}
+
+#[test]
 fn test_invalid_pattern() -> Result<(), Box<dyn std::error::Error>> {
     let mut cmd = Command::cargo_bin("ukebox")?;
     cmd.arg("name");
@@ -214,6 +266,50 @@ fn test_min_fret(
 
 #[rstest(
     chord,
+    max_span,
+    chart,
+    case(
+        "C#",
+        "3",
+        indoc!("
+            [C# - C# major]
+
+            A  -|-o-|---|---|---|- C#
+            E  -|-o-|---|---|---|- G#
+            C  -|---|-o-|---|---|- F
+            G  -|---|---|-o-|---|- C#
+                  4
+        ")
+    ),
+    case(
+        "C#",
+        "5",
+        indoc!("
+            [C# - C# major]
+
+            A  ||---|---|---|-o-|---|- C#
+            E  ||-o-|---|---|---|---|- F
+            C  ||-o-|---|---|---|---|- C#
+            G  ||-o-|---|---|---|---|- G#
+        ")
+    ),
+)]
+fn test_max_span(
+    chord: &str,
+    max_span: &str,
+    chart: &'static str,
+) -> Result<(), Box<dyn std::error::Error + 'static>> {
+    let mut cmd = Command::cargo_bin("ukebox")?;
+    cmd.arg("chart");
+    cmd.arg("--max-span").arg(max_span);
+    cmd.arg(chord);
+    cmd.assert().success().stdout(format!("{}\n", chart));
+
+    Ok(())
+}
+
+#[rstest(
+    chord,
     semitones,
     chart,
     case(
@@ -273,6 +369,149 @@ fn test_transpose(
     let mut cmd = Command::cargo_bin("ukebox")?;
     cmd.arg("chart");
     cmd.arg("--transpose").arg(semitones);
+    cmd.arg(chord);
+    cmd.assert().success().stdout(format!("{}\n", chart));
+
+    Ok(())
+}
+
+#[rstest(
+    chord,
+    min_fret,
+    max_fret,
+    chart,
+    case(
+        "C#",
+        None,
+        None,
+        indoc!("
+            [C# - C# major]
+
+            A  ||---|---|---|-o-|- C#
+            E  ||-o-|---|---|---|- F
+            C  ||-o-|---|---|---|- C#
+            G  ||-o-|---|---|---|- G#
+
+            A  -|-o-|---|---|---|- C#
+            E  -|-o-|---|---|---|- G#
+            C  -|---|-o-|---|---|- F
+            G  -|---|---|-o-|---|- C#
+                  4
+
+            A  -|---|---|-o-|---|- F
+            E  -|---|---|---|-o-|- C#
+            C  -|---|---|-o-|---|- G#
+            G  -|-o-|---|---|---|- C#
+                  6
+
+            A  -|-o-|---|---|---|- F
+            E  -|---|-o-|---|---|- C#
+            C  -|-o-|---|---|---|- G#
+            G  -|---|---|-o-|---|- F
+                  8
+
+            A  -|---|---|---|-o-|- G#
+            E  -|---|-o-|---|---|- C#
+            C  -|-o-|---|---|---|- G#
+            G  -|---|---|-o-|---|- F
+                  8
+        ")
+    ),
+    case(
+        "C#",
+        Some("5"),
+        None,
+        indoc!("
+            [C# - C# major]
+
+            A  -|---|---|-o-|---|- F
+            E  -|---|---|---|-o-|- C#
+            C  -|---|---|-o-|---|- G#
+            G  -|-o-|---|---|---|- C#
+                  6
+
+            A  -|-o-|---|---|---|- F
+            E  -|---|-o-|---|---|- C#
+            C  -|-o-|---|---|---|- G#
+            G  -|---|---|-o-|---|- F
+                  8
+
+            A  -|---|---|---|-o-|- G#
+            E  -|---|-o-|---|---|- C#
+            C  -|-o-|---|---|---|- G#
+            G  -|---|---|-o-|---|- F
+                  8
+        ")
+    ),
+    case(
+        "C#",
+        None,
+        Some("10"),
+        indoc!("
+            [C# - C# major]
+
+            A  ||---|---|---|-o-|- C#
+            E  ||-o-|---|---|---|- F
+            C  ||-o-|---|---|---|- C#
+            G  ||-o-|---|---|---|- G#
+
+            A  -|-o-|---|---|---|- C#
+            E  -|-o-|---|---|---|- G#
+            C  -|---|-o-|---|---|- F
+            G  -|---|---|-o-|---|- C#
+                  4
+
+            A  -|---|---|-o-|---|- F
+            E  -|---|---|---|-o-|- C#
+            C  -|---|---|-o-|---|- G#
+            G  -|-o-|---|---|---|- C#
+                  6
+
+            A  -|-o-|---|---|---|- F
+            E  -|---|-o-|---|---|- C#
+            C  -|-o-|---|---|---|- G#
+            G  -|---|---|-o-|---|- F
+                  8
+        ")
+    ),
+    case(
+        "C#",
+        Some("5"),
+        Some("10"),
+        indoc!("
+            [C# - C# major]
+
+            A  -|---|---|-o-|---|- F
+            E  -|---|---|---|-o-|- C#
+            C  -|---|---|-o-|---|- G#
+            G  -|-o-|---|---|---|- C#
+                  6
+
+            A  -|-o-|---|---|---|- F
+            E  -|---|-o-|---|---|- C#
+            C  -|-o-|---|---|---|- G#
+            G  -|---|---|-o-|---|- F
+                  8
+        ")
+    ),
+)]
+fn test_all(
+    chord: &str,
+    min_fret: Option<&str>,
+    max_fret: Option<&str>,
+    chart: &'static str,
+) -> Result<(), Box<dyn std::error::Error + 'static>> {
+    let mut cmd = Command::cargo_bin("ukebox")?;
+    cmd.arg("chart").arg("--all");
+
+    if let Some(fret) = min_fret {
+        cmd.arg("--min-fret").arg(fret);
+    }
+
+    if let Some(fret) = max_fret {
+        cmd.arg("--max-fret").arg(fret);
+    }
+
     cmd.arg(chord);
     cmd.assert().success().stdout(format!("{}\n", chart));
 

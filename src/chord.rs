@@ -7,7 +7,7 @@ use std::str::FromStr;
 use itertools::Itertools;
 use regex::Regex;
 
-use crate::{ChordType, FretID, Note, PitchClass, Semitones, Tuning, UkeString, Voicing};
+use crate::{ChordType, Note, PitchClass, Semitones, Tuning, UkeString, Voicing};
 
 /// Custom error for strings that cannot be parsed into chords.
 #[derive(Debug)]
@@ -40,19 +40,9 @@ impl Chord {
         self.chord_type.intervals().map(move |i| self.root + i)
     }
 
-    pub fn get_voicings(&self, min_fret: FretID, tuning: Tuning) -> Vec<Voicing> {
-        // TODO: Turn these hard-coded values into command-line arguments.
-        let max_fret = 15;
-        let max_span = 4;
-
+    pub fn voicings(&self, tuning: Tuning) -> impl Iterator<Item = Voicing> + '_ {
         tuning
-            .get_roots()
-            .iter()
-            // We have to reverse the order of root notes to end up with a certain order
-            // of the generated voicings (which is however still not the final order
-            // that I want).
-            // TODO: Take care of sorting voicings in Voicing.
-            .rev()
+            .roots()
             // For each ukulele string, keep track of all the frets that when pressed down
             // while playing the string result in a note of the chord.
             .map(|root| {
@@ -60,24 +50,18 @@ impl Chord {
                     // Allow each note to be checked twice on the fretboard.
                     .cartesian_product(vec![0, 12])
                     // Determine the fret on which `note` is played.
-                    .map(|(note, st)| (*root, (note.pitch_class - root.pitch_class) + st, note))
-                    // Only keep frets within the given boundaries.
-                    .filter(|(_r, fret, _n)| fret >= &min_fret && fret <= &max_fret)
-                    // Sort by fret ID.
-                    .sorted_by(|a, b| Ord::cmp(&a.1, &b.1))
+                    .map(|(note, st)| (root, (note.pitch_class - root.pitch_class) + st, note))
                     .collect::<Vec<UkeString>>()
             })
             // At this point, we have collected all possible positions of the notes in the chord
             // on each ukulele string. Now let's check all combinations and determine the ones
             // that result in a valid voicing of the chord.
             .multi_cartesian_product()
-            // Reverse once again to make up for the reversal above.
-            .map(|us_vec| us_vec.into_iter().rev().collect::<Vec<UkeString>>())
             // Create voicing from the UkeString vec.
             .map(|us_vec| Voicing::from(&us_vec[..]))
             // Only keep valid voicings.
-            .filter(|voicing| voicing.spells_out(self) && voicing.get_span() < max_span)
-            .collect()
+            .filter(|voicing| voicing.spells_out(self))
+            .sorted()
     }
 }
 

@@ -1,9 +1,8 @@
-use std::convert::TryInto;
 use std::str::FromStr;
 
 use structopt::clap::arg_enum;
 
-use crate::{Interval, Note, Semitones, STRING_COUNT};
+use crate::{Interval, Note, Semitones};
 
 // Using clap's `arg_enum` macro allows the specification of all Tuning
 // variants as `possible_values` for the CLI `--tuning` option.
@@ -33,14 +32,11 @@ impl Tuning {
         }
     }
 
-    pub fn get_roots(self) -> [Note; STRING_COUNT] {
+    pub fn roots(self) -> impl Iterator<Item = Note> + 'static {
         let interval = self.get_interval();
 
         ["G", "C", "E", "A"]
             .iter()
-            .map(|c| Note::from_str(c).unwrap() + interval)
-            .collect::<Vec<Note>>()
-            .try_into()
-            .unwrap()
+            .map(move |c| Note::from_str(c).unwrap() + interval)
     }
 }

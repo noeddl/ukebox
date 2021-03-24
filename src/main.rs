@@ -1,5 +1,18 @@
+use std::cmp::max;
+
 use structopt::StructOpt;
-use ukebox::{Chord, ChordChart, FretID, FretPattern, Tuning, Voicing};
+use ukebox::{Chord, ChordChart, FretID, FretPattern, Semitones, Tuning, Voicing};
+
+/// Maximal possible fret ID.
+/// According to Wikipedia, the biggest ukulele type (baritone) has 21 frets.
+const MAX_FRET_ID: FretID = 21;
+
+/// Maximal span of frets.
+/// Playing a chord that spans more than 5 frets seems anatomically impossible to me.
+const MAX_SPAN: Semitones = 5;
+
+/// Minimal number of frets to be shown in a chord chart.
+const MIN_CHART_WIDTH: Semitones = 4;
 
 #[derive(StructOpt)]
 struct Ukebox {
@@ -14,9 +27,18 @@ struct Ukebox {
 enum Subcommand {
     /// Chord chart lookup
     Chart {
+        /// Print out all voicings of <chord> that fulfill the given conditions
+        #[structopt(short, long)]
+        all: bool,
         /// Minimal fret (= minimal position) from which to play <chord>
-        #[structopt(short = "f", long, default_value = "0")]
+        #[structopt(long, default_value = "0", validator = validate_fret_id)]
         min_fret: FretID,
+        /// Maximal fret up to which to play <chord>
+        #[structopt(long, default_value = "12", validator = validate_fret_id)]
+        max_fret: FretID,
+        /// Maximal span between the first and the last fret pressed down when playing <chord>
+        #[structopt(long, default_value = "4", validator = validate_span)]
+        max_span: Semitones,
         /// Number of semitones to add (e.g. 1, +1) or to subtract (e.g. -1)
         #[structopt(long, allow_hyphen_values = true, default_value = "0")]
         transpose: i8,
@@ -30,13 +52,36 @@ enum Subcommand {
     },
 }
 
+fn validate_fret_id(s: String) -> Result<(), String> {
+    if let Ok(fret) = s.parse::<FretID>() {
+        if fret <= MAX_FRET_ID {
+            return Ok(());
+        }
+    }
+
+    Err(String::from("must be a number between 0 and 21"))
+}
+
+fn validate_span(s: String) -> Result<(), String> {
+    if let Ok(span) = s.parse::<Semitones>() {
+        if span <= MAX_SPAN {
+            return Ok(());
+        }
+    }
+
+    Err(String::from("must be a number between 0 and 5"))
+}
+
 fn main() {
     let args = Ukebox::from_args();
     let tuning = args.tuning;
 
     match args.cmd {
         Subcommand::Chart {
+            all,
             min_fret,
+            max_fret,
+            max_span,
             transpose,
             chord,
         } => {
@@ -47,12 +92,31 @@ fn main() {
                 // Add semitones (e.g. 1, +1).
                 _ => chord + transpose as u8,
             };
-            let voicings = chord.get_voicings(min_fret, tuning);
-            let voicing = voicings[0];
-            let chart = ChordChart::new(voicing, 4);
 
-            println!("{}", format!("[{}]\n", chord));
-            println!("{}", chart);
+            let mut voicings = chord
+                .voicings(tuning)
+                .filter(|v| {
+                    v.get_min_fret() >= min_fret
+                        && v.get_max_fret() <= max_fret
+                        && v.get_span() < max_span
+                })
+                .peekable();
+
+            if voicings.peek().is_none() {
+                println!("No matching chord voicing was found");
+            } else {
+                println!("{}", format!("[{}]\n", chord));
+            }
+
+            for voicing in voicings {
+                let width = max(max_span, MIN_CHART_WIDTH);
+                let chart = ChordChart::new(voicing, width);
+                println!("{}", chart);
+
+                if !all {
+                    break;
+                }
+            }
         }
         Subcommand::Name { fret_pattern } => {
             let voicing = Voicing::new(fret_pattern, tuning);

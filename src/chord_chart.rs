@@ -4,12 +4,15 @@ use crate::{FretID, Semitones, UkeString, Voicing};
 
 pub struct ChordChart {
     voicing: Voicing,
-    max_span: Semitones,
+    /// Number of frets to use to display the chord voicing
+    width: Semitones,
 }
 
 impl ChordChart {
-    pub fn new(voicing: Voicing, max_span: Semitones) -> Self {
-        Self { voicing, max_span }
+    pub fn new(voicing: Voicing, width: Semitones) -> Self {
+        assert!(voicing.get_span() <= width);
+
+        Self { voicing, width }
     }
 
     /// Determine from which fret to show the fretboard.
@@ -21,8 +24,8 @@ impl ChordChart {
         let max_fret = self.voicing.get_max_fret();
 
         match max_fret {
-            max_fret if max_fret <= self.max_span => 1,
-            _ => self.voicing.get_min_fret(),
+            max_fret if max_fret <= self.width => 1,
+            _ => self.voicing.get_min_pressed_fret(),
         }
     }
 
@@ -61,7 +64,7 @@ impl ChordChart {
         };
 
         // Create a line representing the string with the fret to be pressed.
-        let s: String = (base_fret..base_fret + self.max_span)
+        let s: String = (base_fret..base_fret + self.width)
             .map(|i| if fret == i { 'o' } else { '-' })
             .map(|c| format!("-{}-|", c))
             .collect();
@@ -107,10 +110,9 @@ mod tests {
     use super::*;
     use crate::{Chord, Tuning};
 
-    #[rstest(chord_name, min_fret, tuning, diagram,
+    #[rstest(chord_name, tuning, diagram,
         case(
             "C",
-            0,
             Tuning::C,
             indoc!("
                 A  ||---|---|-o-|---|- C
@@ -120,20 +122,7 @@ mod tests {
             "),
         ),
         case(
-            "C",
-            1,
-            Tuning::C,
-            indoc!("
-                A  -|-o-|---|---|---|- C
-                E  -|-o-|---|---|---|- G
-                C  -|---|-o-|---|---|- E
-                G  -|---|---|-o-|---|- C
-                      3
-            ")
-        ),
-        case(
             "C#",
-            0,
             Tuning::C,
             indoc!("
                 A  ||---|---|---|-o-|- C#
@@ -144,7 +133,6 @@ mod tests {
         ),
         case(
             "Db",
-            0,
             Tuning::C,
             indoc!("
                 A  ||---|---|---|-o-|- Db
@@ -154,19 +142,7 @@ mod tests {
             ")
         ),
         case(
-            "Cm",
-            0,
-            Tuning::C,
-            indoc!("
-                A  ||---|---|-o-|---|- C
-                E  ||---|---|-o-|---|- G
-                C  ||---|---|-o-|---|- Eb
-                G o||---|---|---|---|- G
-            "),
-        ),
-        case(
             "C#m",
-            0,
             Tuning::C,
             indoc!("
                 A  ||---|---|---|-o-|- C#
@@ -177,7 +153,6 @@ mod tests {
         ),
         case(
             "Dbm",
-            0,
             Tuning::C,
             indoc!("
                 A  ||---|---|---|-o-|- Db
@@ -188,7 +163,6 @@ mod tests {
         ),
         case(
             "D",
-            0,
             Tuning::D,
             indoc!("
                 B   ||---|---|-o-|---|- D
@@ -198,20 +172,7 @@ mod tests {
             "),
         ),
         case(
-            "D",
-            5,
-            Tuning::D,
-            indoc!("
-                B   -|---|---|-o-|---|- F#
-                F#  -|---|---|---|-o-|- D
-                D   -|---|---|-o-|---|- A
-                A   -|-o-|---|---|---|- D
-                       5
-            "),
-        ),
-        case(
             "G",
-            0,
             Tuning::G,
             indoc!("
                 E  ||---|---|-o-|---|- G
@@ -221,11 +182,20 @@ mod tests {
             "),
         ),
     )]
-    fn test_to_diagram(chord_name: &str, min_fret: FretID, tuning: Tuning, diagram: &str) {
+    fn test_to_diagram(chord_name: &str, tuning: Tuning, diagram: &str) {
         let chord = Chord::from_str(chord_name).unwrap();
-        let voicings = chord.get_voicings(min_fret, tuning);
-        let voicing = voicings[0];
+        let voicing = chord.voicings(tuning).next().unwrap();
         let chord_chart = ChordChart::new(voicing, 4);
         assert_eq!(chord_chart.to_string(), diagram);
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_to_diagram_fail() {
+        // The first voicing returned for the C-minor chord spans more than
+        // the 4 frets to be used for the chart.
+        let chord = Chord::from_str("Cm").unwrap();
+        let voicing = chord.voicings(Tuning::C).next().unwrap();
+        ChordChart::new(voicing, 4);
     }
 }
