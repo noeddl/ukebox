@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.0] - 2021-03-25
+
+* Major rewrite of basic data structures and the computation of chord charts so that all voicings of a chord can be found and displayed.
+* Fix display of chord voicings that span five frets ([#33](https://github.com/noeddl/ukebox/issues/33)).
+* Add flag `--all` to print all relevant voicings of a chord ([#21](https://github.com/noeddl/ukebox/issues/21)).
+* Add command line options `--max-fret` and `--max-span`.
+
 ## [0.6.0] - 2021-02-06
 
 * Add command line option `--transpose` to specify a number of semitones to be added or subtracted before printing the chord chart ([#24](https://github.com/noeddl/ukebox/issues/24)).

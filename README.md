@@ -36,11 +36,14 @@ Downloadable binaries for different platforms will be provided in upcoming relea
 
 ```
 USAGE:
-    ukebox <SUBCOMMAND>
+    ukebox [OPTIONS] <SUBCOMMAND>
 
 FLAGS:
     -h, --help       Prints help information
     -V, --version    Prints version information
+
+OPTIONS:
+    -t, --tuning <TUNING>    Type of tuning to be used [default: C]  [possible values: C, D, G]
 
 SUBCOMMANDS:
     chart    Chord chart lookup
@@ -52,23 +55,27 @@ When running the program with Rust, replace the command `ukebox` with `cargo run
 
 ### Chord chart lookup
 
-Use the subcommand `chart` to look up the chart for a given chord name.
+Use the subcommand `chart` to look up the chart for a given chord name. By default, the first matching chord voicing is presented. Use the flag `--all` to get all possible voicings of the same chord. You can use additional options to further filter the result, e.g. by specifying a minimal or a maximal fret that should be involved in the chord voicing.
 
 ```
 USAGE:
-    ukebox chart [OPTIONS] <chord>
+    ukebox chart [FLAGS] [OPTIONS] <chord>
 
 FLAGS:
+    -a, --all        Print out all voicings of <chord> that fulfill the given conditions
     -h, --help       Prints help information
     -V, --version    Prints version information
 
 OPTIONS:
-    -f, --min-fret <min-fret>      Minimal fret (= minimal position) from which to play <chord> [default: 0]
-        --transpose <transpose>    Number of semitones to add (e.g. 1, +1) or to subtract (e.g. -1) [default: 0]
-    -t, --tuning <tuning>          Type of tuning to be used [default: C]  [possible values: C, D, G]
+        --max-fret <FRET_ID>       Maximal fret up to which to play <chord> [default: 12]
+        --max-span <FRET_COUNT>    Maximal span between the first and the last fret pressed down when playing <chord>
+                                   [default: 4]
+        --min-fret <FRET_ID>       Minimal fret (= minimal position) from which to play <chord> [default: 0]
+        --transpose <SEMITONES>    Number of semitones to add (e.g. 1, +1) or to subtract (e.g. -1) [default: 0]
+    -t, --tuning <TUNING>          Type of tuning to be used [default: C]  [possible values: C, D, G]
 
 ARGS:
-    <chord>    Name of the chord to be shown
+    <CHORD>    Name of the chord to be shown
 ```
 
 Some examples:
@@ -135,23 +142,49 @@ C  ||---|-o-|---|---|- D
 G  ||---|---|-o-|---|- Bb
 ```
 
+```
+$ ukebox chart --all --max-fret 5 C
+[C - C major]
+
+A  ||---|---|-o-|---|- C
+E o||---|---|---|---|- E
+C o||---|---|---|---|- C
+G o||---|---|---|---|- G
+
+A  ||---|---|-o-|---|- C
+E o||---|---|---|---|- E
+C  ||---|---|---|-o-|- E
+G o||---|---|---|---|- G
+
+A  ||---|---|-o-|---|- C
+E  ||---|---|-o-|---|- G
+C  ||---|---|---|-o-|- E
+G o||---|---|---|---|- G
+
+A  -|-o-|---|---|---|- C
+E  -|-o-|---|---|---|- G
+C  -|---|-o-|---|---|- E
+G  -|---|---|-o-|---|- C
+      3
+```
+
 ### Chord name lookup
 
 Use the subcommand `name` to look up the chord name(s) corresponding to a given chord fingering.
 
 ```
 USAGE:
-    ukebox name [OPTIONS] <fret-pattern>
+    ukebox name [OPTIONS] <FRET_PATTERN>
 
 FLAGS:
     -h, --help       Prints help information
     -V, --version    Prints version information
 
 OPTIONS:
-    -t, --tuning <tuning>    Type of tuning to be used [default: C]  [possible values: C, D, G]
+    -t, --tuning <TUNING>    Type of tuning to be used [default: C]  [possible values: C, D, G]
 
 ARGS:
-    <fret-pattern>    A compact chart representing the finger positions of the chord to be looked up
+    <FRET_PATTERN>    A compact chart representing the finger positions of the chord to be looked up
 ```
 
 Some examples:
