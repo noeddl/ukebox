@@ -5,7 +5,6 @@ use std::ops::{Add, Sub};
 use std::str::FromStr;
 
 use itertools::Itertools;
-use regex::Regex;
 
 use crate::{ChordType, Note, PitchClass, Semitones, Tuning, UkeString, Voicing};
 
@@ -76,35 +75,23 @@ impl FromStr for Chord {
     type Err = ParseChordError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
+        // 1. Check the two first characters of the input string (for notes such as `C#`).
+        // 2. Check only the first character (for notes such as `C`).
+        for i in (1..3).rev() {
+            if let Some(prefix) = s.get(0..i) {
+                // Try to convert the prefix into a `Note`.
+                if let Ok(root) = Note::from_str(prefix) {
+                    // Try to convert the remaining string into a `ChordType`.
+                    if let Some(suffix) = s.get(i..) {
+                        if let Ok(chord_type) = ChordType::from_str(suffix) {
+                            return Ok(Self::new(root, chord_type));
+                        }
+                    }
+                }
+            }
+        }
+
         let name = s.to_string();
-
-        // Regular expression for chord names.
-        let re = Regex::new(
-            r"(?x)
-                ^                               # match full string
-                (?P<root>[CDEFGAB][\#b]?)       # root note including accidentals
-                (?P<type>                       # chord type
-                      sus(?:2|4)                # suspended chords
-                    | aug(?:Maj)?7?             # augmented chords
-                    | dim7?                     # diminished chords
-                    | maj7                      # chords with a major 7th
-                    | m?(?:(?:Maj)?7(?:b5)?)?)  # minor chords + alterations
-                $                               # match full string
-            ",
-        )
-        .unwrap();
-
-        // Match regex.
-        if let Some(caps) = re.captures(s) {
-            // Get root note.
-            if let Ok(root) = Note::from_str(&caps["root"]) {
-                // Get chord type.
-                if let Ok(chord_type) = ChordType::from_str(&caps["type"]) {
-                    return Ok(Self::new(root, chord_type));
-                };
-            };
-        };
-
         Err(ParseChordError { name })
     }
 }
