@@ -405,7 +405,6 @@ dependencies = [
  "indoc",
  "itertools",
  "predicates",
- "regex",
  "rstest",
  "structopt",
 ]

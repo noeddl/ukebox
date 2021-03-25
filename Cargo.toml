@@ -15,7 +15,6 @@ categories = ["command-line-utilities"]
 
 [dependencies]
 itertools = "0.10"
-regex = "1"
 structopt = "0.3"
 
 [dev-dependencies]
