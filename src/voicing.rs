@@ -126,6 +126,7 @@ impl Voicing {
         frets.try_into().unwrap()
     }
 
+    /// Return `true` if the current voicing requires the player to play a barre chord.
     pub fn has_barre(&self) -> bool {
         let min_fret = self.get_min_pressed_fret();
         let min_fret_count = self.frets().filter(|&f| f == min_fret).count();
