@@ -124,6 +124,35 @@ impl Voicing {
 
         frets.try_into().unwrap()
     }
+
+    pub fn get_fingering(&self) -> [FretID; STRING_COUNT] {
+        let min_fret = match self.count_pressed_frets() {
+            // Special case: Zero or one strings are pressed (e.g. 0003).
+            f if f <= 1 => 1,
+            _ => self.get_min_pressed_fret(),
+        };
+        let max_fret = self.get_max_fret();
+
+        let mut fingering = [0; STRING_COUNT];
+        let mut finger = 1;
+
+        for (i, fret_id) in (min_fret..max_fret + 1).enumerate() {
+            for (j, f) in self.frets().enumerate() {
+                if f == fret_id {
+                    fingering[j] = finger;
+                    finger = finger + 1;
+                }
+            }
+
+            // If no finger has been used in the current fret,
+            // use the next one in the next round.
+            if finger as usize == i + 1 {
+                finger = finger + 1;
+            }
+        }
+
+        fingering
+    }
 }
 
 impl PartialOrd for Voicing {
@@ -266,5 +295,25 @@ mod tests {
     fn test_normalize(frets: [FretID; STRING_COUNT], norm_frets: [FretID; STRING_COUNT]) {
         let voicing = Voicing::new(frets, Tuning::C);
         assert_eq!(voicing.normalize(), norm_frets);
+    }
+
+    #[rstest(
+        frets, fingering,
+        case([0, 0, 0, 0], [0, 0, 0, 0]),
+        case([2, 0, 0, 0], [2, 0, 0, 0]),
+        case([2, 0, 1, 0], [2, 0, 1, 0]),
+        case([0, 0, 0, 3], [0, 0, 0, 3]),
+        case([2, 2, 2, 0], [1, 2, 3, 0]),
+        case([2, 2, 2, 3], [1, 1, 1, 2]),
+        case([0, 2, 3, 2], [0, 1, 3, 2]),
+        case([4, 2, 3, 2], [3, 1, 2, 1]),
+        case([3, 2, 1, 1], [3, 2, 1, 1]),
+        case([4, 3, 2, 2], [3, 2, 1, 1]),
+        case([11, 0, 10, 12], [2, 0, 1, 3]),
+        case([11, 12, 10, 12], [2, 3, 1, 4]),
+    )]
+    fn test_get_fingering(frets: [FretID; STRING_COUNT], fingering: [FretID; STRING_COUNT]) {
+        let voicing = Voicing::new(frets, Tuning::C);
+        assert_eq!(voicing.get_fingering(), fingering);
     }
 }
