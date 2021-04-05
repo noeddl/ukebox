@@ -51,7 +51,8 @@ impl Voicing {
         self.uke_strings.iter().map(|(_r, _f, n)| *n)
     }
 
-    pub fn count_pressed_frets(&self) -> usize {
+    /// Return the number of strings pressed down when playing this voicing.
+    pub fn count_pressed_strings(&self) -> usize {
         self.frets().filter(|&f| f > 0).count()
     }
 
@@ -117,7 +118,7 @@ impl Voicing {
             }
         };
 
-        let frets: Vec<FretID> = match self.count_pressed_frets() {
+        let frets: Vec<FretID> = match self.count_pressed_strings() {
             1 => self.frets().collect(),
             _ => self.frets().map(norm).collect(),
         };
@@ -126,7 +127,7 @@ impl Voicing {
     }
 
     pub fn get_fingering(&self) -> [FretID; STRING_COUNT] {
-        let min_fret = match self.count_pressed_frets() {
+        let min_fret = match self.count_pressed_strings() {
             // Special case: Zero or one strings are pressed (e.g. 0003).
             f if f <= 1 => 1,
             _ => self.get_min_pressed_fret(),
@@ -214,9 +215,9 @@ mod tests {
         case([1, 1, 1, 1], 4),
         case([1, 2, 3, 4], 4),
     )]
-    fn test_count_pressed_frets(frets: [FretID; STRING_COUNT], count: usize) {
+    fn test_count_pressed_strings(frets: [FretID; STRING_COUNT], count: usize) {
         let voicing = Voicing::new(frets, Tuning::C);
-        assert_eq!(voicing.count_pressed_frets(), count);
+        assert_eq!(voicing.count_pressed_strings(), count);
     }
 
     #[rstest(
