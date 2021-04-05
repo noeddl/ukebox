@@ -126,6 +126,22 @@ impl Voicing {
         frets.try_into().unwrap()
     }
 
+    pub fn has_barre(&self) -> bool {
+        let min_fret = self.get_min_pressed_fret();
+        let min_fret_count = self.frets().filter(|&f| f == min_fret).count();
+
+        let frets: Vec<FretID> = self.frets().collect();
+
+        if let Some(last_string) = frets.last() {
+            // The lowest string may not be open.
+            if *last_string == 0 {
+                return false;
+            }
+        }
+
+        min_fret_count >= 2
+    }
+
     pub fn get_fingering(&self) -> [FretID; STRING_COUNT] {
         let min_fret = match self.count_pressed_strings() {
             // Special case: Zero or one strings are pressed (e.g. 0003).
@@ -141,7 +157,9 @@ impl Voicing {
             for (j, f) in self.frets().enumerate() {
                 if f == fret_id {
                     fingering[j] = finger;
-                    finger = finger + 1;
+                    if !self.has_barre() {
+                        finger = finger + 1;
+                    }
                 }
             }
 
@@ -296,6 +314,26 @@ mod tests {
     fn test_normalize(frets: [FretID; STRING_COUNT], norm_frets: [FretID; STRING_COUNT]) {
         let voicing = Voicing::new(frets, Tuning::C);
         assert_eq!(voicing.normalize(), norm_frets);
+    }
+
+    #[rstest(
+        frets, has_barre,
+        case([0, 0, 0, 0], false),
+        case([2, 0, 0, 0], false),
+        case([2, 0, 1, 0], false),
+        case([0, 0, 0, 3], false),
+        case([2, 2, 2, 0], false),
+        case([2, 2, 2, 3], true),
+        case([0, 2, 3, 2], false),
+        case([4, 2, 3, 2], true),
+        case([3, 2, 1, 1], true),
+        case([4, 3, 2, 2], true),
+        case([11, 0, 10, 12], false),
+        case([11, 12, 10, 12], true),
+    )]
+    fn test_has_barre(frets: [FretID; STRING_COUNT], has_barre: bool) {
+        let voicing = Voicing::new(frets, Tuning::C);
+        assert_eq!(voicing.has_barre(), has_barre);
     }
 
     #[rstest(
