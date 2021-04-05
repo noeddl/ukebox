@@ -175,9 +175,14 @@ impl Voicing {
                 }
             }
 
+            // Get the number of strings pressed down in the upcoming fret.
+            let next_pressed_count = self.frets().filter(|&f| f == fret_id + 1).count();
+
             // If no finger has been used in the current fret,
-            // use the next one in the next round.
-            if finger as usize == i + 1 {
+            // prepare to use the next finger in the next fret.
+            // Do not do this update if the next fret requires more than
+            // one finger, see e.g. 3331.
+            if finger as usize == i + 1 && next_pressed_count <= 1 {
                 finger += 1;
             }
         }
