@@ -139,11 +139,16 @@ impl Voicing {
 
         let frets: Vec<FretID> = self.frets().collect();
 
+        // The lowest string may not be open.
         if let Some(last_string) = frets.last() {
-            // The lowest string may not be open.
             if *last_string == 0 {
                 return false;
             }
+        }
+
+        // 0232 should not be treated as having a barre.
+        if min_fret_count == 2 && self.count_used_frets() == 2 {
+            return false;
         }
 
         min_fret_count >= 2
@@ -354,7 +359,7 @@ mod tests {
         case([1, 1, 1, 4], true),
         case([3, 3, 3, 1], false),
         case([11, 0, 10, 12], false),
-        case([11, 12, 10, 12], true),
+        case([11, 12, 10, 12], false),
     )]
     fn test_has_barre(frets: [FretID; STRING_COUNT], has_barre: bool) {
         let voicing = Voicing::new(frets, Tuning::C);
