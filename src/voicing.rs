@@ -51,9 +51,16 @@ impl Voicing {
         self.uke_strings.iter().map(|(_r, _f, n)| *n)
     }
 
-    /// Return the number of strings pressed down when playing this voicing.
+    /// Return the overall number of strings pressed down when playing
+    /// this voicing.
     pub fn count_pressed_strings(&self) -> usize {
         self.frets().filter(|&f| f > 0).count()
+    }
+
+    /// Return the number of strings pressed down in fret `fret_id` when
+    /// playing this voicing.
+    pub fn count_pressed_strings_in_fret(&self, fret_id: FretID) -> usize {
+        self.frets().filter(|&f| f == fret_id).count()
     }
 
     /// Return the number of frets in which some string is pressed down
@@ -135,7 +142,7 @@ impl Voicing {
     /// Return `true` if the current voicing requires the player to play a barre chord.
     pub fn has_barre(&self) -> bool {
         let min_fret = self.get_min_pressed_fret();
-        let min_fret_count = self.frets().filter(|&f| f == min_fret).count();
+        let min_fret_count = self.count_pressed_strings_in_fret(min_fret);
 
         let frets: Vec<FretID> = self.frets().collect();
 
@@ -178,7 +185,7 @@ impl Voicing {
             }
 
             // Get the number of strings pressed down in the upcoming fret.
-            let next_pressed_count = self.frets().filter(|&f| f == fret_id + 1).count();
+            let next_pressed_count = self.count_pressed_strings_in_fret(fret_id + 1);
 
             // If no finger has been used in the current fret,
             // prepare to use the next finger in the next fret.
