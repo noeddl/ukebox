@@ -56,6 +56,12 @@ impl Voicing {
         self.frets().filter(|&f| f > 0).count()
     }
 
+    /// Return the number of frets in which some string is pressed down
+    /// while playing this voicing.
+    pub fn count_used_frets(&self) -> usize {
+        self.frets().filter(|&f| f > 0).sorted().dedup().count()
+    }
+
     /// Return the lowest fret at which a string is pressed down.
     pub fn get_min_pressed_fret(&self) -> FretID {
         match self.frets().filter(|&x| x > 0).min() {
@@ -237,6 +243,18 @@ mod tests {
     fn test_count_pressed_strings(frets: [FretID; STRING_COUNT], count: usize) {
         let voicing = Voicing::new(frets, Tuning::C);
         assert_eq!(voicing.count_pressed_strings(), count);
+    }
+
+    #[rstest(
+        frets, count,
+        case([0, 0, 0, 0], 0),
+        case([0, 0, 0, 3], 1),
+        case([1, 1, 1, 1], 1),
+        case([1, 2, 3, 4], 4),
+    )]
+    fn test_count_used_frets(frets: [FretID; STRING_COUNT], count: usize) {
+        let voicing = Voicing::new(frets, Tuning::C);
+        assert_eq!(voicing.count_used_frets(), count);
     }
 
     #[rstest(
