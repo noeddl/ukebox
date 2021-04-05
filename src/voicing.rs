@@ -156,8 +156,10 @@ impl Voicing {
 
     pub fn get_fingering(&self) -> [FretID; STRING_COUNT] {
         let min_fret = match self.count_pressed_strings() {
-            // Special case: Zero or one strings are pressed (e.g. 0003).
-            f if f <= 1 => 1,
+            // 0000
+            0 => 1,
+            // e.g. 0003
+            1 => 1,
             _ => self.get_min_pressed_fret(),
         };
         let max_fret = self.get_max_fret();
