@@ -158,7 +158,7 @@ impl Voicing {
                 if f == fret_id {
                     fingering[j] = finger;
                     if !self.has_barre() {
-                        finger = finger + 1;
+                        finger += 1;
                     }
                 }
             }
@@ -166,7 +166,7 @@ impl Voicing {
             // If no finger has been used in the current fret,
             // use the next one in the next round.
             if finger as usize == i + 1 {
-                finger = finger + 1;
+                finger += 1;
             }
         }
 

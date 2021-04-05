@@ -1,3 +1,5 @@
+#![allow(clippy::upper_case_acronyms)]
+
 pub mod chord;
 pub mod chord_chart;
 pub mod chord_type;
