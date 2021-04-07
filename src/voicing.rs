@@ -162,14 +162,17 @@ impl Voicing {
     }
 
     pub fn get_fingering(&self) -> [FretID; STRING_COUNT] {
+        let max_fret = self.get_max_fret();
+
         let min_fret = match self.count_pressed_strings() {
             // 0000
             0 => 1,
+            // e.g. 0007
+            1 if max_fret > 3 => max_fret,
             // e.g. 0003
             1 => 1,
             _ => self.get_min_pressed_fret(),
         };
-        let max_fret = self.get_max_fret();
 
         let mut fingering = [0; STRING_COUNT];
         let mut finger = 1;
@@ -393,8 +396,8 @@ mod tests {
         case([2, 0, 0, 0], [2, 0, 0, 0]),
         case([2, 0, 1, 0], [2, 0, 1, 0]),
         case([0, 0, 0, 3], [0, 0, 0, 3]),
-        case([0, 0, 0, 7], [0, 0, 0, 3]),
-        case([0, 0, 0, 10], [0, 0, 0, 3]),
+        case([0, 0, 0, 7], [0, 0, 0, 1]),
+        case([0, 0, 0, 10], [0, 0, 0, 1]),
         case([2, 2, 2, 0], [1, 2, 3, 0]),
         case([2, 2, 2, 3], [1, 1, 1, 2]),
         case([2, 3, 2, 3], [1, 3, 2, 4]),
