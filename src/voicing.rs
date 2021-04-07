@@ -162,9 +162,12 @@ impl Voicing {
     }
 
     pub fn get_fingering(&self) -> [FretID; STRING_COUNT] {
-        let max_fret = self.get_max_fret();
+        // Total number of strings on which we need to place our fingers.
+        let pressed_strings = self.count_pressed_strings();
 
-        let min_fret = match self.count_pressed_strings() {
+        // Determine the range of frets to be considered.
+        let max_fret = self.get_max_fret();
+        let min_fret = match pressed_strings {
             // 0000
             0 => 1,
             // e.g. 0007
@@ -175,28 +178,35 @@ impl Voicing {
         };
 
         let mut fingering = [0; STRING_COUNT];
-        let mut finger = 1;
 
-        for (i, fret_id) in (min_fret..max_fret + 1).enumerate() {
-            for (j, f) in self.frets().enumerate() {
+        // Current finger (can have values 1 to 4).
+        let mut finger = 1;
+        // Last finger that has been assigned to a string.
+        let mut prev_finger = 1;
+        // Number of strings with fingers on them up to this point.
+        let mut used_strings = 0;
+
+        for fret_id in min_fret..max_fret + 1 {
+            for (i, f) in self.frets().enumerate() {
                 if f == fret_id {
-                    fingering[j] = finger;
+                    fingering[i] = finger;
+                    used_strings += 1;
                     if !self.has_barre() {
                         finger += 1;
                     }
                 }
             }
 
-            // Get the number of strings pressed down in the upcoming fret.
-            let next_pressed_count = self.count_pressed_strings_in_fret(fret_id + 1);
+            let remaining_fingers = 4 - (finger as usize);
+            let remaining_strings = pressed_strings - used_strings;
 
-            // If no finger has been used in the current fret,
-            // prepare to use the next finger in the next fret.
-            // Do not do this update if the next fret requires more than
-            // one finger, see e.g. 3331.
-            if finger as usize == i + 1 && next_pressed_count <= 1 {
+            // If no finger has been used on the current fret, prepare to use
+            // the next finger on the next fret if there are enough fingers left.
+            if finger == prev_finger && remaining_fingers >= remaining_strings {
                 finger += 1;
             }
+
+            prev_finger = finger;
         }
 
         fingering
@@ -376,6 +386,7 @@ mod tests {
         case([3, 2, 1, 1], true),
         case([4, 3, 2, 2], true),
         case([1, 0, 1, 3], false),
+        case([1, 1, 0, 4], false),
         case([1, 1, 1, 4], true),
         case([1, 4, 4, 4], false),
         case([3, 3, 3, 1], false),
@@ -409,6 +420,7 @@ mod tests {
         case([3, 2, 1, 1], [3, 2, 1, 1]),
         case([4, 3, 2, 2], [3, 2, 1, 1]),
         case([1, 0, 1, 3], [1, 0, 2, 4]),
+        case([1, 1, 0, 4], [1, 2, 0, 4]),
         case([1, 1, 1, 4], [1, 1, 1, 4]),
         case([1, 4, 4, 4], [1, 2, 3, 4]),
         case([3, 3, 3, 1], [2, 3, 4, 1]),
