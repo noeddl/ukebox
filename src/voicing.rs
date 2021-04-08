@@ -369,32 +369,39 @@ mod tests {
 
     #[rstest(
         frets, has_barre,
+        // No fingered strings.
         case([0, 0, 0, 0], false),
+        // One fingered string.
         case([2, 0, 0, 0], false),
-        case([2, 0, 1, 0], false),
         case([0, 0, 0, 3], false),
         case([0, 0, 0, 7], false),
+        case([9, 0, 0, 0], false),
         case([0, 0, 0, 10], false),
+        // Two fingered strings.
+        case([2, 0, 1, 0], false),
+        // Three fingered strings without barre.
         case([2, 2, 2, 0], false),
-        case([2, 2, 2, 3], true),
+        case([0, 2, 3, 2], false),
+        case([1, 0, 1, 3], false),
+        case([1, 1, 0, 4], false),
+        case([11, 0, 10, 12], false),
+        // Three fingered strings with barre.
+        case([0, 4, 3, 3], true),
+        // Four fingered strings without barre.
         case([2, 3, 2, 3], false),
         case([2, 3, 5, 3], false),
         case([2, 4, 1, 3], false),
-        case([0, 2, 3, 2], false),
-        case([4, 2, 3, 2], true),
+        case([3, 3, 3, 1], false),
+        case([1, 4, 4, 4], false),
+        case([11, 12, 10, 12], false),
+        // Four fingered strings with barre.
+        case([3, 3, 3, 3], true),
+        case([2, 2, 2, 3], true),
         case([4, 2, 2, 2], true),
+        case([4, 2, 3, 2], true),
+        case([1, 1, 1, 4], true),
         case([3, 2, 1, 1], true),
         case([4, 3, 2, 2], true),
-        case([1, 0, 1, 3], false),
-        case([1, 1, 0, 4], false),
-        case([1, 1, 1, 4], true),
-        case([1, 4, 4, 4], false),
-        case([3, 3, 3, 1], false),
-        case([3, 3, 3, 3], true),
-        case([0, 4, 3, 3], true),
-        case([9, 0, 0, 0], false),
-        case([11, 0, 10, 12], false),
-        case([11, 12, 10, 12], false),
     )]
     fn test_has_barre(frets: [FretID; STRING_COUNT], has_barre: bool) {
         let voicing = Voicing::new(frets, Tuning::C);
@@ -403,32 +410,39 @@ mod tests {
 
     #[rstest(
         frets, fingering,
+        // No fingered strings.
         case([0, 0, 0, 0], [0, 0, 0, 0]),
+        // One fingered string.
         case([2, 0, 0, 0], [2, 0, 0, 0]),
-        case([2, 0, 1, 0], [2, 0, 1, 0]),
         case([0, 0, 0, 3], [0, 0, 0, 3]),
         case([0, 0, 0, 7], [0, 0, 0, 1]),
+        case([9, 0, 0, 0], [1, 0, 0, 0]),
         case([0, 0, 0, 10], [0, 0, 0, 1]),
+        // Two fingered strings.
+        case([2, 0, 1, 0], [2, 0, 1, 0]),
+        // Three fingered strings without barre.
         case([2, 2, 2, 0], [1, 2, 3, 0]),
-        case([2, 2, 2, 3], [1, 1, 1, 2]),
+        case([0, 2, 3, 2], [0, 1, 3, 2]),
+        case([1, 0, 1, 3], [1, 0, 2, 4]),
+        case([1, 1, 0, 4], [1, 2, 0, 4]),
+        case([11, 0, 10, 12], [2, 0, 1, 3]),
+        // Three fingered strings with barre.
+        case([0, 4, 3, 3], [0, 2, 1, 1]),
+        // Four fingered strings without barre.
         case([2, 3, 2, 3], [1, 3, 2, 4]),
         case([2, 3, 5, 3], [1, 2, 4, 3]),
         case([2, 4, 1, 3], [2, 4, 1, 3]),
-        case([0, 2, 3, 2], [0, 1, 3, 2]),
-        case([4, 2, 3, 2], [3, 1, 2, 1]),
+        case([3, 3, 3, 1], [2, 3, 4, 1]),
+        case([1, 4, 4, 4], [1, 2, 3, 4]),
+        case([11, 12, 10, 12], [2, 3, 1, 4]),
+        // Four fingered strings with barre.
+        case([3, 3, 3, 3], [1, 1, 1, 1]),
+        case([2, 2, 2, 3], [1, 1, 1, 2]),
         case([4, 2, 2, 2], [3, 1, 1, 1]),
+        case([4, 2, 3, 2], [3, 1, 2, 1]),
+        case([1, 1, 1, 4], [1, 1, 1, 4]),
         case([3, 2, 1, 1], [3, 2, 1, 1]),
         case([4, 3, 2, 2], [3, 2, 1, 1]),
-        case([1, 0, 1, 3], [1, 0, 2, 4]),
-        case([1, 1, 0, 4], [1, 2, 0, 4]),
-        case([1, 1, 1, 4], [1, 1, 1, 4]),
-        case([1, 4, 4, 4], [1, 2, 3, 4]),
-        case([3, 3, 3, 1], [2, 3, 4, 1]),
-        case([3, 3, 3, 3], [1, 1, 1, 1]),
-        case([0, 4, 3, 3], [0, 2, 1, 1]),
-        case([9, 0, 0, 0], [1, 0, 0, 0]),
-        case([11, 0, 10, 12], [2, 0, 1, 3]),
-        case([11, 12, 10, 12], [2, 3, 1, 4]),
     )]
     fn test_get_fingering(frets: [FretID; STRING_COUNT], fingering: [FretID; STRING_COUNT]) {
         let voicing = Voicing::new(frets, Tuning::C);
