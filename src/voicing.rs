@@ -384,6 +384,7 @@ mod tests {
         case([0, 2, 3, 2], false),
         case([1, 0, 1, 3], false),
         case([1, 1, 0, 4], false),
+        case([3, 0, 3, 1], false),
         case([11, 0, 10, 12], false),
         // Three fingered strings with barre.
         case([0, 4, 3, 3], true),
@@ -402,6 +403,10 @@ mod tests {
         case([1, 1, 1, 4], true),
         case([3, 2, 1, 1], true),
         case([4, 3, 2, 2], true),
+        // Fingering across a span of five frets.
+        case([0, 0, 1, 5], false),
+        case([3, 0, 1, 5], false),
+        case([3, 5, 1, 5], false),
     )]
     fn test_has_barre(frets: [FretID; STRING_COUNT], has_barre: bool) {
         let voicing = Voicing::new(frets, Tuning::C);
@@ -425,6 +430,7 @@ mod tests {
         case([0, 2, 3, 2], [0, 1, 3, 2]),
         case([1, 0, 1, 3], [1, 0, 2, 4]),
         case([1, 1, 0, 4], [1, 2, 0, 4]),
+        case([3, 0, 3, 1], [3, 0, 4, 1]),
         case([11, 0, 10, 12], [2, 0, 1, 3]),
         // Three fingered strings with barre.
         case([0, 4, 3, 3], [0, 2, 1, 1]),
@@ -443,6 +449,10 @@ mod tests {
         case([1, 1, 1, 4], [1, 1, 1, 4]),
         case([3, 2, 1, 1], [3, 2, 1, 1]),
         case([4, 3, 2, 2], [3, 2, 1, 1]),
+        // Fingering across a span of five frets.
+        case([0, 0, 1, 5], [0, 0, 1, 4]),
+        case([3, 0, 1, 5], [3, 0, 1, 4]),
+        case([3, 5, 1, 5], [2, 3, 1, 4]),
     )]
     fn test_get_fingering(frets: [FretID; STRING_COUNT], fingering: [FretID; STRING_COUNT]) {
         let voicing = Voicing::new(frets, Tuning::C);
