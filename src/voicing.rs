@@ -111,6 +111,8 @@ impl Voicing {
     }
 
     /// Return `true` if the current voicing requires the player to play a barre chord.
+    /// For this, I took some inspiration from
+    /// https://github.com/hyvyys/chord-fingering/blob/master/src/barre.js
     pub fn has_barre(&self) -> bool {
         let min_fret = self.get_min_pressed_fret();
         let mut min_fret_count = 0;
