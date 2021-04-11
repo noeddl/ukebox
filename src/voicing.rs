@@ -57,18 +57,6 @@ impl Voicing {
         self.frets().filter(|&f| f > 0).count()
     }
 
-    /// Return the number of strings pressed down in fret `fret_id` when
-    /// playing this voicing.
-    pub fn count_pressed_strings_in_fret(&self, fret_id: FretID) -> usize {
-        self.frets().filter(|&f| f == fret_id).count()
-    }
-
-    /// Return the number of frets in which some string is pressed down
-    /// while playing this voicing.
-    pub fn count_used_frets(&self) -> usize {
-        self.frets().filter(|&f| f > 0).sorted().dedup().count()
-    }
-
     /// Return the lowest fret at which a string is pressed down.
     pub fn get_min_pressed_fret(&self) -> FretID {
         match self.frets().filter(|&x| x > 0).min() {
@@ -120,23 +108,6 @@ impl Voicing {
 
         chords.sort();
         chords
-    }
-
-    pub fn normalize(&self) -> [FretID; STRING_COUNT] {
-        let norm = |f| {
-            if f == 0 {
-                0
-            } else {
-                f - self.get_min_pressed_fret() + 1
-            }
-        };
-
-        let frets: Vec<FretID> = match self.count_pressed_strings() {
-            1 => self.frets().collect(),
-            _ => self.frets().map(norm).collect(),
-        };
-
-        frets.try_into().unwrap()
     }
 
     /// Return `true` if the current voicing requires the player to play a barre chord.
@@ -295,18 +266,6 @@ mod tests {
     }
 
     #[rstest(
-        frets, count,
-        case([0, 0, 0, 0], 0),
-        case([0, 0, 0, 3], 1),
-        case([1, 1, 1, 1], 1),
-        case([1, 2, 3, 4], 4),
-    )]
-    fn test_count_used_frets(frets: [FretID; STRING_COUNT], count: usize) {
-        let voicing = Voicing::new(frets, Tuning::C);
-        assert_eq!(voicing.count_used_frets(), count);
-    }
-
-    #[rstest(
         frets, min_pressed_fret, min_fret, max_fret, span,
         case([0, 0, 0, 0], 0, 0, 0, 0),
         case([1, 1, 1, 1], 1, 1, 1, 0),
@@ -363,25 +322,6 @@ mod tests {
     fn test_get_chords_fail(frets: [FretID; STRING_COUNT]) {
         let voicing = Voicing::new(frets, Tuning::C);
         assert!(voicing.get_chords().is_empty());
-    }
-
-    #[rstest(
-        frets, norm_frets,
-        case([0, 0, 0, 0], [0, 0, 0, 0]),
-        case([2, 0, 0, 0], [2, 0, 0, 0]),
-        case([2, 0, 1, 0], [2, 0, 1, 0]),
-        case([0, 0, 0, 3], [0, 0, 0, 3]),
-        case([2, 2, 2, 0], [1, 1, 1, 0]),
-        case([2, 2, 2, 3], [1, 1, 1, 2]),
-        case([0, 2, 3, 2], [0, 1, 2, 1]),
-        case([3, 2, 1, 1], [3, 2, 1, 1]),
-        case([4, 3, 2, 2], [3, 2, 1, 1]),
-        case([11, 0, 10, 12], [2, 0, 1, 3]),
-        case([11, 12, 10, 12], [2, 3, 1, 3]),
-    )]
-    fn test_normalize(frets: [FretID; STRING_COUNT], norm_frets: [FretID; STRING_COUNT]) {
-        let voicing = Voicing::new(frets, Tuning::C);
-        assert_eq!(voicing.normalize(), norm_frets);
     }
 
     #[rstest(
