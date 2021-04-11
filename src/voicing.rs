@@ -4,7 +4,9 @@ use std::slice::Iter;
 
 use itertools::Itertools;
 
-use crate::{Chord, FretID, FretPattern, Note, PitchClass, Tuning, UkeString, STRING_COUNT};
+use crate::{
+    Chord, FretID, FretPattern, Note, PitchClass, Tuning, UkeString, FINGER_COUNT, STRING_COUNT,
+};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Voicing {
@@ -158,7 +160,7 @@ impl Voicing {
     /// strategy here is based on my own way to play certain chords. For example,
     /// I tend to avoid barre chords if possible, e.g. I play the G major chord
     /// as 0132 and not as 0121.
-    pub fn get_fingering(&self) -> [FretID; STRING_COUNT] {
+    pub fn get_fingering(&self) -> [u8; FINGER_COUNT] {
         // Total number of strings on which we need to place our fingers.
         let pressed_strings = self.count_pressed_strings();
 
@@ -174,7 +176,7 @@ impl Voicing {
             _ => self.get_min_pressed_fret(),
         };
 
-        let mut fingering = [0; STRING_COUNT];
+        let mut fingering = [0; FINGER_COUNT];
 
         // Current finger (can have values 1 to 4).
         let mut finger = 1;
@@ -186,15 +188,15 @@ impl Voicing {
         for fret_id in min_fret..max_fret + 1 {
             for (i, f) in self.frets().enumerate() {
                 if f == fret_id {
-                    fingering[i] = finger;
+                    fingering[i] = finger as u8;
                     used_strings += 1;
-                    if !self.has_barre() && finger < 4 {
+                    if !self.has_barre() && finger < FINGER_COUNT {
                         finger += 1;
                     }
                 }
             }
 
-            let remaining_fingers = 4 - (finger as usize);
+            let remaining_fingers = FINGER_COUNT - finger;
             let remaining_strings = pressed_strings - used_strings;
 
             // If no finger has been used on the current fret, prepare to use
