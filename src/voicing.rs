@@ -142,19 +142,36 @@ impl Voicing {
     /// Return `true` if the current voicing requires the player to play a barre chord.
     pub fn has_barre(&self) -> bool {
         let min_fret = self.get_min_pressed_fret();
-        let min_fret_count = self.count_pressed_strings_in_fret(min_fret);
+        let mut min_fret_count = 0;
+        let mut pressed_frets = vec![];
 
-        let frets: Vec<FretID> = self.frets().collect();
-
-        // The lowest string may not be open.
-        if let Some(last_string) = frets.last() {
-            if *last_string == 0 {
-                return false;
+        for fret in self.frets() {
+            // Open strings may not appear below pressed strings.
+            if fret == 0 {
+                if min_fret_count > 0 {
+                    return false;
+                }
+            } else {
+                if fret == min_fret {
+                    min_fret_count += 1;
+                }
+                pressed_frets.push(fret);
             }
         }
 
-        // 0232 should not be treated as having a barre.
-        if min_fret_count == 2 && self.count_used_frets() == 2 {
+        // 0232 and 2323 should not be treated as having a barre.
+        let alternating_frets = pressed_frets
+            .iter()
+            .zip([min_fret, min_fret + 1].iter().cycle())
+            .filter(|(f1, f2)| f1 == f2)
+            .count();
+
+        if alternating_frets == pressed_frets.len() {
+            return false;
+        }
+
+        // 0111 can be played with fingering 0123.
+        if min_fret_count < 4 && min_fret_count == pressed_frets.len() {
             return false;
         }
 
