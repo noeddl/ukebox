@@ -144,7 +144,7 @@ impl Voicing {
         }
 
         // 0111 can be played with fingering 0123.
-        if min_fret_count < 4 && min_fret_count == pressed_frets.len() {
+        if min_fret_count < STRING_COUNT && min_fret_count == pressed_frets.len() {
             return false;
         }
 
