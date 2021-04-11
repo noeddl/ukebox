@@ -149,6 +149,13 @@ impl Voicing {
         min_fret_count >= 2
     }
 
+    /// Return a fingering for the current voicing, i.e. assign the player's
+    /// fingers to the positions on the fretboard that have to be pressed down.
+    /// This assumes that each chord voicing has a unique fingering (which is
+    /// not true in reality - often several voicings are possible). My fingering
+    /// strategy here is based on my own way to play certain chords. For example,
+    /// I tend to avoid barre chords if possible, e.g. I play the G major chord
+    /// as 0132 and not as 0121.
     pub fn get_fingering(&self) -> [FretID; STRING_COUNT] {
         // Total number of strings on which we need to place our fingers.
         let pressed_strings = self.count_pressed_strings();
