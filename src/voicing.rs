@@ -186,7 +186,7 @@ impl Voicing {
                 if f == fret_id {
                     fingering[i] = finger;
                     used_strings += 1;
-                    if !self.has_barre() {
+                    if !self.has_barre() && finger < 4 {
                         finger += 1;
                     }
                 }
