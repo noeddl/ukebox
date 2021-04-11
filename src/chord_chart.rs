@@ -45,6 +45,7 @@ impl ChordChart {
         uke_string: UkeString,
         base_fret: FretID,
         root_width: usize,
+        finger: u8,
     ) -> String {
         let (root, fret, note) = uke_string;
 
@@ -65,7 +66,13 @@ impl ChordChart {
 
         // Create a line representing the string with the fret to be pressed.
         let s: String = (base_fret..base_fret + self.width)
-            .map(|i| if fret == i { 'o' } else { '-' })
+            .map(|i| {
+                if fret == i {
+                    finger.to_string()
+                } else {
+                    "-".to_string()
+                }
+            })
             .map(|c| format!("-{}-|", c))
             .collect();
 
@@ -82,12 +89,15 @@ impl fmt::Display for ChordChart {
         // of the root notes (the names of the strings).
         let root_width = self.get_root_width();
 
+        let fingering = self.voicing.get_fingering();
+
         // Create a diagram for each ukulele string.
         let mut s: String = self
             .voicing
             .uke_strings()
             .rev()
-            .map(|us| self.format_line(*us, base_fret, root_width))
+            .zip(fingering.iter().rev())
+            .map(|(us, f)| self.format_line(*us, base_fret, root_width, *f))
             .collect();
 
         // If the fretboard section shown does not include the nut,
@@ -115,7 +125,7 @@ mod tests {
             "C",
             Tuning::C,
             indoc!("
-                A  ||---|---|-o-|---|- C
+                A  ||---|---|-3-|---|- C
                 E o||---|---|---|---|- E
                 C o||---|---|---|---|- C
                 G o||---|---|---|---|- G
@@ -125,47 +135,47 @@ mod tests {
             "C#",
             Tuning::C,
             indoc!("
-                A  ||---|---|---|-o-|- C#
-                E  ||-o-|---|---|---|- F
-                C  ||-o-|---|---|---|- C#
-                G  ||-o-|---|---|---|- G#
+                A  ||---|---|---|-4-|- C#
+                E  ||-1-|---|---|---|- F
+                C  ||-1-|---|---|---|- C#
+                G  ||-1-|---|---|---|- G#
             ")
         ),
         case(
             "Db",
             Tuning::C,
             indoc!("
-                A  ||---|---|---|-o-|- Db
-                E  ||-o-|---|---|---|- F
-                C  ||-o-|---|---|---|- Db
-                G  ||-o-|---|---|---|- Ab
+                A  ||---|---|---|-4-|- Db
+                E  ||-1-|---|---|---|- F
+                C  ||-1-|---|---|---|- Db
+                G  ||-1-|---|---|---|- Ab
             ")
         ),
         case(
             "C#m",
             Tuning::C,
             indoc!("
-                A  ||---|---|---|-o-|- C#
+                A  ||---|---|---|-4-|- C#
                 E o||---|---|---|---|- E
-                C  ||-o-|---|---|---|- C#
-                G  ||-o-|---|---|---|- G#
+                C  ||-2-|---|---|---|- C#
+                G  ||-1-|---|---|---|- G#
             ")
         ),
         case(
             "Dbm",
             Tuning::C,
             indoc!("
-                A  ||---|---|---|-o-|- Db
+                A  ||---|---|---|-4-|- Db
                 E o||---|---|---|---|- E
-                C  ||-o-|---|---|---|- Db
-                G  ||-o-|---|---|---|- Ab
+                C  ||-2-|---|---|---|- Db
+                G  ||-1-|---|---|---|- Ab
             ")
         ),
         case(
             "D",
             Tuning::D,
             indoc!("
-                B   ||---|---|-o-|---|- D
+                B   ||---|---|-3-|---|- D
                 F# o||---|---|---|---|- F#
                 D  o||---|---|---|---|- D
                 A  o||---|---|---|---|- A
@@ -175,7 +185,7 @@ mod tests {
             "G",
             Tuning::G,
             indoc!("
-                E  ||---|---|-o-|---|- G
+                E  ||---|---|-3-|---|- G
                 B o||---|---|---|---|- B
                 G o||---|---|---|---|- G
                 D o||---|---|---|---|- D

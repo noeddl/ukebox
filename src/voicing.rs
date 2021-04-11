@@ -4,7 +4,9 @@ use std::slice::Iter;
 
 use itertools::Itertools;
 
-use crate::{Chord, FretID, FretPattern, Note, PitchClass, Tuning, UkeString, STRING_COUNT};
+use crate::{
+    Chord, FretID, FretPattern, Note, PitchClass, Tuning, UkeString, FINGER_COUNT, STRING_COUNT,
+};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Voicing {
@@ -49,6 +51,12 @@ impl Voicing {
 
     pub fn notes(&self) -> impl Iterator<Item = Note> + '_ {
         self.uke_strings.iter().map(|(_r, _f, n)| *n)
+    }
+
+    /// Return the overall number of strings pressed down when playing
+    /// this voicing.
+    pub fn count_pressed_strings(&self) -> usize {
+        self.frets().filter(|&f| f > 0).count()
     }
 
     /// Return the lowest fret at which a string is pressed down.
@@ -103,6 +111,105 @@ impl Voicing {
         chords.sort();
         chords
     }
+
+    /// Return `true` if the current voicing requires the player to play a barre chord.
+    /// For this, I took some inspiration from
+    /// https://github.com/hyvyys/chord-fingering/blob/master/src/barre.js
+    pub fn has_barre(&self) -> bool {
+        let min_fret = self.get_min_pressed_fret();
+        let mut min_fret_count = 0;
+        let mut pressed_frets = vec![];
+
+        for fret in self.frets() {
+            // Open strings may not appear below pressed strings.
+            if fret == 0 {
+                if min_fret_count > 0 {
+                    return false;
+                }
+            } else {
+                if fret == min_fret {
+                    min_fret_count += 1;
+                }
+                pressed_frets.push(fret);
+            }
+        }
+
+        // 0232 and 2323 should not be treated as having a barre.
+        let alternating_frets = pressed_frets
+            .iter()
+            .zip([min_fret, min_fret + 1].iter().cycle())
+            .filter(|(f1, f2)| f1 == f2)
+            .count();
+
+        if alternating_frets == pressed_frets.len() {
+            return false;
+        }
+
+        // 0111 can be played with fingering 0123.
+        if min_fret_count < STRING_COUNT && min_fret_count == pressed_frets.len() {
+            return false;
+        }
+
+        min_fret_count >= 2
+    }
+
+    /// Return a fingering for the current voicing, i.e. assign the player's
+    /// fingers to the positions on the fretboard that have to be pressed down.
+    /// This assumes that each chord voicing has a unique fingering (which is
+    /// not true in reality - often several fingerings are possible). My fingering
+    /// strategy here is based on my own way to play certain chords. For example,
+    /// I tend to avoid barre chords if possible, e.g. I play the G major chord
+    /// as 0132 and not as 0121.
+    pub fn get_fingering(&self) -> [u8; FINGER_COUNT] {
+        // Total number of strings on which we need to place our fingers.
+        let pressed_strings = self.count_pressed_strings();
+
+        // Determine the range of frets to be considered.
+        let max_fret = self.get_max_fret();
+        let min_fret = match pressed_strings {
+            // 0000
+            0 => 1,
+            // e.g. 0007
+            1 if max_fret > 3 => max_fret,
+            // e.g. 0003
+            1 => 1,
+            _ => self.get_min_pressed_fret(),
+        };
+
+        let mut fingering = [0; FINGER_COUNT];
+
+        // Current finger (can have values 1 to 4).
+        let mut finger = 1;
+        // Last finger that has been assigned to a string.
+        let mut prev_finger = 1;
+        // Number of strings with fingers on them up to this point.
+        let mut used_strings = 0;
+
+        for fret_id in min_fret..max_fret + 1 {
+            for (i, f) in self.frets().enumerate() {
+                if f == fret_id {
+                    fingering[i] = finger as u8;
+                    used_strings += 1;
+                    if !self.has_barre() && finger < FINGER_COUNT {
+                        finger += 1;
+                    }
+                }
+            }
+
+            let remaining_fingers = FINGER_COUNT - finger;
+            let remaining_strings = pressed_strings - used_strings;
+
+            // If no finger has been used on the current fret, prepare to use
+            // the next finger on the next fret if there are enough fingers left.
+            if finger == prev_finger && remaining_fingers >= remaining_strings {
+                finger += 1;
+            }
+
+            prev_finger = finger;
+        }
+
+        fingering
+    }
 }
 
 impl PartialOrd for Voicing {
@@ -155,6 +262,18 @@ mod tests {
         let voicing1 = Voicing::new(frets1, Tuning::C);
         let voicing2 = Voicing::new(frets2, Tuning::C);
         assert!(voicing1 < voicing2);
+    }
+
+    #[rstest(
+        frets, count,
+        case([0, 0, 0, 0], 0),
+        case([0, 0, 0, 3], 1),
+        case([1, 1, 1, 1], 4),
+        case([1, 2, 3, 4], 4),
+    )]
+    fn test_count_pressed_strings(frets: [FretID; STRING_COUNT], count: usize) {
+        let voicing = Voicing::new(frets, Tuning::C);
+        assert_eq!(voicing.count_pressed_strings(), count);
     }
 
     #[rstest(
@@ -214,5 +333,101 @@ mod tests {
     fn test_get_chords_fail(frets: [FretID; STRING_COUNT]) {
         let voicing = Voicing::new(frets, Tuning::C);
         assert!(voicing.get_chords().is_empty());
+    }
+
+    #[rstest(
+        frets, has_barre,
+        // No fingered strings.
+        case([0, 0, 0, 0], false),
+        // One fingered string.
+        case([1, 0, 0, 0], false),
+        case([0, 1, 0, 0], false),
+        case([0, 0, 1, 0], false),
+        case([0, 0, 0, 1], false),
+        // Two fingered strings.
+        case([1, 1, 0, 0], false),
+        case([2, 1, 0, 0], false),
+        case([1, 0, 1, 0], false),
+        case([2, 0, 1, 0], false),
+        case([1, 0, 0, 1], false),
+        case([0, 1, 1, 0], false),
+        case([0, 1, 0, 1], false),
+        case([0, 0, 1, 1], false),
+        // Three fingered strings without barre.
+        case([1, 1, 1, 0], false),
+        case([1, 1, 0, 1], false),
+        case([1, 0, 1, 1], false),
+        case([0, 1, 1, 1], false),
+        case([0, 1, 2, 1], false),
+        case([0, 2, 1, 2], false),
+        case([0, 3, 2, 1], false),
+        // Three fingered strings with barre.
+        case([0, 2, 1, 1], true),
+        // Four fingered strings without barre.
+        case([1, 2, 1, 2], false),
+        case([2, 4, 1, 3], false),
+        case([3, 3, 3, 1], false),
+        case([1, 2, 2, 2], false),
+        // Four fingered strings with barre.
+        case([1, 1, 1, 1], true),
+        case([1, 1, 1, 2], true),
+        case([1, 1, 1, 3], true),
+        case([1, 1, 1, 4], true),
+        case([1, 1, 2, 1], true),
+        case([1, 2, 1, 1], true),
+        case([2, 1, 1, 1], true),
+        case([3, 1, 1, 1], true),
+        case([3, 2, 1, 1], true),
+        case([3, 1, 2, 1], true),
+    )]
+    fn test_has_barre(frets: [FretID; STRING_COUNT], has_barre: bool) {
+        let voicing = Voicing::new(frets, Tuning::C);
+        assert_eq!(voicing.has_barre(), has_barre);
+    }
+
+    #[rstest(
+        frets, fingering,
+        // No fingered strings.
+        case([0, 0, 0, 0], [0, 0, 0, 0]),
+        // One fingered string.
+        case([2, 0, 0, 0], [2, 0, 0, 0]),
+        case([0, 0, 0, 3], [0, 0, 0, 3]),
+        case([0, 0, 0, 7], [0, 0, 0, 1]),
+        case([9, 0, 0, 0], [1, 0, 0, 0]),
+        case([0, 0, 0, 10], [0, 0, 0, 1]),
+        // Two fingered strings.
+        case([2, 0, 1, 0], [2, 0, 1, 0]),
+        // Three fingered strings without barre.
+        case([2, 2, 2, 0], [1, 2, 3, 0]),
+        case([0, 2, 3, 2], [0, 1, 3, 2]),
+        case([1, 0, 1, 3], [1, 0, 2, 4]),
+        case([1, 1, 0, 4], [1, 2, 0, 4]),
+        case([3, 0, 3, 1], [3, 0, 4, 1]),
+        case([11, 0, 10, 12], [2, 0, 1, 3]),
+        // Three fingered strings with barre.
+        case([0, 4, 3, 3], [0, 2, 1, 1]),
+        // Four fingered strings without barre.
+        case([2, 3, 2, 3], [1, 3, 2, 4]),
+        case([2, 3, 5, 3], [1, 2, 4, 3]),
+        case([2, 4, 1, 3], [2, 4, 1, 3]),
+        case([3, 3, 3, 1], [2, 3, 4, 1]),
+        case([1, 4, 4, 4], [1, 2, 3, 4]),
+        case([11, 12, 10, 12], [2, 3, 1, 4]),
+        // Four fingered strings with barre.
+        case([3, 3, 3, 3], [1, 1, 1, 1]),
+        case([2, 2, 2, 3], [1, 1, 1, 2]),
+        case([4, 2, 2, 2], [3, 1, 1, 1]),
+        case([4, 2, 3, 2], [3, 1, 2, 1]),
+        case([1, 1, 1, 4], [1, 1, 1, 4]),
+        case([3, 2, 1, 1], [3, 2, 1, 1]),
+        case([4, 3, 2, 2], [3, 2, 1, 1]),
+        // Fingering across a span of five frets.
+        case([0, 0, 1, 5], [0, 0, 1, 4]),
+        case([3, 0, 1, 5], [3, 0, 1, 4]),
+        case([3, 5, 1, 5], [2, 3, 1, 4]),
+    )]
+    fn test_get_fingering(frets: [FretID; STRING_COUNT], fingering: [FretID; STRING_COUNT]) {
+        let voicing = Voicing::new(frets, Tuning::C);
+        assert_eq!(voicing.get_fingering(), fingering);
     }
 }

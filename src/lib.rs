@@ -1,3 +1,5 @@
+#![allow(clippy::upper_case_acronyms)]
+
 pub mod chord;
 pub mod chord_chart;
 pub mod chord_type;
@@ -22,6 +24,9 @@ pub use voicing::Voicing;
 
 /// Number of strings on our string instrument.
 pub const STRING_COUNT: usize = 4;
+
+/// Number of fingers on our left hand to be used for pressing down strings.
+pub const FINGER_COUNT: usize = 4;
 
 /// The ID of a fret on the fretboard. 0 corresponds to the nut,
 /// 1 corresponds to the first fret, 2 to the second etc.
