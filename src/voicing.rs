@@ -1,4 +1,4 @@
-use std::cmp::Ordering;
+use std::cmp::{max, min, Ordering};
 use std::convert::{TryFrom, TryInto};
 use std::slice::Iter;
 
@@ -215,6 +215,13 @@ impl Voicing {
         }
 
         fingering
+    }
+
+    pub fn distance(&self, other: Voicing) -> u8 {
+        self.frets()
+            .zip(other.frets())
+            .map(|(f1, f2)| max(f1, f2) - min(f1, f2))
+            .sum()
     }
 }
 
@@ -435,5 +442,20 @@ mod tests {
     fn test_get_fingering(frets: [FretID; STRING_COUNT], fingering: [FretID; STRING_COUNT]) {
         let voicing = Voicing::new(frets, Tuning::C);
         assert_eq!(voicing.get_fingering(), fingering);
+    }
+
+    #[rstest(
+        frets1, frets2, distance,
+        case([0, 0, 0, 0], [0, 0, 0, 0], 0),
+        case([0, 0, 0, 3], [2, 0, 1, 3], 3),
+        case([2, 0, 1, 3], [0, 0, 0, 3], 3),
+        case([0, 0, 0, 3], [2, 0, 1, 0], 6),
+        case([3, 2, 1, 1], [5, 4, 3, 3], 8),
+        case([3, 2, 1, 1], [0, 0, 0, 3], 8),
+    )]
+    fn test_distance(frets1: [FretID; STRING_COUNT], frets2: [FretID; STRING_COUNT], distance: u8) {
+        let voicing1 = Voicing::new(frets1, Tuning::C);
+        let voicing2 = Voicing::new(frets2, Tuning::C);
+        assert_eq!(voicing1.distance(voicing2), distance);
     }
 }
