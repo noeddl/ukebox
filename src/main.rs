@@ -1,7 +1,8 @@
 use std::cmp::max;
 
+use lazy_static::lazy_static;
 use structopt::StructOpt;
-use ukebox::{Chord, ChordChart, FretID, FretPattern, Semitones, Tuning, Voicing};
+use ukebox::{Chord, ChordChart, FretID, FretPattern, Semitones, Tuning, Voicing, VoicingConfig};
 
 /// Maximal possible fret ID.
 /// According to Wikipedia, the biggest ukulele type (baritone) has 21 frets.
@@ -13,6 +14,14 @@ const MAX_SPAN: Semitones = 5;
 
 /// Minimal number of frets to be shown in a chord chart.
 const MIN_CHART_WIDTH: Semitones = 4;
+
+// See https://github.com/TeXitoi/structopt/issues/150
+lazy_static! {
+    static ref DEFAULT_CONFIG: VoicingConfig = VoicingConfig::default();
+    static ref MIN_FRET_STR: String = DEFAULT_CONFIG.min_fret.to_string();
+    static ref MAX_FRET_STR: String = DEFAULT_CONFIG.max_fret.to_string();
+    static ref MAX_SPAN_STR: String = DEFAULT_CONFIG.max_span.to_string();
+}
 
 #[derive(StructOpt)]
 struct Ukebox {
@@ -31,13 +40,13 @@ enum Subcommand {
         #[structopt(short, long)]
         all: bool,
         /// Minimal fret (= minimal position) from which to play <chord>
-        #[structopt(long, value_name = "FRET_ID", default_value = "0", validator = validate_fret_id)]
+        #[structopt(long, value_name = "FRET_ID", default_value = &MIN_FRET_STR, validator = validate_fret_id)]
         min_fret: FretID,
         /// Maximal fret up to which to play <chord>
-        #[structopt(long, value_name = "FRET_ID", default_value = "12", validator = validate_fret_id)]
+        #[structopt(long, value_name = "FRET_ID", default_value = &MAX_FRET_STR, validator = validate_fret_id)]
         max_fret: FretID,
         /// Maximal span between the first and the last fret pressed down when playing <chord>
-        #[structopt(long, value_name = "FRET_COUNT", default_value = "4", validator = validate_span)]
+        #[structopt(long, value_name = "FRET_COUNT", default_value = &MAX_SPAN_STR, validator = validate_span)]
         max_span: Semitones,
         /// Number of semitones to add (e.g. 1, +1) or to subtract (e.g. -1)
         #[structopt(
