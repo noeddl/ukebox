@@ -10,6 +10,7 @@ pub mod pitch_class;
 pub mod staff_position;
 pub mod tuning;
 pub mod voicing;
+pub mod voicing_graph;
 
 pub use chord::Chord;
 pub use chord_chart::ChordChart;
@@ -21,6 +22,7 @@ pub use pitch_class::PitchClass;
 pub use staff_position::StaffPosition;
 pub use tuning::Tuning;
 pub use voicing::Voicing;
+pub use voicing_graph::dist;
 
 /// Number of strings on our string instrument.
 pub const STRING_COUNT: usize = 4;

@@ -2,7 +2,9 @@ use std::cmp::max;
 
 use lazy_static::lazy_static;
 use structopt::StructOpt;
-use ukebox::{Chord, ChordChart, FretID, FretPattern, Semitones, Tuning, Voicing, VoicingConfig};
+use ukebox::{
+    dist, Chord, ChordChart, FretID, FretPattern, Semitones, Tuning, Voicing, VoicingConfig,
+};
 
 /// Maximal possible fret ID.
 /// According to Wikipedia, the biggest ukulele type (baritone) has 21 frets.
@@ -90,6 +92,7 @@ fn validate_span(s: String) -> Result<(), String> {
 }
 
 fn main() {
+    dist();
     let args = Ukebox::from_args();
     let tuning = args.tuning;
 
