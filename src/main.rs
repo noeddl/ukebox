@@ -109,8 +109,15 @@ fn main() {
                 _ => chord + transpose as u8,
             };
 
+            let config = VoicingConfig {
+                tuning,
+                min_fret,
+                max_fret,
+                max_span,
+            };
+
             let mut voicings = chord
-                .voicings(tuning)
+                .voicings(config)
                 .filter(|v| {
                     v.get_min_fret() >= min_fret
                         && v.get_max_fret() <= max_fret

@@ -6,7 +6,7 @@ use std::str::FromStr;
 
 use itertools::Itertools;
 
-use crate::{ChordType, Note, PitchClass, Semitones, Tuning, UkeString, Voicing};
+use crate::{ChordType, Note, PitchClass, Semitones, UkeString, Voicing, VoicingConfig};
 
 /// Custom error for strings that cannot be parsed into chords.
 #[derive(Debug)]
@@ -39,8 +39,9 @@ impl Chord {
         self.chord_type.intervals().map(move |i| self.root + i)
     }
 
-    pub fn voicings(&self, tuning: Tuning) -> impl Iterator<Item = Voicing> + '_ {
-        tuning
+    pub fn voicings(&self, config: VoicingConfig) -> impl Iterator<Item = Voicing> + '_ {
+        config
+            .tuning
             .roots()
             // For each ukulele string, keep track of all the frets that when pressed down
             // while playing the string result in a note of the chord.
