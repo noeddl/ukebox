@@ -51,6 +51,8 @@ impl Chord {
                     .cartesian_product(vec![0, 12])
                     // Determine the fret on which `note` is played.
                     .map(|(note, st)| (root, (note.pitch_class - root.pitch_class) + st, note))
+                    // Only keep frets within the given boundaries.
+                    .filter(|(_r, fret, _n)| fret >= &config.min_fret && fret <= &config.max_fret)
                     .collect::<Vec<UkeString>>()
             })
             // At this point, we have collected all possible positions of the notes in the chord
@@ -60,7 +62,7 @@ impl Chord {
             // Create voicing from the UkeString vec.
             .map(|us_vec| Voicing::from(&us_vec[..]))
             // Only keep valid voicings.
-            .filter(|voicing| voicing.spells_out(self))
+            .filter(|voicing| voicing.spells_out(self) && voicing.get_span() < config.max_span)
             .sorted()
     }
 }

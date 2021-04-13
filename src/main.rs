@@ -116,14 +116,7 @@ fn main() {
                 max_span,
             };
 
-            let mut voicings = chord
-                .voicings(config)
-                .filter(|v| {
-                    v.get_min_fret() >= min_fret
-                        && v.get_max_fret() <= max_fret
-                        && v.get_span() < max_span
-                })
-                .peekable();
+            let mut voicings = chord.voicings(config).peekable();
 
             if voicings.peek().is_none() {
                 println!("No matching chord voicing was found");

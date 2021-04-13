@@ -202,15 +202,4 @@ mod tests {
         let chord_chart = ChordChart::new(voicing, 4);
         assert_eq!(chord_chart.to_string(), diagram);
     }
-
-    #[test]
-    #[should_panic]
-    fn test_to_diagram_fail() {
-        // The first voicing returned for the C-minor chord spans more than
-        // the 4 frets to be used for the chart.
-        let chord = Chord::from_str("Cm").unwrap();
-        let config = VoicingConfig::default();
-        let voicing = chord.voicings(config).next().unwrap();
-        ChordChart::new(voicing, 4);
-    }
 }
