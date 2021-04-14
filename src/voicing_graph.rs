@@ -41,20 +41,23 @@ impl VoicingGraph {
             let l_voicing = self.graph[*l];
             let r_voicing = self.graph[*r];
 
-            let distance = match l {
-                l if *l == self.start_node => 0,
-                _ => l_voicing.distance(r_voicing),
-            };
-
-            self.graph.add_edge(*l, *r, distance);
+            self.graph.add_edge(*l, *r, l_voicing.distance(r_voicing));
         }
     }
 
     pub fn add(&mut self, chords: &[Chord]) {
-        let mut prev_nodes = vec![self.start_node];
+        let mut prev_nodes = vec![];
 
-        for chord in chords {
+        for (i, chord) in chords.iter().enumerate() {
             let nodes = self.add_nodes(chord);
+
+            // Add edges from the start node to all the voicings of the first chord
+            // in the sequence.
+            if i == 0 {
+                for node in nodes.iter() {
+                    self.graph.add_edge(self.start_node, *node, 0);
+                }
+            }
 
             self.add_edges(&prev_nodes, &nodes);
 
