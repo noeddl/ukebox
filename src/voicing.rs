@@ -82,7 +82,7 @@ impl Voicing {
         let max_fret = self.get_max_fret();
 
         match max_fret {
-            // 0000
+            // Special case [0, 0, 0, 0]: span is zero.
             0 => 0,
             _ => max_fret - self.get_min_pressed_fret() + 1,
         }
