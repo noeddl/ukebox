@@ -248,6 +248,14 @@ impl Ord for Voicing {
     }
 }
 
+/// The default implementation is used to easily create an "empty" start and end node
+/// in the voicing graph.
+impl Default for Voicing {
+    fn default() -> Self {
+        Self::new([0, 0, 0, 0], Tuning::C)
+    }
+}
+
 impl From<&[UkeString]> for Voicing {
     fn from(uke_strings: &[UkeString]) -> Self {
         Self {
