@@ -18,6 +18,7 @@ const MIN_CHART_WIDTH: Semitones = 4;
 // See https://github.com/TeXitoi/structopt/issues/150
 lazy_static! {
     static ref DEFAULT_CONFIG: VoicingConfig = VoicingConfig::default();
+    static ref TUNING_STR: String = DEFAULT_CONFIG.tuning.to_string();
     static ref MIN_FRET_STR: String = DEFAULT_CONFIG.min_fret.to_string();
     static ref MAX_FRET_STR: String = DEFAULT_CONFIG.max_fret.to_string();
     static ref MAX_SPAN_STR: String = DEFAULT_CONFIG.max_span.to_string();
@@ -26,7 +27,7 @@ lazy_static! {
 #[derive(StructOpt)]
 struct Ukebox {
     /// Type of tuning to be used
-    #[structopt(short, long, global = true, value_name = "TUNING", default_value = "C", possible_values = &Tuning::variants())]
+    #[structopt(short, long, global = true, value_name = "TUNING", default_value = &TUNING_STR, possible_values = &Tuning::variants())]
     tuning: Tuning,
     #[structopt(subcommand)]
     cmd: Subcommand,
