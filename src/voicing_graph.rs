@@ -11,7 +11,7 @@ pub struct VoicingGraph {
     graph: Graph<Voicing, u8>,
     start_node: NodeIndex,
     end_node: NodeIndex,
-    node_sets: Vec<Vec<NodeIndex>>,
+    prev_nodes: Vec<NodeIndex>,
     config: VoicingConfig,
 }
 
@@ -19,44 +19,35 @@ impl VoicingGraph {
     pub fn new(config: VoicingConfig) -> Self {
         let mut graph = Graph::new();
 
-        let mut node_sets = vec![];
         let start_node = graph.add_node(Voicing::default());
         let end_node = graph.add_node(Voicing::default());
-        node_sets.push(vec![start_node]);
+        let prev_nodes = vec![start_node];
 
         Self {
             graph,
             start_node,
             end_node,
-            node_sets,
+            prev_nodes,
             config,
         }
     }
 
-    pub fn add(&mut self, chord: Chord) {
-        let mut node_set = vec![];
+    fn add_nodes(&mut self, chord: &Chord) -> Vec<NodeIndex> {
+        let mut nodes = vec![];
 
         for voicing in chord.voicings(self.config) {
             let node = self.graph.add_node(voicing);
-            node_set.push(node);
+            nodes.push(node);
         }
 
-        self.node_sets.push(node_set);
+        nodes
+    }
 
-        let index = self.node_sets.len() - 1;
-        let nodes = self.node_sets.get(index).unwrap();
-        let prev_nodes = self.node_sets.get(index - 1).unwrap();
-
-        for (p, n) in prev_nodes.iter().cartesian_product(nodes.iter()) {
-            let p_chord = self.graph[*p];
-            let chord = self.graph[*n];
-
-            let distance = match p {
-                p if *p == self.start_node => 0,
-                _ => p_chord.distance(chord),
-            };
-
-            self.graph.add_edge(*p, *n, distance);
+    /// Add edges from all the voicings of the last chord in the sequence
+    /// to the end node.
+    fn finalize(&mut self) {
+        for node in self.prev_nodes.iter() {
+            self.graph.add_edge(*node, self.end_node, 0);
         }
 
         println!(
@@ -66,19 +57,32 @@ impl VoicingGraph {
         );
     }
 
-    pub fn finalize(&mut self) {
-        let index = self.node_sets.len() - 1;
-        let nodes = self.node_sets.get(index).unwrap();
+    pub fn add(&mut self, chords: &[Chord]) {
+        for chord in chords {
+            let nodes = self.add_nodes(chord);
 
-        for g in nodes.iter() {
-            self.graph.add_edge(*g, self.end_node, 0);
+            for (p, n) in self.prev_nodes.iter().cartesian_product(nodes.iter()) {
+                let p_chord = self.graph[*p];
+                let chord = self.graph[*n];
+
+                let distance = match p {
+                    p if *p == self.start_node => 0,
+                    _ => p_chord.distance(chord),
+                };
+
+                self.graph.add_edge(*p, *n, distance);
+            }
+
+            self.prev_nodes = nodes;
+
+            println!(
+                "- {:?}, {:?}",
+                self.graph.node_count(),
+                self.graph.edge_count()
+            );
         }
 
-        println!(
-            "- {:?}, {:?}",
-            self.graph.node_count(),
-            self.graph.edge_count()
-        );
+        self.finalize();
     }
 
     pub fn find_best_path(&self) {
@@ -103,16 +107,12 @@ impl VoicingGraph {
 pub fn dist() {
     let chord1 = Chord::from_str("C").unwrap();
     let chord2 = Chord::from_str("F").unwrap();
+    let chord3 = Chord::from_str("G").unwrap();
 
-    let chords = vec![chord1, chord2];
+    let chords = vec![chord1, chord2, chord3];
     let config = VoicingConfig::default();
 
     let mut voicing_graph = VoicingGraph::new(config);
-
-    for chord in chords {
-        voicing_graph.add(chord);
-    }
-
-    voicing_graph.finalize();
+    voicing_graph.add(&chords);
     voicing_graph.find_best_path();
 }
