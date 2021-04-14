@@ -30,14 +30,10 @@ impl VoicingGraph {
     }
 
     fn add_nodes(&mut self, chord: &Chord) -> Vec<NodeIndex> {
-        let mut nodes = vec![];
-
-        for voicing in chord.voicings(self.config) {
-            let node = self.graph.add_node(voicing);
-            nodes.push(node);
-        }
-
-        nodes
+        chord
+            .voicings(self.config)
+            .map(|voicing| self.graph.add_node(voicing))
+            .collect()
     }
 
     fn add_edges(&mut self, left_nodes: &[NodeIndex], right_nodes: &[NodeIndex]) {
