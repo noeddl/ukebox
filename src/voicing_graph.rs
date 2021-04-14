@@ -43,6 +43,20 @@ impl VoicingGraph {
         nodes
     }
 
+    fn add_edges(&mut self, left_nodes: &[NodeIndex], right_nodes: &[NodeIndex]) {
+        for (l, r) in left_nodes.iter().cartesian_product(right_nodes.iter()) {
+            let l_voicing = self.graph[*l];
+            let r_voicing = self.graph[*r];
+
+            let distance = match l {
+                l if *l == self.start_node => 0,
+                _ => l_voicing.distance(r_voicing),
+            };
+
+            self.graph.add_edge(*l, *r, distance);
+        }
+    }
+
     /// Add edges from all the voicings of the last chord in the sequence
     /// to the end node.
     fn finalize(&mut self) {
@@ -61,17 +75,7 @@ impl VoicingGraph {
         for chord in chords {
             let nodes = self.add_nodes(chord);
 
-            for (p, n) in self.prev_nodes.iter().cartesian_product(nodes.iter()) {
-                let p_chord = self.graph[*p];
-                let chord = self.graph[*n];
-
-                let distance = match p {
-                    p if *p == self.start_node => 0,
-                    _ => p_chord.distance(chord),
-                };
-
-                self.graph.add_edge(*p, *n, distance);
-            }
+            self.add_edges(&self.prev_nodes.clone(), &nodes);
 
             self.prev_nodes = nodes;
 
