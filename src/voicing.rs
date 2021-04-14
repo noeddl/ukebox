@@ -1,5 +1,6 @@
 use std::cmp::{max, min, Ordering};
 use std::convert::{TryFrom, TryInto};
+use std::fmt;
 use std::slice::Iter;
 
 use itertools::Itertools;
@@ -8,7 +9,7 @@ use crate::{
     Chord, FretID, FretPattern, Note, PitchClass, Tuning, UkeString, FINGER_COUNT, STRING_COUNT,
 };
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Clone, Copy, PartialEq, Eq)]
 pub struct Voicing {
     uke_strings: [UkeString; STRING_COUNT],
 }
@@ -253,6 +254,20 @@ impl Ord for Voicing {
 impl Default for Voicing {
     fn default() -> Self {
         Self::new([0, 0, 0, 0], Tuning::C)
+    }
+}
+
+impl fmt::Debug for Voicing {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let roots = self.roots().map(|r| r.to_string()).collect::<Vec<String>>();
+        let frets = self.frets().collect::<Vec<FretID>>();
+        let notes = self.notes().map(|n| n.to_string()).collect::<Vec<String>>();
+
+        f.debug_struct("Voicing")
+            .field("roots", &roots)
+            .field("frets", &frets)
+            .field("notes", &notes)
+            .finish()
     }
 }
 
