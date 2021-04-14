@@ -11,7 +11,6 @@ pub struct VoicingGraph {
     graph: Graph<Voicing, u8>,
     start_node: NodeIndex,
     end_node: NodeIndex,
-    prev_nodes: Vec<NodeIndex>,
     config: VoicingConfig,
 }
 
@@ -21,13 +20,11 @@ impl VoicingGraph {
 
         let start_node = graph.add_node(Voicing::default());
         let end_node = graph.add_node(Voicing::default());
-        let prev_nodes = vec![start_node];
 
         Self {
             graph,
             start_node,
             end_node,
-            prev_nodes,
             config,
         }
     }
@@ -57,27 +54,15 @@ impl VoicingGraph {
         }
     }
 
-    /// Add edges from all the voicings of the last chord in the sequence
-    /// to the end node.
-    fn finalize(&mut self) {
-        for node in self.prev_nodes.iter() {
-            self.graph.add_edge(*node, self.end_node, 0);
-        }
-
-        println!(
-            "- {:?}, {:?}",
-            self.graph.node_count(),
-            self.graph.edge_count()
-        );
-    }
-
     pub fn add(&mut self, chords: &[Chord]) {
+        let mut prev_nodes = vec![self.start_node];
+
         for chord in chords {
             let nodes = self.add_nodes(chord);
 
-            self.add_edges(&self.prev_nodes.clone(), &nodes);
+            self.add_edges(&prev_nodes, &nodes);
 
-            self.prev_nodes = nodes;
+            prev_nodes = nodes;
 
             println!(
                 "- {:?}, {:?}",
@@ -86,7 +71,11 @@ impl VoicingGraph {
             );
         }
 
-        self.finalize();
+        // Add edges from all the voicings of the last chord in the sequence
+        // to the end node.
+        for node in prev_nodes.iter() {
+            self.graph.add_edge(*node, self.end_node, 0);
+        }
     }
 
     pub fn find_best_path(&self) {
