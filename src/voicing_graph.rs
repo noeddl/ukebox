@@ -1,79 +1,118 @@
-use std::collections::HashMap;
 use std::str::FromStr;
 
 use itertools::Itertools;
 use petgraph::algo::astar;
+use petgraph::prelude::NodeIndex;
 use petgraph::Graph;
 
 use crate::{Chord, Voicing, VoicingConfig};
 
-pub fn dist() {
-    let config = VoicingConfig::default();
-    let chord_c = Chord::from_str("C").unwrap();
-    let chord_g = Chord::from_str("F").unwrap();
+pub struct VoicingGraph {
+    graph: Graph<Voicing, u8>,
+    start_node: NodeIndex,
+    end_node: NodeIndex,
+    node_sets: Vec<Vec<NodeIndex>>,
+    config: VoicingConfig,
+}
 
-    let mut graph = Graph::new();
+impl VoicingGraph {
+    pub fn new(config: VoicingConfig) -> Self {
+        let mut graph = Graph::new();
 
-    let mut nodes2voicings = HashMap::new();
+        let mut node_sets = vec![];
+        let start_node = graph.add_node(Voicing::default());
+        let end_node = graph.add_node(Voicing::default());
+        node_sets.push(vec![start_node]);
 
-    let mut nodes_c = vec![];
-
-    for voicing in chord_c.voicings(config) {
-        let c = graph.add_node(voicing);
-        nodes_c.push(c);
-        nodes2voicings.insert(c, voicing);
-    }
-
-    println!("{:?}", nodes_c.len());
-    println!("{:?}, {:?}", graph.node_count(), graph.edge_count());
-
-    let mut nodes_g = vec![];
-
-    for voicing in chord_g.voicings(config) {
-        let g = graph.add_node(voicing);
-        nodes_g.push(g);
-        nodes2voicings.insert(g, voicing);
-    }
-
-    println!("{:?}, {:?}", graph.node_count(), graph.edge_count());
-
-    for (c, g) in nodes_c.iter().cartesian_product(nodes_g.iter()) {
-        let chord_c = nodes2voicings.get(c).unwrap();
-        let chord_g = nodes2voicings.get(g).unwrap();
-        graph.add_edge(*c, *g, chord_c.distance(*chord_g));
-    }
-
-    println!("{:?}, {:?}", graph.node_count(), graph.edge_count());
-
-    let start = graph.add_node(Voicing::default());
-
-    for c in nodes_c.iter() {
-        graph.add_edge(start, *c, 0);
-    }
-
-    println!("{:?}, {:?}", graph.node_count(), graph.edge_count());
-
-    let end = graph.add_node(Voicing::default());
-
-    for g in nodes_g.iter() {
-        graph.add_edge(*g, end, 0);
-    }
-
-    println!("{:?}, {:?}", graph.node_count(), graph.edge_count());
-
-    if let Some((weight, path)) = astar(
-        &graph,
-        start,
-        |finish| finish == end,
-        |e| *e.weight(),
-        |_| 0,
-    ) {
-        println!("{:?} {:?}", weight, path);
-
-        for (i, node) in path.iter().enumerate() {
-            if i > 0 && i < path.len() - 1 {
-                println!("{:?}", nodes2voicings.get(node).unwrap());
-            }
+        Self {
+            graph,
+            start_node,
+            end_node,
+            node_sets,
+            config,
         }
-    };
+    }
+
+    pub fn add(&mut self, chord: Chord) {
+        let mut node_set = vec![];
+
+        for voicing in chord.voicings(self.config) {
+            let node = self.graph.add_node(voicing);
+            node_set.push(node);
+        }
+
+        self.node_sets.push(node_set);
+
+        let index = self.node_sets.len() - 1;
+        let nodes = self.node_sets.get(index).unwrap();
+        let prev_nodes = self.node_sets.get(index - 1).unwrap();
+
+        for (p, n) in prev_nodes.iter().cartesian_product(nodes.iter()) {
+            let p_chord = self.graph[*p];
+            let chord = self.graph[*n];
+
+            let distance = match p {
+                p if *p == self.start_node => 0,
+                _ => p_chord.distance(chord),
+            };
+
+            self.graph.add_edge(*p, *n, distance);
+        }
+
+        println!(
+            "- {:?}, {:?}",
+            self.graph.node_count(),
+            self.graph.edge_count()
+        );
+    }
+
+    pub fn finalize(&mut self) {
+        let index = self.node_sets.len() - 1;
+        let nodes = self.node_sets.get(index).unwrap();
+
+        for g in nodes.iter() {
+            self.graph.add_edge(*g, self.end_node, 0);
+        }
+
+        println!(
+            "- {:?}, {:?}",
+            self.graph.node_count(),
+            self.graph.edge_count()
+        );
+    }
+
+    pub fn find_best_path(&self) {
+        if let Some((weight, path)) = astar(
+            &self.graph,
+            self.start_node,
+            |finish| finish == self.end_node,
+            |e| *e.weight(),
+            |_| 0,
+        ) {
+            println!("{:?} {:?}", weight, path);
+
+            for (i, node) in path.iter().enumerate() {
+                if i > 0 && i < path.len() - 1 {
+                    println!("{:?}", self.graph[*node]);
+                }
+            }
+        };
+    }
+}
+
+pub fn dist() {
+    let chord1 = Chord::from_str("C").unwrap();
+    let chord2 = Chord::from_str("F").unwrap();
+
+    let chords = vec![chord1, chord2];
+    let config = VoicingConfig::default();
+
+    let mut voicing_graph = VoicingGraph::new(config);
+
+    for chord in chords {
+        voicing_graph.add(chord);
+    }
+
+    voicing_graph.finalize();
+    voicing_graph.find_best_path();
 }
