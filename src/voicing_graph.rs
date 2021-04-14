@@ -77,22 +77,27 @@ impl VoicingGraph {
         }
     }
 
-    pub fn find_best_path(&self) {
-        if let Some((weight, path)) = astar(
+    pub fn find_best_path(&self) -> Option<Vec<Voicing>> {
+        let path_option = astar(
             &self.graph,
             self.start_node,
             |finish| finish == self.end_node,
             |e| *e.weight(),
             |_| 0,
-        ) {
-            println!("{:?} {:?}", weight, path);
+        );
 
-            for (i, node) in path.iter().enumerate() {
-                if i > 0 && i < path.len() - 1 {
-                    println!("{:?}", self.graph[*node]);
-                }
-            }
+        if let Some((_weight, path)) = path_option {
+            let voicings: Vec<Voicing> = path
+                .iter()
+                .enumerate()
+                .filter(|(i, _node)| *i > 0 && *i < path.len() - 1)
+                .map(|(_i, node)| self.graph[*node])
+                .collect();
+
+            return Some(voicings);
         };
+
+        None
     }
 }
 
@@ -106,5 +111,10 @@ pub fn dist() {
 
     let mut voicing_graph = VoicingGraph::new(config);
     voicing_graph.add(&chords);
-    voicing_graph.find_best_path();
+
+    if let Some(path) = voicing_graph.find_best_path() {
+        for voicing in path {
+            println!("{:?}", voicing);
+        }
+    }
 }
