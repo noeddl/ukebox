@@ -118,7 +118,7 @@ mod tests {
     use rstest::rstest;
 
     use super::*;
-    use crate::{Chord, Tuning};
+    use crate::{Chord, Tuning, VoicingConfig};
 
     #[rstest(chord_name, tuning, diagram,
         case(
@@ -194,18 +194,12 @@ mod tests {
     )]
     fn test_to_diagram(chord_name: &str, tuning: Tuning, diagram: &str) {
         let chord = Chord::from_str(chord_name).unwrap();
-        let voicing = chord.voicings(tuning).next().unwrap();
+        let config = VoicingConfig {
+            tuning,
+            ..Default::default()
+        };
+        let voicing = chord.voicings(config).next().unwrap();
         let chord_chart = ChordChart::new(voicing, 4);
         assert_eq!(chord_chart.to_string(), diagram);
-    }
-
-    #[test]
-    #[should_panic]
-    fn test_to_diagram_fail() {
-        // The first voicing returned for the C-minor chord spans more than
-        // the 4 frets to be used for the chart.
-        let chord = Chord::from_str("Cm").unwrap();
-        let voicing = chord.voicings(Tuning::C).next().unwrap();
-        ChordChart::new(voicing, 4);
     }
 }

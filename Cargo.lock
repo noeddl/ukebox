@@ -404,6 +404,7 @@ dependencies = [
  "assert_cmd",
  "indoc",
  "itertools",
+ "lazy_static",
  "predicates",
  "rstest",
  "structopt",

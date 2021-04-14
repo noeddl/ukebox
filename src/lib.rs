@@ -44,3 +44,22 @@ pub type StaffSteps = u8;
 /// the string's root note, the ID of a fret on this string and
 /// the note that is played if this fret is pressed down.
 pub type UkeString = (Note, FretID, Note);
+
+#[derive(Clone, Copy)]
+pub struct VoicingConfig {
+    pub tuning: Tuning,
+    pub min_fret: FretID,
+    pub max_fret: FretID,
+    pub max_span: Semitones,
+}
+
+impl Default for VoicingConfig {
+    fn default() -> Self {
+        Self {
+            tuning: Tuning::C,
+            min_fret: 0,
+            max_fret: 12,
+            max_span: 4,
+        }
+    }
+}

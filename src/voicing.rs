@@ -79,7 +79,13 @@ impl Voicing {
     }
 
     pub fn get_span(&self) -> FretID {
-        self.get_max_fret() - self.get_min_pressed_fret()
+        let max_fret = self.get_max_fret();
+
+        match max_fret {
+            // Special case [0, 0, 0, 0]: span is zero.
+            0 => 0,
+            _ => max_fret - self.get_min_pressed_fret() + 1,
+        }
     }
 
     /// Return `true` if the voicing contains all the notes needed
@@ -279,10 +285,10 @@ mod tests {
     #[rstest(
         frets, min_pressed_fret, min_fret, max_fret, span,
         case([0, 0, 0, 0], 0, 0, 0, 0),
-        case([1, 1, 1, 1], 1, 1, 1, 0),
-        case([2, 0, 1, 3], 1, 0, 3, 2),
-        case([5, 5, 5, 6], 5, 5, 6, 1),
-        case([3, 0, 0, 12], 3, 0, 12, 9),
+        case([1, 1, 1, 1], 1, 1, 1, 1),
+        case([2, 0, 1, 3], 1, 0, 3, 3),
+        case([5, 5, 5, 6], 5, 5, 6, 2),
+        case([3, 0, 0, 12], 3, 0, 12, 10),
     )]
     fn test_get_min_max_fret_and_span(
         frets: [FretID; STRING_COUNT],

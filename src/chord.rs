@@ -6,7 +6,7 @@ use std::str::FromStr;
 
 use itertools::Itertools;
 
-use crate::{ChordType, Note, PitchClass, Semitones, Tuning, UkeString, Voicing};
+use crate::{ChordType, Note, PitchClass, Semitones, UkeString, Voicing, VoicingConfig};
 
 /// Custom error for strings that cannot be parsed into chords.
 #[derive(Debug)]
@@ -39,8 +39,9 @@ impl Chord {
         self.chord_type.intervals().map(move |i| self.root + i)
     }
 
-    pub fn voicings(&self, tuning: Tuning) -> impl Iterator<Item = Voicing> + '_ {
-        tuning
+    pub fn voicings(&self, config: VoicingConfig) -> impl Iterator<Item = Voicing> + '_ {
+        config
+            .tuning
             .roots()
             // For each ukulele string, keep track of all the frets that when pressed down
             // while playing the string result in a note of the chord.
@@ -50,6 +51,8 @@ impl Chord {
                     .cartesian_product(vec![0, 12])
                     // Determine the fret on which `note` is played.
                     .map(|(note, st)| (root, (note.pitch_class - root.pitch_class) + st, note))
+                    // Keep only frets within the given boundaries.
+                    .filter(|(_r, fret, _n)| fret >= &config.min_fret && fret <= &config.max_fret)
                     .collect::<Vec<UkeString>>()
             })
             // At this point, we have collected all possible positions of the notes in the chord
@@ -58,8 +61,8 @@ impl Chord {
             .multi_cartesian_product()
             // Create voicing from the UkeString vec.
             .map(|us_vec| Voicing::from(&us_vec[..]))
-            // Only keep valid voicings.
-            .filter(|voicing| voicing.spells_out(self))
+            // Keep only valid voicings.
+            .filter(|voicing| voicing.spells_out(self) && voicing.get_span() <= config.max_span)
             .sorted()
     }
 }
