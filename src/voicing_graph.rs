@@ -17,7 +17,6 @@ pub struct VoicingGraph {
 impl VoicingGraph {
     pub fn new(config: VoicingConfig) -> Self {
         let mut graph = Graph::new();
-
         let start_node = graph.add_node(Voicing::default());
         let end_node = graph.add_node(Voicing::default());
 
@@ -51,8 +50,7 @@ impl VoicingGraph {
         for (i, chord) in chords.iter().enumerate() {
             let nodes = self.add_nodes(chord);
 
-            // Add edges from the start node to all the voicings of the first chord
-            // in the sequence.
+            // Add edges from the start node to all the voicings of the first chord.
             if i == 0 {
                 for node in nodes.iter() {
                     self.graph.add_edge(self.start_node, *node, 0);
@@ -62,16 +60,9 @@ impl VoicingGraph {
             self.add_edges(&prev_nodes, &nodes);
 
             prev_nodes = nodes;
-
-            println!(
-                "- {:?}, {:?}",
-                self.graph.node_count(),
-                self.graph.edge_count()
-            );
         }
 
-        // Add edges from all the voicings of the last chord in the sequence
-        // to the end node.
+        // Add edges from all the voicings of the last chord to the end node.
         for node in prev_nodes.iter() {
             self.graph.add_edge(*node, self.end_node, 0);
         }
@@ -112,9 +103,9 @@ pub fn dist() {
     let mut voicing_graph = VoicingGraph::new(config);
     voicing_graph.add(&chords);
 
-    if let Some(path) = voicing_graph.find_best_path() {
-        for voicing in path {
-            println!("{:?}", voicing);
-        }
-    }
+    // if let Some(path) = voicing_graph.find_best_path() {
+    //     for voicing in path {
+    //         println!("{:?}", voicing);
+    //     }
+    // }
 }
