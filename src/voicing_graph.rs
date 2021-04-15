@@ -5,7 +5,7 @@ use petgraph::algo::astar;
 use petgraph::prelude::NodeIndex;
 use petgraph::Graph;
 
-use crate::{Chord, Semitones, Voicing, VoicingConfig};
+use crate::{Chord, ChordSequence, Semitones, Voicing, VoicingConfig};
 
 pub struct VoicingGraph {
     graph: Graph<Voicing, Semitones>,
@@ -44,10 +44,10 @@ impl VoicingGraph {
         }
     }
 
-    pub fn add(&mut self, chords: &[Chord]) {
+    pub fn add(&mut self, chord_seq: &ChordSequence) {
         let mut prev_nodes = vec![];
 
-        for (i, chord) in chords.iter().enumerate() {
+        for (i, chord) in chord_seq.chords().enumerate() {
             let nodes = self.add_nodes(chord);
 
             // Add edges from the start node to all the voicings of the first chord.
@@ -93,11 +93,7 @@ impl VoicingGraph {
 }
 
 pub fn dist() {
-    let chord1 = Chord::from_str("C").unwrap();
-    let chord2 = Chord::from_str("F").unwrap();
-    let chord3 = Chord::from_str("G").unwrap();
-
-    let chords = vec![chord1, chord2, chord3];
+    let chords = ChordSequence::from_str("C F G").unwrap();
     let config = VoicingConfig::default();
 
     let mut voicing_graph = VoicingGraph::new(config);

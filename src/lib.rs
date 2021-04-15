@@ -2,6 +2,7 @@
 
 pub mod chord;
 pub mod chord_chart;
+pub mod chord_sequence;
 pub mod chord_type;
 pub mod fret_pattern;
 pub mod interval;
@@ -14,6 +15,7 @@ pub mod voicing_graph;
 
 pub use chord::Chord;
 pub use chord_chart::ChordChart;
+pub use chord_sequence::ChordSequence;
 pub use chord_type::ChordType;
 pub use fret_pattern::FretPattern;
 pub use interval::Interval;
