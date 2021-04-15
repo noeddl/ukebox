@@ -5,10 +5,10 @@ use petgraph::algo::astar;
 use petgraph::prelude::NodeIndex;
 use petgraph::Graph;
 
-use crate::{Chord, Voicing, VoicingConfig};
+use crate::{Chord, Semitones, Voicing, VoicingConfig};
 
 pub struct VoicingGraph {
-    graph: Graph<Voicing, u8>,
+    graph: Graph<Voicing, Semitones>,
     start_node: NodeIndex,
     end_node: NodeIndex,
     config: VoicingConfig,
