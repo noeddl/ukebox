@@ -3,7 +3,7 @@ use std::cmp::max;
 use lazy_static::lazy_static;
 use structopt::StructOpt;
 use ukebox::{
-    dist, Chord, ChordChart, ChordSequence, FretID, FretPattern, Semitones, Tuning, Voicing,
+    Chord, ChordChart, ChordSequence, FretID, FretPattern, Semitones, Tuning, Voicing,
     VoicingConfig, VoicingGraph,
 };
 
@@ -98,7 +98,6 @@ fn validate_span(s: String) -> Result<(), String> {
 }
 
 fn main() {
-    dist();
     let args = Ukebox::from_args();
     let tuning = args.tuning;
 

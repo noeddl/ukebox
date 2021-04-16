@@ -24,7 +24,6 @@ pub use pitch_class::PitchClass;
 pub use staff_position::StaffPosition;
 pub use tuning::Tuning;
 pub use voicing::Voicing;
-pub use voicing_graph::dist;
 pub use voicing_graph::VoicingGraph;
 
 /// Number of strings on our string instrument.

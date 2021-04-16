@@ -1,5 +1,3 @@
-use std::str::FromStr;
-
 use itertools::Itertools;
 use petgraph::algo::astar;
 use petgraph::prelude::NodeIndex;
@@ -90,18 +88,4 @@ impl VoicingGraph {
 
         None
     }
-}
-
-pub fn dist() {
-    let chords = ChordSequence::from_str("C F G").unwrap();
-    let config = VoicingConfig::default();
-
-    let mut voicing_graph = VoicingGraph::new(config);
-    voicing_graph.add(&chords);
-
-    // if let Some(path) = voicing_graph.find_best_path() {
-    //     for voicing in path {
-    //         println!("{:?}", voicing);
-    //     }
-    // }
 }
