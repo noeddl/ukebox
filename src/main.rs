@@ -43,24 +43,9 @@ enum Subcommand {
         /// Print out all voicings of <chord> that fulfill the given conditions
         #[structopt(short, long)]
         all: bool,
-        /// Minimal fret (= minimal position) from which to play <chord>
-        #[structopt(long, value_name = "FRET_ID", default_value = &MIN_FRET_STR, validator = validate_fret_id)]
-        min_fret: FretID,
-        /// Maximal fret up to which to play <chord>
-        #[structopt(long, value_name = "FRET_ID", default_value = &MAX_FRET_STR, validator = validate_fret_id)]
-        max_fret: FretID,
-        /// Maximal span between the first and the last fret pressed down when playing <chord>
-        #[structopt(long, value_name = "FRET_COUNT", default_value = &MAX_SPAN_STR, validator = validate_span)]
-        max_span: Semitones,
-        /// Number of semitones to add (e.g. 1, +1) or to subtract (e.g. -1)
-        #[structopt(
-            long,
-            value_name = "SEMITONES",
-            allow_hyphen_values = true,
-            default_value = "0"
-        )]
-        transpose: i8,
-        /// Name of the chord to be shown
+        #[structopt(flatten)]
+        voicing_opts: VoicingOpts,
+        /// Name of the chord to be shown    
         #[structopt(value_name = "CHORD")]
         chord: Chord,
     },
@@ -72,9 +57,33 @@ enum Subcommand {
     },
     /// Voice leading for a sequence of chords
     VoiceLead {
-        // Chord sequence
+        #[structopt(flatten)]
+        voicing_opts: VoicingOpts,
+        /// Chord sequence
+        #[structopt(value_name = "CHORD_SEQUENCE")]
         chord_seq: ChordSequence,
     },
+}
+
+#[derive(StructOpt)]
+pub struct VoicingOpts {
+    /// Minimal fret (= minimal position) from which to play <chord>
+    #[structopt(long, value_name = "FRET_ID", default_value = &MIN_FRET_STR, validator = validate_fret_id)]
+    min_fret: FretID,
+    /// Maximal fret up to which to play <chord>
+    #[structopt(long, value_name = "FRET_ID", default_value = &MAX_FRET_STR, validator = validate_fret_id)]
+    max_fret: FretID,
+    /// Maximal span between the first and the last fret pressed down when playing <chord>
+    #[structopt(long, value_name = "FRET_COUNT", default_value = &MAX_SPAN_STR, validator = validate_span)]
+    max_span: Semitones,
+    /// Number of semitones to add (e.g. 1, +1) or to subtract (e.g. -1)
+    #[structopt(
+        long,
+        value_name = "SEMITONES",
+        allow_hyphen_values = true,
+        default_value = "0"
+    )]
+    transpose: i8,
 }
 
 fn validate_fret_id(s: String) -> Result<(), String> {
@@ -104,12 +113,11 @@ fn main() {
     match args.cmd {
         Subcommand::Chart {
             all,
-            min_fret,
-            max_fret,
-            max_span,
-            transpose,
+            voicing_opts,
             chord,
         } => {
+            let transpose = voicing_opts.transpose;
+
             // Transpose chord.
             let chord = match transpose {
                 // Subtract semitones (e.g. -1).
@@ -120,9 +128,9 @@ fn main() {
 
             let config = VoicingConfig {
                 tuning,
-                min_fret,
-                max_fret,
-                max_span,
+                min_fret: voicing_opts.min_fret,
+                max_fret: voicing_opts.max_fret,
+                max_span: voicing_opts.max_span,
             };
 
             let mut voicings = chord.voicings(config).peekable();
@@ -134,7 +142,7 @@ fn main() {
             }
 
             for voicing in voicings {
-                let width = max(max_span, MIN_CHART_WIDTH);
+                let width = max(voicing_opts.max_span, MIN_CHART_WIDTH);
                 let chart = ChordChart::new(voicing, width);
                 println!("{}", chart);
 
@@ -155,8 +163,18 @@ fn main() {
                 println!("{}", chord);
             }
         }
-        Subcommand::VoiceLead { chord_seq } => {
-            let config = VoicingConfig::default();
+        Subcommand::VoiceLead {
+            voicing_opts,
+            chord_seq,
+        } => {
+            let _transpose = voicing_opts.transpose;
+
+            let config = VoicingConfig {
+                tuning,
+                min_fret: voicing_opts.min_fret,
+                max_fret: voicing_opts.max_fret,
+                max_span: voicing_opts.max_span,
+            };
 
             let mut voicing_graph = VoicingGraph::new(config);
             voicing_graph.add(&chord_seq);
