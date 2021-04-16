@@ -3,7 +3,8 @@ use std::cmp::max;
 use lazy_static::lazy_static;
 use structopt::StructOpt;
 use ukebox::{
-    dist, Chord, ChordChart, FretID, FretPattern, Semitones, Tuning, Voicing, VoicingConfig,
+    dist, Chord, ChordChart, ChordSequence, FretID, FretPattern, Semitones, Tuning, Voicing,
+    VoicingConfig, VoicingGraph,
 };
 
 /// Maximal possible fret ID.
@@ -68,6 +69,11 @@ enum Subcommand {
         /// A compact chart representing the finger positions of the chord to be looked up
         #[structopt(value_name = "FRET_PATTERN")]
         fret_pattern: FretPattern,
+    },
+    /// Voice leading for a sequence of chords
+    VoiceLead {
+        // Chord sequence
+        chord_seq: ChordSequence,
     },
 }
 
@@ -148,6 +154,18 @@ fn main() {
 
             for chord in chords {
                 println!("{}", chord);
+            }
+        }
+        Subcommand::VoiceLead { chord_seq } => {
+            let config = VoicingConfig::default();
+
+            let mut voicing_graph = VoicingGraph::new(config);
+            voicing_graph.add(&chord_seq);
+
+            if let Some(path) = voicing_graph.find_best_path() {
+                for voicing in path {
+                    println!("{:?}", voicing);
+                }
             }
         }
     }
