@@ -73,6 +73,7 @@ impl VoicingGraph {
     }
 
     pub fn find_best_path(&self) -> Option<Vec<Voicing>> {
+        // Find the best path through the graph.
         let path_option = astar(
             &self.graph,
             self.start_node,
@@ -81,10 +82,12 @@ impl VoicingGraph {
             |_| 0,
         );
 
+        // Map the nodes in the path to voicings.
         if let Some((_weight, path)) = path_option {
             let voicings: Vec<Voicing> = path
                 .iter()
                 .enumerate()
+                // Ignore start and end node.
                 .filter(|(i, _node)| *i > 0 && *i < path.len() - 1)
                 .map(|(_i, node)| self.graph[*node])
                 .collect();
