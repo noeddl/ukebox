@@ -5,6 +5,10 @@ use petgraph::Graph;
 
 use crate::{Chord, ChordSequence, Semitones, Voicing, VoicingConfig};
 
+/// A graph whose nodes represent chord voicings and whose edges
+/// are weighted by the distances between the voicings. It is used
+/// to find the (by some definition) optimal voice leading for
+/// a given sequence of chords.
 pub struct VoicingGraph {
     graph: Graph<Voicing, Semitones>,
     start_node: NodeIndex,
@@ -15,6 +19,8 @@ pub struct VoicingGraph {
 impl VoicingGraph {
     pub fn new(config: VoicingConfig) -> Self {
         let mut graph = Graph::new();
+
+        // We need a fake start and end node for finding the best path.
         let start_node = graph.add_node(Voicing::default());
         let end_node = graph.add_node(Voicing::default());
 

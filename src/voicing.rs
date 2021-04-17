@@ -218,6 +218,10 @@ impl Voicing {
         fingering
     }
 
+    /// Return the distance between this and another voicing.
+    /// Currently, this is simply the sum of the distances between the frets that are
+    /// pressed down on the same string when moving from one voicing to the other.
+    /// Inspired by http://www.petecorey.com/blog/2018/07/30/voice-leading-with-elixir/
     pub fn distance(&self, other: Voicing) -> u8 {
         self.frets()
             .zip(other.frets())
