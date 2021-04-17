@@ -166,8 +166,10 @@ fn main() {
             voicing_graph.add(&chord_seq);
 
             if let Some(path) = voicing_graph.find_best_path() {
-                for voicing in path {
-                    println!("{:?}", voicing);
+                for (chord, voicing) in chord_seq.chords().zip(path) {
+                    println!("[{}]\n", chord);
+                    let chart = ChordChart::new(voicing, voicing_opts.max_span);
+                    println!("{}", chart);
                 }
             }
         }
