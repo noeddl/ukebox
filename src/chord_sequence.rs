@@ -3,6 +3,7 @@ use std::str::FromStr;
 
 use crate::Chord;
 
+#[derive(Debug, PartialEq)]
 pub struct ChordSequence {
     chords: Vec<Chord>,
 }
@@ -10,6 +11,11 @@ pub struct ChordSequence {
 impl ChordSequence {
     pub fn chords(&self) -> Iter<'_, Chord> {
         self.chords.iter()
+    }
+
+    pub fn transpose(&self, semitones: i8) -> ChordSequence {
+        let chords = self.chords().map(|c| c.transpose(semitones)).collect();
+        Self { chords }
     }
 }
 
@@ -51,5 +57,21 @@ mod tests {
     #[rstest(chord_seq, case("Z"), case("A Z"))]
     fn test_from_str_fail(chord_seq: &str) {
         assert!(ChordSequence::from_str(chord_seq).is_err())
+    }
+
+    #[rstest(
+        chord_seq1,
+        semitones,
+        chord_seq2,
+        case("", 0, ""),
+        case("C F G", 0, "C F G"),
+        case("C F G", 1, "C# F# G#"),
+        case("C F G", -1, "B E Gb"),
+        case("C F G", 12, "C F G"),
+    )]
+    fn test_transpose(chord_seq1: &str, semitones: i8, chord_seq2: &str) {
+        let cs1 = ChordSequence::from_str(chord_seq1).unwrap();
+        let cs2 = ChordSequence::from_str(chord_seq2).unwrap();
+        assert_eq!(cs1.transpose(semitones), cs2);
     }
 }

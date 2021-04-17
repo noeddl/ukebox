@@ -159,7 +159,7 @@ fn main() {
             voicing_opts,
             chord_seq,
         } => {
-            let _transpose = voicing_opts.transpose;
+            let chord_seq = chord_seq.transpose(voicing_opts.transpose);
 
             let config = VoicingConfig {
                 tuning,
