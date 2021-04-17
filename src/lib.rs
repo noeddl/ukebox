@@ -2,6 +2,7 @@
 
 pub mod chord;
 pub mod chord_chart;
+pub mod chord_sequence;
 pub mod chord_type;
 pub mod fret_pattern;
 pub mod interval;
@@ -10,9 +11,11 @@ pub mod pitch_class;
 pub mod staff_position;
 pub mod tuning;
 pub mod voicing;
+pub mod voicing_graph;
 
 pub use chord::Chord;
 pub use chord_chart::ChordChart;
+pub use chord_sequence::ChordSequence;
 pub use chord_type::ChordType;
 pub use fret_pattern::FretPattern;
 pub use interval::Interval;
@@ -21,12 +24,16 @@ pub use pitch_class::PitchClass;
 pub use staff_position::StaffPosition;
 pub use tuning::Tuning;
 pub use voicing::Voicing;
+pub use voicing_graph::VoicingGraph;
 
 /// Number of strings on our string instrument.
 pub const STRING_COUNT: usize = 4;
 
 /// Number of fingers on our left hand to be used for pressing down strings.
 pub const FINGER_COUNT: usize = 4;
+
+/// Minimal number of frets to be shown in a chord chart.
+pub const MIN_CHART_WIDTH: Semitones = 4;
 
 /// The ID of a fret on the fretboard. 0 corresponds to the nut,
 /// 1 corresponds to the first fret, 2 to the second etc.

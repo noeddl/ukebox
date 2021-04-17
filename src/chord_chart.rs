@@ -1,6 +1,7 @@
+use std::cmp::max;
 use std::fmt;
 
-use crate::{FretID, Semitones, UkeString, Voicing};
+use crate::{FretID, Semitones, UkeString, Voicing, MIN_CHART_WIDTH};
 
 pub struct ChordChart {
     voicing: Voicing,
@@ -10,6 +11,8 @@ pub struct ChordChart {
 
 impl ChordChart {
     pub fn new(voicing: Voicing, width: Semitones) -> Self {
+        let width = max(width, MIN_CHART_WIDTH);
+
         assert!(voicing.get_span() <= width);
 
         Self { voicing, width }

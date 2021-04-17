@@ -65,6 +65,13 @@ impl Chord {
             .filter(|voicing| voicing.spells_out(self) && voicing.get_span() <= config.max_span)
             .sorted()
     }
+
+    pub fn transpose(&self, semitones: i8) -> Chord {
+        match semitones {
+            s if s < 0 => *self - semitones.abs() as Semitones,
+            _ => *self + semitones as Semitones,
+        }
+    }
 }
 
 impl fmt::Display for Chord {
@@ -746,5 +753,32 @@ mod tests {
     fn test_subtract_semitones(chord: &str, n: Semitones, result: &str) {
         let c = Chord::from_str(chord).unwrap();
         assert_eq!(c - n, Chord::from_str(result).unwrap());
+    }
+
+    #[rstest(
+        chord,
+        n,
+        result,
+        case("C", 0, "C"),
+        case("C#", 0, "C#"),
+        case("Db", 0, "Db"),
+        case("Cm", 1, "C#m"),
+        case("Cmaj7", 2, "Dmaj7"),
+        case("Cdim", 4, "Edim"),
+        case("C#", 2, "D#"),
+        case("A#m", 3, "C#m"),
+        case("A", 12, "A"),
+        case("A#", 12, "A#"),
+        case("Ab", 12, "Ab"),
+        case("Cm", -1, "Bm"),
+        case("Cmaj7", -2, "Bbmaj7"),
+        case("Adim", -3, "Gbdim"),
+        case("A", -12, "A"),
+        case("A#", -12, "A#"),
+        case("Ab", -12, "Ab")
+    )]
+    fn test_transpose(chord: &str, n: i8, result: &str) {
+        let c = Chord::from_str(chord).unwrap();
+        assert_eq!(c.transpose(n), Chord::from_str(result).unwrap());
     }
 }

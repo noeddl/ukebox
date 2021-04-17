@@ -1,5 +1,6 @@
-use std::cmp::Ordering;
+use std::cmp::{max, min, Ordering};
 use std::convert::{TryFrom, TryInto};
+use std::fmt;
 use std::slice::Iter;
 
 use itertools::Itertools;
@@ -8,7 +9,7 @@ use crate::{
     Chord, FretID, FretPattern, Note, PitchClass, Tuning, UkeString, FINGER_COUNT, STRING_COUNT,
 };
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Clone, Copy, PartialEq, Eq)]
 pub struct Voicing {
     uke_strings: [UkeString; STRING_COUNT],
 }
@@ -216,6 +217,17 @@ impl Voicing {
 
         fingering
     }
+
+    /// Return the distance between this and another voicing.
+    /// Currently, the distance is simply the sum of the distances between the frets that
+    /// are pressed down on the same string when moving from one voicing to the other.
+    /// Inspired by http://www.petecorey.com/blog/2018/07/30/voice-leading-with-elixir/
+    pub fn distance(&self, other: Voicing) -> u8 {
+        self.frets()
+            .zip(other.frets())
+            .map(|(f1, f2)| max(f1, f2) - min(f1, f2))
+            .sum()
+    }
 }
 
 impl PartialOrd for Voicing {
@@ -238,6 +250,28 @@ impl Ord for Voicing {
             Ordering::Equal => frets1.iter().rev().cmp(frets2.iter().rev()),
             other => other,
         }
+    }
+}
+
+/// The default implementation is used to easily create an "empty" start and end node
+/// in the voicing graph.
+impl Default for Voicing {
+    fn default() -> Self {
+        Self::new([0, 0, 0, 0], Tuning::C)
+    }
+}
+
+impl fmt::Debug for Voicing {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let roots = self.roots().map(|r| r.to_string()).collect::<Vec<String>>();
+        let frets = self.frets().collect::<Vec<FretID>>();
+        let notes = self.notes().map(|n| n.to_string()).collect::<Vec<String>>();
+
+        f.debug_struct("Voicing")
+            .field("roots", &roots)
+            .field("frets", &frets)
+            .field("notes", &notes)
+            .finish()
     }
 }
 
@@ -435,5 +469,20 @@ mod tests {
     fn test_get_fingering(frets: [FretID; STRING_COUNT], fingering: [FretID; STRING_COUNT]) {
         let voicing = Voicing::new(frets, Tuning::C);
         assert_eq!(voicing.get_fingering(), fingering);
+    }
+
+    #[rstest(
+        frets1, frets2, distance,
+        case([0, 0, 0, 0], [0, 0, 0, 0], 0),
+        case([0, 0, 0, 3], [2, 0, 1, 3], 3),
+        case([2, 0, 1, 3], [0, 0, 0, 3], 3),
+        case([0, 0, 0, 3], [2, 0, 1, 0], 6),
+        case([3, 2, 1, 1], [5, 4, 3, 3], 8),
+        case([3, 2, 1, 1], [0, 0, 0, 3], 8),
+    )]
+    fn test_distance(frets1: [FretID; STRING_COUNT], frets2: [FretID; STRING_COUNT], distance: u8) {
+        let voicing1 = Voicing::new(frets1, Tuning::C);
+        let voicing2 = Voicing::new(frets2, Tuning::C);
+        assert_eq!(voicing1.distance(voicing2), distance);
     }
 }
