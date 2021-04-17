@@ -116,15 +116,7 @@ fn main() {
             voicing_opts,
             chord,
         } => {
-            let transpose = voicing_opts.transpose;
-
-            // Transpose chord.
-            let chord = match transpose {
-                // Subtract semitones (e.g. -1).
-                t if t < 0 => chord - transpose.abs() as u8,
-                // Add semitones (e.g. 1, +1).
-                _ => chord + transpose as u8,
-            };
+            let chord = chord.transpose(voicing_opts.transpose);
 
             let config = VoicingConfig {
                 tuning,
