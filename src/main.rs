@@ -1,5 +1,3 @@
-use std::cmp::max;
-
 use lazy_static::lazy_static;
 use structopt::StructOpt;
 use ukebox::{
@@ -14,9 +12,6 @@ const MAX_FRET_ID: FretID = 21;
 /// Maximal span of frets.
 /// Playing a chord that spans more than 5 frets seems anatomically impossible to me.
 const MAX_SPAN: Semitones = 5;
-
-/// Minimal number of frets to be shown in a chord chart.
-const MIN_CHART_WIDTH: Semitones = 4;
 
 // See https://github.com/TeXitoi/structopt/issues/150
 lazy_static! {
@@ -134,8 +129,7 @@ fn main() {
             }
 
             for voicing in voicings {
-                let width = max(voicing_opts.max_span, MIN_CHART_WIDTH);
-                let chart = ChordChart::new(voicing, width);
+                let chart = ChordChart::new(voicing, voicing_opts.max_span);
                 println!("{}", chart);
 
                 if !all {
