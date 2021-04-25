@@ -4,6 +4,7 @@ pub mod chord;
 pub mod chord_chart;
 pub mod chord_sequence;
 pub mod chord_type;
+pub mod fingering;
 pub mod fret_pattern;
 pub mod interval;
 pub mod note;
@@ -17,6 +18,7 @@ pub use chord::Chord;
 pub use chord_chart::ChordChart;
 pub use chord_sequence::ChordSequence;
 pub use chord_type::ChordType;
+pub use fingering::Fingering;
 pub use fret_pattern::FretPattern;
 pub use interval::Interval;
 pub use note::Note;
@@ -46,6 +48,8 @@ pub type Semitones = u8;
 /// The number of steps in a staff to move from one staff position
 /// to another.
 pub type StaffSteps = u8;
+
+pub type FingerPosition = (u8, u8);
 
 /// A certain configuration of a ukulele string consisting of
 /// the string's root note, the ID of a fret on this string and
