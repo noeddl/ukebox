@@ -1,5 +1,5 @@
 use itertools::Itertools;
-use petgraph::algo::astar;
+use petgraph::algo::{all_simple_paths, astar};
 use petgraph::prelude::NodeIndex;
 use petgraph::Graph;
 
@@ -111,5 +111,44 @@ impl VoicingGraph {
         };
 
         None
+    }
+
+    pub fn iter_paths(&self) {
+        // -> impl Iterator + '_ {
+
+        let all_paths = all_simple_paths::<Vec<NodeIndex>, &Graph<Voicing, Semitones>>(
+            &self.graph,
+            self.start_node,
+            self.end_node,
+            0,
+            None,
+        );
+
+        let weight_sum = |path: &Vec<NodeIndex>| -> u8 {
+            path.iter()
+                // Loop over (overlapping) pairs of nodes.
+                .tuple_windows()
+                // Fetch edge between nodes.
+                .filter_map(|(n1, n2)| self.graph.find_edge(*n1, *n2))
+                // Get edge weight.
+                .filter_map(|e| self.graph.edge_weight(e))
+                .sum()
+        };
+
+        // Split into an iterator pair that both yield all elements from the original iterator.
+        let (all_paths1, all_paths2) = all_paths.tee();
+
+        let min_weight = all_paths1.map(|p| weight_sum(&p)).min().unwrap();
+
+        let paths: Vec<Vec<NodeIndex>> = all_paths2
+            .filter(|p| weight_sum(&p) == min_weight)
+            .collect();
+
+        for path in paths {
+            for voicing in path.iter().map(|n| self.graph[*n]) {
+                println!("{:?} {:?}", min_weight, voicing);
+            }
+            println!("----");
+        }
     }
 }

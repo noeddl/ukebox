@@ -165,6 +165,8 @@ fn main() {
             let mut voicing_graph = VoicingGraph::new(config);
             voicing_graph.add(&chord_seq);
 
+            voicing_graph.iter_paths();
+
             if let Some(path) = voicing_graph.find_best_path() {
                 for (chord, voicing) in chord_seq.chords().zip(path) {
                     println!("[{}]\n", chord);
