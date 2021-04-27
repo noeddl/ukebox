@@ -85,6 +85,12 @@ impl VoicingGraph {
         for node in prev_nodes.iter() {
             self.graph.add_edge(*node, self.end_node, 0);
         }
+
+        // Remove unused nodes.
+        let end_node = self.end_node;
+
+        self.graph
+            .retain_nodes(|g, n| g.neighbors(n).count() > 0 || n == end_node);
     }
 
     pub fn find_best_path(&self) -> Option<Vec<Voicing>> {
