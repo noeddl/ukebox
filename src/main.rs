@@ -164,6 +164,7 @@ fn main() {
 
             let mut voicing_graph = VoicingGraph::new(config);
             voicing_graph.add(&chord_seq);
+            voicing_graph.update_edges();
 
             voicing_graph.iter_paths();
 

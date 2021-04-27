@@ -3,7 +3,7 @@ use petgraph::algo::{all_simple_paths, astar};
 use petgraph::prelude::NodeIndex;
 use petgraph::Graph;
 
-use crate::{Chord, ChordSequence, Semitones, Voicing, VoicingConfig};
+use crate::{Chord, ChordSequence, Fingering, Semitones, Voicing, VoicingConfig};
 
 /// A graph whose nodes represent chord voicings and whose edges
 /// are weighted by the distances between the voicings. It is used
@@ -91,6 +91,24 @@ impl VoicingGraph {
 
         self.graph
             .retain_nodes(|g, n| g.neighbors(n).count() > 0 || n == end_node);
+    }
+
+    pub fn update_edges(&mut self) {
+        for e in self.graph.edge_indices() {
+            if let Some((l, r)) = self.graph.edge_endpoints(e) {
+                if l != self.start_node && r != self.end_node {
+                    let l_voicing = self.graph[l];
+                    let r_voicing = self.graph[r];
+
+                    let l_fingering = Fingering::from(l_voicing);
+                    let r_fingering = Fingering::from(r_voicing);
+
+                    let dist = l_fingering.distance(r_fingering);
+
+                    self.graph.update_edge(l, r, dist);
+                }
+            }
+        }
     }
 
     pub fn find_best_path(&self) -> Option<Vec<Voicing>> {
