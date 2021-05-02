@@ -45,7 +45,11 @@ impl VoicingGraph {
         for (l, r) in left_nodes.iter().cartesian_product(right_nodes.iter()) {
             let l_voicing = self.graph[*l];
             let r_voicing = self.graph[*r];
-            let dist = l_voicing.distance(r_voicing);
+
+            let dist = match l {
+                l if *l == self.start_node => 0,
+                _ => l_voicing.distance(r_voicing),
+            };
 
             edge_cands.push((*l, *r, dist));
         }
@@ -64,18 +68,11 @@ impl VoicingGraph {
     }
 
     pub fn add(&mut self, chord_seq: &ChordSequence) {
-        let mut prev_nodes = vec![];
+        // Add edges from the start node to all the voicings of the first chord.
+        let mut prev_nodes = vec![self.start_node];
 
-        for (i, chord) in chord_seq.chords().enumerate() {
+        for chord in chord_seq.chords() {
             let nodes = self.add_nodes(chord);
-
-            // Add edges from the start node to all the voicings of the first chord.
-            if i == 0 {
-                for node in nodes.iter() {
-                    self.graph.add_edge(self.start_node, *node, 0);
-                }
-            }
-
             self.add_edges(&prev_nodes, &nodes);
 
             prev_nodes = nodes;
