@@ -1,3 +1,6 @@
+use std::iter::Sum;
+use std::ops::Add;
+
 use itertools::Itertools;
 use petgraph::algo::{all_simple_paths, astar};
 use petgraph::prelude::NodeIndex;
@@ -7,12 +10,32 @@ use crate::{Chord, ChordSequence, Fingering, Semitones, Voicing, VoicingConfig};
 
 const MAX_DIST: Semitones = 10;
 
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+pub struct Distance(u8, u8);
+
+impl Add for Distance {
+    type Output = Self;
+
+    fn add(self, other: Distance) -> Self {
+        Distance(self.0 + other.0, self.1 + other.1)
+    }
+}
+
+impl<'a> Sum<&'a Self> for Distance {
+    fn sum<I>(iter: I) -> Self
+    where
+        I: Iterator<Item = &'a Self>,
+    {
+        iter.fold(Self(0, 0), |a, b| Self(a.0 + b.0, a.1 + b.1))
+    }
+}
+
 /// A graph whose nodes represent chord voicings and whose edges
 /// are weighted by the distances between the voicings. It is used
 /// to find the (by some definition) optimal voice leading for
 /// a given sequence of chords.
 pub struct VoicingGraph {
-    graph: Graph<Voicing, Semitones>,
+    graph: Graph<Voicing, Distance>,
     start_node: NodeIndex,
     end_node: NodeIndex,
     config: VoicingConfig,
@@ -46,14 +69,22 @@ impl VoicingGraph {
             let l_voicing = self.graph[*l];
             let r_voicing = self.graph[*r];
 
-            let dist = match l {
+            let l_fingering = Fingering::from(l_voicing);
+            let r_fingering = Fingering::from(r_voicing);
+
+            let dist1 = match l {
                 l if *l == self.start_node => 0,
                 _ => l_voicing.distance(r_voicing),
             };
 
+            let dist2 = match l {
+                l if *l == self.start_node => 0,
+                _ => l_fingering.distance(r_fingering),
+            };
+
             // Ignore voicings that are too far away from each other.
-            if dist <= MAX_DIST {
-                self.graph.add_edge(*l, *r, dist);
+            if dist1 <= MAX_DIST {
+                self.graph.add_edge(*l, *r, Distance(dist1, dist2));
             }
         }
     }
@@ -71,7 +102,7 @@ impl VoicingGraph {
 
         // Add edges from all the voicings of the last chord to the end node.
         for node in prev_nodes.iter() {
-            self.graph.add_edge(*node, self.end_node, 0);
+            self.graph.add_edge(*node, self.end_node, Distance(0, 0));
         }
 
         // Remove unused nodes.
@@ -81,23 +112,23 @@ impl VoicingGraph {
             .retain_nodes(|g, n| g.neighbors(n).count() > 0 || n == end_node);
     }
 
-    pub fn update_edges(&mut self) {
-        for e in self.graph.edge_indices() {
-            if let Some((l, r)) = self.graph.edge_endpoints(e) {
-                if l != self.start_node && r != self.end_node {
-                    let l_voicing = self.graph[l];
-                    let r_voicing = self.graph[r];
+    // pub fn update_edges(&mut self) {
+    //     for e in self.graph.edge_indices() {
+    //         if let Some((l, r)) = self.graph.edge_endpoints(e) {
+    //             if l != self.start_node && r != self.end_node {
+    //                 let l_voicing = self.graph[l];
+    //                 let r_voicing = self.graph[r];
 
-                    let l_fingering = Fingering::from(l_voicing);
-                    let r_fingering = Fingering::from(r_voicing);
+    //                 let l_fingering = Fingering::from(l_voicing);
+    //                 let r_fingering = Fingering::from(r_voicing);
 
-                    let dist = l_fingering.distance(r_fingering);
+    //                 let dist = l_fingering.distance(r_fingering);
 
-                    self.graph.update_edge(l, r, dist);
-                }
-            }
-        }
-    }
+    //                 self.graph.update_edge(l, r, dist);
+    //             }
+    //         }
+    //     }
+    // }
 
     pub fn find_best_path(&self) -> Option<Vec<Voicing>> {
         // Find the best path through the graph.
@@ -106,7 +137,7 @@ impl VoicingGraph {
             self.start_node,
             |finish| finish == self.end_node,
             |e| *e.weight(),
-            |_| 0,
+            |_| Distance(0, 0),
         );
 
         // Map the nodes in the path to voicings.
@@ -128,7 +159,7 @@ impl VoicingGraph {
     pub fn iter_paths(&self) {
         // -> impl Iterator + '_ {
 
-        let all_paths = all_simple_paths::<Vec<NodeIndex>, &Graph<Voicing, Semitones>>(
+        let all_paths = all_simple_paths::<Vec<NodeIndex>, &Graph<Voicing, Distance>>(
             &self.graph,
             self.start_node,
             self.end_node,
@@ -136,7 +167,7 @@ impl VoicingGraph {
             None,
         );
 
-        let weight_sum = |path: &Vec<NodeIndex>| -> u8 {
+        let weight_sum = |path: &Vec<NodeIndex>| -> Distance {
             path.iter()
                 // Loop over (overlapping) pairs of nodes.
                 .tuple_windows()
