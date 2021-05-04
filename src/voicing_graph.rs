@@ -5,6 +5,8 @@ use petgraph::Graph;
 
 use crate::{Chord, ChordSequence, Fingering, Semitones, Voicing, VoicingConfig};
 
+const MAX_DIST: Semitones = 10;
+
 /// A graph whose nodes represent chord voicings and whose edges
 /// are weighted by the distances between the voicings. It is used
 /// to find the (by some definition) optimal voice leading for
@@ -49,7 +51,10 @@ impl VoicingGraph {
                 _ => l_voicing.distance(r_voicing),
             };
 
-            self.graph.add_edge(*l, *r, dist);
+            // Ignore voicings that are too far away from each other.
+            if dist <= MAX_DIST {
+                self.graph.add_edge(*l, *r, dist);
+            }
         }
     }
 
