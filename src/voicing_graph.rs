@@ -40,8 +40,6 @@ impl VoicingGraph {
     }
 
     fn add_edges(&mut self, left_nodes: &[NodeIndex], right_nodes: &[NodeIndex]) {
-        let mut edge_cands = vec![];
-
         for (l, r) in left_nodes.iter().cartesian_product(right_nodes.iter()) {
             let l_voicing = self.graph[*l];
             let r_voicing = self.graph[*r];
@@ -51,19 +49,7 @@ impl VoicingGraph {
                 _ => l_voicing.distance(r_voicing),
             };
 
-            edge_cands.push((*l, *r, dist));
-        }
-
-        let edges: Vec<_> = match edge_cands.iter().map(|(_l, _r, dist)| dist).min() {
-            Some(min_dist) => edge_cands
-                .iter()
-                .filter(|(_l, _r, dist)| dist == min_dist)
-                .collect(),
-            _ => edge_cands.iter().collect(),
-        };
-
-        for (l, r, dist) in edges.iter() {
-            self.graph.add_edge(*l, *r, *dist);
+            self.graph.add_edge(*l, *r, dist);
         }
     }
 
