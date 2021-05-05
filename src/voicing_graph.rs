@@ -178,18 +178,10 @@ impl VoicingGraph {
                 .sum()
         };
 
-        // Split into an iterator pair that both yield all elements from the original iterator.
-        let (all_paths1, all_paths2) = all_paths.tee();
-
-        let min_weight = all_paths1.map(|p| weight_sum(&p)).min().unwrap();
-
-        let paths: Vec<Vec<NodeIndex>> = all_paths2
-            .filter(|p| weight_sum(&p) == min_weight)
-            .collect();
-
-        for path in paths {
+        for path in all_paths.sorted_by_key(weight_sum) {
+            println!("{:?}", weight_sum(&path));
             for voicing in path.iter().map(|n| self.graph[*n]) {
-                println!("{:?} {:?}", min_weight, voicing);
+                println!("{:?}", voicing);
             }
             println!("----");
         }
