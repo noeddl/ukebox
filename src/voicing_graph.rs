@@ -1,4 +1,4 @@
-use std::iter::Sum;
+use std::iter::{Iterator, Sum};
 use std::ops::Add;
 
 use itertools::Itertools;
@@ -156,9 +156,10 @@ impl VoicingGraph {
         None
     }
 
-    pub fn iter_paths(&self) {
-        // -> impl Iterator + '_ {
-
+    pub fn paths(
+        &self,
+        max_suggestions: usize,
+    ) -> impl Iterator<Item = (Vec<Voicing>, Distance)> + '_ {
         let all_paths = all_simple_paths::<Vec<NodeIndex>, &Graph<Voicing, Distance>>(
             &self.graph,
             self.start_node,
@@ -178,12 +179,20 @@ impl VoicingGraph {
                 .sum()
         };
 
-        for path in all_paths.sorted_by_key(weight_sum) {
-            println!("{:?}", weight_sum(&path));
-            for voicing in path.iter().map(|n| self.graph[*n]) {
-                println!("{:?}", voicing);
-            }
-            println!("----");
+        let mut paths_with_dist = vec![];
+
+        for path in all_paths.sorted_by_key(weight_sum).take(max_suggestions) {
+            let voicing_path: Vec<_> = path
+                .iter()
+                .enumerate()
+                // Ignore start and end node.
+                .filter(|(i, _node)| *i > 0 && *i < path.len() - 1)
+                .map(|(_i, node)| self.graph[*node])
+                .collect();
+
+            paths_with_dist.push((voicing_path, weight_sum(&path)))
         }
+
+        paths_with_dist.into_iter()
     }
 }
