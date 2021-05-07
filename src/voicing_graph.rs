@@ -2,7 +2,7 @@ use std::iter::{Iterator, Sum};
 use std::ops::Add;
 
 use itertools::Itertools;
-use petgraph::algo::{all_simple_paths, astar};
+use petgraph::algo::all_simple_paths;
 use petgraph::prelude::NodeIndex;
 use petgraph::Graph;
 
@@ -110,50 +110,6 @@ impl VoicingGraph {
 
         self.graph
             .retain_nodes(|g, n| g.neighbors(n).count() > 0 || n == end_node);
-    }
-
-    // pub fn update_edges(&mut self) {
-    //     for e in self.graph.edge_indices() {
-    //         if let Some((l, r)) = self.graph.edge_endpoints(e) {
-    //             if l != self.start_node && r != self.end_node {
-    //                 let l_voicing = self.graph[l];
-    //                 let r_voicing = self.graph[r];
-
-    //                 let l_fingering = Fingering::from(l_voicing);
-    //                 let r_fingering = Fingering::from(r_voicing);
-
-    //                 let dist = l_fingering.distance(r_fingering);
-
-    //                 self.graph.update_edge(l, r, dist);
-    //             }
-    //         }
-    //     }
-    // }
-
-    pub fn find_best_path(&self) -> Option<Vec<Voicing>> {
-        // Find the best path through the graph.
-        let path_option = astar(
-            &self.graph,
-            self.start_node,
-            |finish| finish == self.end_node,
-            |e| *e.weight(),
-            |_| Distance(0, 0),
-        );
-
-        // Map the nodes in the path to voicings.
-        if let Some((_weight, path)) = path_option {
-            let voicings: Vec<Voicing> = path
-                .iter()
-                .enumerate()
-                // Ignore start and end node.
-                .filter(|(i, _node)| *i > 0 && *i < path.len() - 1)
-                .map(|(_i, node)| self.graph[*node])
-                .collect();
-
-            return Some(voicings);
-        };
-
-        None
     }
 
     pub fn paths(
