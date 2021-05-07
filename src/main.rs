@@ -166,23 +166,23 @@ fn main() {
             voicing_graph.add(&chord_seq);
             //voicing_graph.update_edges();
 
-            for (path, dist) in voicing_graph.paths(3) {
+            for (path, _dist) in voicing_graph.paths(1) {
                 for (chord, voicing) in chord_seq.chords().zip(path.iter()) {
                     println!("[{}]\n", chord);
                     let chart = ChordChart::new(*voicing, voicing_opts.max_span);
                     println!("{}", chart);
                 }
-                println!("{:?}\n", dist);
-                println!("---------------------------\n");
+                //println!("{:?}\n", dist);
+                //println!("---------------------------\n");
             }
 
-            if let Some(path) = voicing_graph.find_best_path() {
-                for (chord, voicing) in chord_seq.chords().zip(path) {
-                    println!("[{}]\n", chord);
-                    let chart = ChordChart::new(voicing, voicing_opts.max_span);
-                    println!("{}", chart);
-                }
-            }
+            // if let Some(path) = voicing_graph.find_best_path() {
+            //     for (chord, voicing) in chord_seq.chords().zip(path) {
+            //         println!("[{}]\n", chord);
+            //         let chart = ChordChart::new(voicing, voicing_opts.max_span);
+            //         println!("{}", chart);
+            //     }
+            // }
         }
     }
 }
