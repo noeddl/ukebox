@@ -220,7 +220,7 @@ impl Voicing {
     }
 
     /// Return the distance in semitones between this and another voicing.
-    /// It's computed by simply summing of the distances between the frets that
+    /// It's computed by simply summing up the distances between the frets that
     /// are pressed down on the same string when moving from one voicing to the other.
     /// Inspired by http://www.petecorey.com/blog/2018/07/30/voice-leading-with-elixir/
     pub fn semitone_distance(&self, other: Voicing) -> u8 {
