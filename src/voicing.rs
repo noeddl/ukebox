@@ -161,14 +161,16 @@ impl Voicing {
         min_fret_count >= 2
     }
 
-    /// Return a fingering for the current voicing, i.e. assign the player's
+    /// Compute a fingering for the current voicing, i.e. assign the player's
     /// fingers to the positions on the fretboard that have to be pressed down.
+    /// The return value is an array of numbers representing the fingers
+    /// on the strings (represented by the indexes of the array).
     /// This assumes that each chord voicing has a unique fingering (which is
     /// not true in reality - often several fingerings are possible). My fingering
     /// strategy here is based on my own way to play certain chords. For example,
     /// I tend to avoid barre chords if possible, e.g. I play the G major chord
     /// as 0132 and not as 0121.
-    pub fn get_fingering(&self) -> [u8; FINGER_COUNT] {
+    pub fn fingers_on_strings(&self) -> [u8; STRING_COUNT] {
         // Total number of strings on which we need to place our fingers.
         let pressed_strings = self.count_pressed_strings();
 
@@ -184,7 +186,7 @@ impl Voicing {
             _ => self.get_min_pressed_fret(),
         };
 
-        let mut fingering = [0; FINGER_COUNT];
+        let mut fingering = [0; STRING_COUNT];
 
         // Current finger (can have values 1 to 4).
         let mut finger = 1;
@@ -481,9 +483,9 @@ mod tests {
         case([3, 0, 1, 5], [3, 0, 1, 4]),
         case([3, 5, 1, 5], [2, 3, 1, 4]),
     )]
-    fn test_get_fingering(frets: [FretID; STRING_COUNT], fingering: [FretID; STRING_COUNT]) {
+    fn test_fingers_on_strings(frets: [FretID; STRING_COUNT], fingering: [FretID; STRING_COUNT]) {
         let voicing = Voicing::new(frets, Tuning::C);
-        assert_eq!(voicing.get_fingering(), fingering);
+        assert_eq!(voicing.fingers_on_strings(), fingering);
     }
 
     #[rstest(

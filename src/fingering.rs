@@ -44,7 +44,7 @@ impl From<Voicing> for Fingering {
     fn from(voicing: Voicing) -> Self {
         let mut finger_positions = [(0, 0); FINGER_COUNT];
 
-        let fingers_on_strings = voicing.get_fingering();
+        let fingers_on_strings = voicing.fingers_on_strings();
 
         for ((i, fret_id), finger) in voicing.frets().enumerate().zip(&fingers_on_strings) {
             if finger > &0 {
