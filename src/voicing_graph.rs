@@ -76,7 +76,7 @@ impl VoicingGraph {
 
             let dist1 = match l {
                 l if *l == self.start_node => 0,
-                _ => l_voicing.distance(r_voicing),
+                _ => l_voicing.semitone_distance(r_voicing),
             };
 
             let dist2 = match l {

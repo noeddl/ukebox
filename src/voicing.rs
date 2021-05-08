@@ -6,7 +6,8 @@ use std::slice::Iter;
 use itertools::Itertools;
 
 use crate::{
-    Chord, FretID, FretPattern, Note, PitchClass, Tuning, UkeString, FINGER_COUNT, STRING_COUNT,
+    Chord, FretID, FretPattern, Note, PitchClass, Semitones, Tuning, UkeString, FINGER_COUNT,
+    STRING_COUNT,
 };
 
 #[derive(Clone, Copy, PartialEq, Eq)]
@@ -218,11 +219,11 @@ impl Voicing {
         fingering
     }
 
-    /// Return the distance between this and another voicing.
-    /// Currently, the distance is simply the sum of the distances between the frets that
+    /// Return the distance in semitones between this and another voicing.
+    /// It's computed by simply summing of the distances between the frets that
     /// are pressed down on the same string when moving from one voicing to the other.
     /// Inspired by http://www.petecorey.com/blog/2018/07/30/voice-leading-with-elixir/
-    pub fn distance(&self, other: Voicing) -> u8 {
+    pub fn semitone_distance(&self, other: Voicing) -> Semitones {
         self.frets()
             .zip(other.frets())
             .map(|(f1, f2)| max(f1, f2) - min(f1, f2))
@@ -472,7 +473,7 @@ mod tests {
     }
 
     #[rstest(
-        frets1, frets2, distance,
+        frets1, frets2, dist,
         case([0, 0, 0, 0], [0, 0, 0, 0], 0),
         case([0, 0, 0, 3], [2, 0, 1, 3], 3),
         case([2, 0, 1, 3], [0, 0, 0, 3], 3),
@@ -480,9 +481,13 @@ mod tests {
         case([3, 2, 1, 1], [5, 4, 3, 3], 8),
         case([3, 2, 1, 1], [0, 0, 0, 3], 8),
     )]
-    fn test_distance(frets1: [FretID; STRING_COUNT], frets2: [FretID; STRING_COUNT], distance: u8) {
+    fn test_semitone_distance(
+        frets1: [FretID; STRING_COUNT],
+        frets2: [FretID; STRING_COUNT],
+        dist: u8,
+    ) {
         let voicing1 = Voicing::new(frets1, Tuning::C);
         let voicing2 = Voicing::new(frets2, Tuning::C);
-        assert_eq!(voicing1.distance(voicing2), distance);
+        assert_eq!(voicing1.semitone_distance(voicing2), dist);
     }
 }
