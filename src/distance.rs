@@ -3,7 +3,7 @@ use std::ops::Add;
 
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 /// The distance between two voicings combining semitone distance
-/// fingering distance as a tuple.
+/// and fingering distance as a tuple.
 pub struct Distance(u8, u8);
 
 impl Distance {
@@ -13,6 +13,10 @@ impl Distance {
 
     pub fn semitone_distance(&self) -> u8 {
         self.0
+    }
+
+    pub fn fingering_distance(&self) -> u8 {
+        self.1
     }
 }
 
