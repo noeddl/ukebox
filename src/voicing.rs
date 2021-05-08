@@ -6,8 +6,8 @@ use std::slice::Iter;
 use itertools::Itertools;
 
 use crate::{
-    Chord, Fingering, FretID, FretPattern, Note, PitchClass, Semitones, Tuning, UkeString,
-    FINGER_COUNT, STRING_COUNT,
+    Chord, Distance, Fingering, FretID, FretPattern, Note, PitchClass, Semitones, Tuning,
+    UkeString, FINGER_COUNT, STRING_COUNT,
 };
 
 #[derive(Clone, Copy, PartialEq, Eq)]
@@ -235,6 +235,13 @@ impl Voicing {
         let r_fingering = Fingering::from(other);
 
         l_fingering.distance(r_fingering)
+    }
+
+    pub fn distance(&self, other: Voicing) -> Distance {
+        let semitone_distance = self.semitone_distance(other);
+        let fingering_distance = self.fingering_distance(other);
+
+        Distance::new(semitone_distance, fingering_distance)
     }
 }
 

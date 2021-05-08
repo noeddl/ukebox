@@ -10,6 +10,10 @@ impl Distance {
     pub fn new(semitone_distance: u8, fingering_distance: u8) -> Self {
         Self(semitone_distance, fingering_distance)
     }
+
+    pub fn semitone_distance(&self) -> u8 {
+        self.0
+    }
 }
 
 impl Add for Distance {

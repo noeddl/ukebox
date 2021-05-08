@@ -48,19 +48,14 @@ impl VoicingGraph {
             let l_voicing = self.graph[*l];
             let r_voicing = self.graph[*r];
 
-            let dist1 = match l {
-                l if *l == self.start_node => 0,
-                _ => l_voicing.semitone_distance(r_voicing),
-            };
-
-            let dist2 = match l {
-                l if *l == self.start_node => 0,
-                _ => l_voicing.fingering_distance(r_voicing),
+            let dist = match l {
+                l if *l == self.start_node => Distance::default(),
+                _ => l_voicing.distance(r_voicing),
             };
 
             // Ignore voicings that are too far away from each other.
-            if dist1 <= MAX_DIST {
-                self.graph.add_edge(*l, *r, Distance::new(dist1, dist2));
+            if dist.semitone_distance() <= MAX_DIST {
+                self.graph.add_edge(*l, *r, dist);
             }
         }
     }
