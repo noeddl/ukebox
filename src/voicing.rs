@@ -6,8 +6,8 @@ use std::slice::Iter;
 use itertools::Itertools;
 
 use crate::{
-    Chord, Distance, Fingering, FretID, FretPattern, Note, PitchClass, Semitones, Tuning,
-    UkeString, FINGER_COUNT, STRING_COUNT,
+    Chord, Distance, Fingering, FretID, FretPattern, Note, PitchClass, Tuning, UkeString,
+    FINGER_COUNT, STRING_COUNT,
 };
 
 #[derive(Clone, Copy, PartialEq, Eq)]
@@ -223,14 +223,14 @@ impl Voicing {
     /// It's computed by simply summing of the distances between the frets that
     /// are pressed down on the same string when moving from one voicing to the other.
     /// Inspired by http://www.petecorey.com/blog/2018/07/30/voice-leading-with-elixir/
-    pub fn semitone_distance(&self, other: Voicing) -> Semitones {
+    pub fn semitone_distance(&self, other: Voicing) -> u8 {
         self.frets()
             .zip(other.frets())
             .map(|(f1, f2)| max(f1, f2) - min(f1, f2))
             .sum()
     }
 
-    pub fn fingering_distance(&self, other: Voicing) -> Semitones {
+    pub fn fingering_distance(&self, other: Voicing) -> u8 {
         let l_fingering = Fingering::from(*self);
         let r_fingering = Fingering::from(other);
 
