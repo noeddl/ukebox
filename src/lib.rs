@@ -49,6 +49,8 @@ pub type Semitones = u8;
 /// to another.
 pub type StaffSteps = u8;
 
+/// The position of a finger on a certain string in a certain fret.
+/// For example, (3, 4) depicts the fourth fret on the third string.
 pub type FingerPosition = (u8, u8);
 
 /// A certain configuration of a ukulele string consisting of

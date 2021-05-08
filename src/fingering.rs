@@ -8,6 +8,8 @@ pub struct Fingering {
 }
 
 impl Fingering {
+    /// Compute the distance between two fingerings, inspired by
+    /// http://www.petecorey.com/blog/2018/08/27/computing-fingering-distance-with-dr-levenshtein/
     pub fn distance(&self, other: Fingering) -> u8 {
         let dist = |(&(s1, f1), &(s2, f2))| {
             let add = s1 == 0 && s2 != 0;
@@ -17,7 +19,8 @@ impl Fingering {
             // Simple finger movements.
             if add || remove || slide {
                 1
-            // Move finger from one string to another.
+            // For a movement of a finger from one string to another
+            // calculate its "Manhattan distance".
             } else {
                 (max(s1, s2) - min(s1, s2)) + (max(f1, f2) - min(f1, f2))
             }

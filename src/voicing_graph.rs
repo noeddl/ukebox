@@ -11,6 +11,8 @@ use crate::{Chord, ChordSequence, Fingering, Semitones, Voicing, VoicingConfig};
 const MAX_DIST: Semitones = 10;
 
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+/// The distance between two voicings combining semitone distance
+/// fingering distance as a tuple.
 pub struct Distance(u8, u8);
 
 impl Add for Distance {
@@ -113,6 +115,10 @@ impl VoicingGraph {
             .retain_nodes(|g, n| g.neighbors(n).count() > 0 || n == end_node);
     }
 
+    /// Return an iterator over the paths between the voicing nodes.
+    /// The path with the lowest distance is presented first. If several paths
+    /// have the same overall distance, they are further ranked by fingering
+    /// distance.
     pub fn paths(
         &self,
         max_suggestions: usize,
@@ -125,6 +131,7 @@ impl VoicingGraph {
             None,
         );
 
+        // Compute the sum of th weights along a path.
         let weight_sum = |path: &Vec<NodeIndex>| -> Distance {
             path.iter()
                 // Loop over (overlapping) pairs of nodes.
