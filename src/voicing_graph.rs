@@ -1,36 +1,13 @@
-use std::iter::{Iterator, Sum};
-use std::ops::Add;
+use std::iter::Iterator;
 
 use itertools::Itertools;
 use petgraph::algo::all_simple_paths;
 use petgraph::prelude::NodeIndex;
 use petgraph::Graph;
 
-use crate::{Chord, ChordSequence, Semitones, Voicing, VoicingConfig};
+use crate::{Chord, ChordSequence, Distance, Semitones, Voicing, VoicingConfig};
 
 const MAX_DIST: Semitones = 10;
-
-#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
-/// The distance between two voicings combining semitone distance
-/// fingering distance as a tuple.
-pub struct Distance(u8, u8);
-
-impl Add for Distance {
-    type Output = Self;
-
-    fn add(self, other: Distance) -> Self {
-        Distance(self.0 + other.0, self.1 + other.1)
-    }
-}
-
-impl<'a> Sum<&'a Self> for Distance {
-    fn sum<I>(iter: I) -> Self
-    where
-        I: Iterator<Item = &'a Self>,
-    {
-        iter.fold(Self(0, 0), |a, b| Self(a.0 + b.0, a.1 + b.1))
-    }
-}
 
 /// A graph whose nodes represent chord voicings and whose edges
 /// are weighted by the distances between the voicings. It is used
@@ -83,7 +60,7 @@ impl VoicingGraph {
 
             // Ignore voicings that are too far away from each other.
             if dist1 <= MAX_DIST {
-                self.graph.add_edge(*l, *r, Distance(dist1, dist2));
+                self.graph.add_edge(*l, *r, Distance::new(dist1, dist2));
             }
         }
     }
