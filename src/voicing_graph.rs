@@ -102,7 +102,8 @@ impl VoicingGraph {
 
         // Add edges from all the voicings of the last chord to the end node.
         for node in prev_nodes.iter() {
-            self.graph.add_edge(*node, self.end_node, Distance(0, 0));
+            self.graph
+                .add_edge(*node, self.end_node, Distance::default());
         }
 
         // Remove unused nodes.
