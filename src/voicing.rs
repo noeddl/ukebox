@@ -6,8 +6,8 @@ use std::slice::Iter;
 use itertools::Itertools;
 
 use crate::{
-    Chord, FretID, FretPattern, Note, PitchClass, Semitones, Tuning, UkeString, FINGER_COUNT,
-    STRING_COUNT,
+    Chord, Fingering, FretID, FretPattern, Note, PitchClass, Semitones, Tuning, UkeString,
+    FINGER_COUNT, STRING_COUNT,
 };
 
 #[derive(Clone, Copy, PartialEq, Eq)]
@@ -228,6 +228,13 @@ impl Voicing {
             .zip(other.frets())
             .map(|(f1, f2)| max(f1, f2) - min(f1, f2))
             .sum()
+    }
+
+    pub fn fingering_distance(&self, other: Voicing) -> Semitones {
+        let l_fingering = Fingering::from(*self);
+        let r_fingering = Fingering::from(other);
+
+        l_fingering.distance(r_fingering)
     }
 }
 

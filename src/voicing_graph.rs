@@ -6,7 +6,7 @@ use petgraph::algo::all_simple_paths;
 use petgraph::prelude::NodeIndex;
 use petgraph::Graph;
 
-use crate::{Chord, ChordSequence, Fingering, Semitones, Voicing, VoicingConfig};
+use crate::{Chord, ChordSequence, Semitones, Voicing, VoicingConfig};
 
 const MAX_DIST: Semitones = 10;
 
@@ -71,9 +71,6 @@ impl VoicingGraph {
             let l_voicing = self.graph[*l];
             let r_voicing = self.graph[*r];
 
-            let l_fingering = Fingering::from(l_voicing);
-            let r_fingering = Fingering::from(r_voicing);
-
             let dist1 = match l {
                 l if *l == self.start_node => 0,
                 _ => l_voicing.semitone_distance(r_voicing),
@@ -81,7 +78,7 @@ impl VoicingGraph {
 
             let dist2 = match l {
                 l if *l == self.start_node => 0,
-                _ => l_fingering.distance(r_fingering),
+                _ => l_voicing.fingering_distance(r_voicing),
             };
 
             // Ignore voicings that are too far away from each other.
