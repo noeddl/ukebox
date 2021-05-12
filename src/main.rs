@@ -165,12 +165,14 @@ fn main() {
             let mut voicing_graph = VoicingGraph::new(config);
             voicing_graph.add(&chord_seq);
 
-            if let Some(path) = voicing_graph.find_best_path() {
-                for (chord, voicing) in chord_seq.chords().zip(path) {
+            for (path, _dist) in voicing_graph.paths(1) {
+                for (chord, voicing) in chord_seq.chords().zip(path.iter()) {
                     println!("[{}]\n", chord);
-                    let chart = ChordChart::new(voicing, voicing_opts.max_span);
+                    let chart = ChordChart::new(*voicing, voicing_opts.max_span);
                     println!("{}", chart);
                 }
+                //println!("{:?}\n", dist);
+                //println!("---------------------------\n");
             }
         }
     }

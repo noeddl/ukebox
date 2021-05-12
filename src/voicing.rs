@@ -6,7 +6,8 @@ use std::slice::Iter;
 use itertools::Itertools;
 
 use crate::{
-    Chord, FretID, FretPattern, Note, PitchClass, Tuning, UkeString, FINGER_COUNT, STRING_COUNT,
+    Chord, Distance, Fingering, FretID, FretPattern, Note, PitchClass, Tuning, UkeString,
+    FINGER_COUNT, STRING_COUNT,
 };
 
 #[derive(Clone, Copy, PartialEq, Eq)]
@@ -160,14 +161,16 @@ impl Voicing {
         min_fret_count >= 2
     }
 
-    /// Return a fingering for the current voicing, i.e. assign the player's
+    /// Compute a fingering for the current voicing, i.e. assign the player's
     /// fingers to the positions on the fretboard that have to be pressed down.
+    /// The return value is an array of numbers representing the fingers
+    /// on the strings (represented by the indexes of the array).
     /// This assumes that each chord voicing has a unique fingering (which is
     /// not true in reality - often several fingerings are possible). My fingering
     /// strategy here is based on my own way to play certain chords. For example,
     /// I tend to avoid barre chords if possible, e.g. I play the G major chord
     /// as 0132 and not as 0121.
-    pub fn get_fingering(&self) -> [u8; FINGER_COUNT] {
+    pub fn fingers_on_strings(&self) -> [u8; STRING_COUNT] {
         // Total number of strings on which we need to place our fingers.
         let pressed_strings = self.count_pressed_strings();
 
@@ -183,7 +186,7 @@ impl Voicing {
             _ => self.get_min_pressed_fret(),
         };
 
-        let mut fingering = [0; FINGER_COUNT];
+        let mut fingering = [0; STRING_COUNT];
 
         // Current finger (can have values 1 to 4).
         let mut finger = 1;
@@ -218,15 +221,29 @@ impl Voicing {
         fingering
     }
 
-    /// Return the distance between this and another voicing.
-    /// Currently, the distance is simply the sum of the distances between the frets that
+    /// Return the distance in semitones between this and another voicing.
+    /// It's computed by simply summing up the distances between the frets that
     /// are pressed down on the same string when moving from one voicing to the other.
     /// Inspired by http://www.petecorey.com/blog/2018/07/30/voice-leading-with-elixir/
-    pub fn distance(&self, other: Voicing) -> u8 {
+    pub fn semitone_distance(&self, other: Voicing) -> u8 {
         self.frets()
             .zip(other.frets())
             .map(|(f1, f2)| max(f1, f2) - min(f1, f2))
             .sum()
+    }
+
+    pub fn fingering_distance(&self, other: Voicing) -> u8 {
+        let l_fingering = Fingering::from(*self);
+        let r_fingering = Fingering::from(other);
+
+        l_fingering.distance(r_fingering)
+    }
+
+    pub fn distance(&self, other: Voicing) -> Distance {
+        let semitone_distance = self.semitone_distance(other);
+        let fingering_distance = self.fingering_distance(other);
+
+        Distance::new(semitone_distance, fingering_distance)
     }
 }
 
@@ -466,13 +483,13 @@ mod tests {
         case([3, 0, 1, 5], [3, 0, 1, 4]),
         case([3, 5, 1, 5], [2, 3, 1, 4]),
     )]
-    fn test_get_fingering(frets: [FretID; STRING_COUNT], fingering: [FretID; STRING_COUNT]) {
+    fn test_fingers_on_strings(frets: [FretID; STRING_COUNT], fingering: [FretID; STRING_COUNT]) {
         let voicing = Voicing::new(frets, Tuning::C);
-        assert_eq!(voicing.get_fingering(), fingering);
+        assert_eq!(voicing.fingers_on_strings(), fingering);
     }
 
     #[rstest(
-        frets1, frets2, distance,
+        frets1, frets2, dist,
         case([0, 0, 0, 0], [0, 0, 0, 0], 0),
         case([0, 0, 0, 3], [2, 0, 1, 3], 3),
         case([2, 0, 1, 3], [0, 0, 0, 3], 3),
@@ -480,9 +497,13 @@ mod tests {
         case([3, 2, 1, 1], [5, 4, 3, 3], 8),
         case([3, 2, 1, 1], [0, 0, 0, 3], 8),
     )]
-    fn test_distance(frets1: [FretID; STRING_COUNT], frets2: [FretID; STRING_COUNT], distance: u8) {
+    fn test_semitone_distance(
+        frets1: [FretID; STRING_COUNT],
+        frets2: [FretID; STRING_COUNT],
+        dist: u8,
+    ) {
         let voicing1 = Voicing::new(frets1, Tuning::C);
         let voicing2 = Voicing::new(frets2, Tuning::C);
-        assert_eq!(voicing1.distance(voicing2), distance);
+        assert_eq!(voicing1.semitone_distance(voicing2), dist);
     }
 }

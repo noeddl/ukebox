@@ -92,14 +92,14 @@ impl fmt::Display for ChordChart {
         // of the root notes (the names of the strings).
         let root_width = self.get_root_width();
 
-        let fingering = self.voicing.get_fingering();
+        let fingers_on_strings = self.voicing.fingers_on_strings();
 
         // Create a diagram for each ukulele string.
         let mut s: String = self
             .voicing
             .uke_strings()
             .rev()
-            .zip(fingering.iter().rev())
+            .zip(fingers_on_strings.iter().rev())
             .map(|(us, f)| self.format_line(*us, base_fret, root_width, *f))
             .collect();
 
