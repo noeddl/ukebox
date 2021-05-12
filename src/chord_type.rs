@@ -160,7 +160,6 @@ impl TryFrom<&[PitchClass]> for ChordType {
 
 #[cfg(test)]
 mod tests {
-    #![allow(clippy::many_single_char_names)]
     use rstest::rstest;
     use ChordType::*;
     use PitchClass::*;

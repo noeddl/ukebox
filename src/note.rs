@@ -244,7 +244,7 @@ mod tests {
     }
 
     #[rstest(
-        s,
+        note,
         is_white_note,
         case("C", true),
         case("C#", false),
@@ -264,14 +264,13 @@ mod tests {
         case("Bb", false),
         case("B", true)
     )]
-    fn test_is_white_note(s: &str, is_white_note: bool) {
-        let note = Note::from_str(s).unwrap();
+    fn test_is_white_note(note: Note, is_white_note: bool) {
         assert_eq!(note.is_white_note(), is_white_note);
     }
 
     #[rstest(
         pitch_class,
-        s,
+        note,
         case(C, "C"),
         case(CSharp, "C#"),
         case(D, "D"),
@@ -285,15 +284,14 @@ mod tests {
         case(ASharp, "A#"),
         case(B, "B")
     )]
-    fn test_from_pitch_class(pitch_class: PitchClass, s: &str) {
-        let note = Note::from(pitch_class);
-        assert_eq!(format!("{}", note), s);
+    fn test_from_pitch_class(pitch_class: PitchClass, note: Note) {
+        assert_eq!(Note::from(pitch_class), note);
     }
 
     #[rstest(
-        note_name,
+        note1,
         interval,
-        result_name,
+        note2,
         case("C", PerfectUnison, "C"),
         case("C", MinorThird, "Eb"),
         case("C", MajorThird, "E"),
@@ -301,15 +299,14 @@ mod tests {
         case("C#", PerfectUnison, "C#"),
         case("C#", MajorThird, "F")
     )]
-    fn test_add_interval(note_name: &str, interval: Interval, result_name: &str) {
-        let note = Note::from_str(note_name).unwrap();
-        assert_eq!(note + interval, Note::from_str(result_name).unwrap());
+    fn test_add_interval(note1: Note, interval: Interval, note2: Note) {
+        assert_eq!(note1 + interval, note2);
     }
 
     #[rstest(
-        note_name,
+        note1,
         n,
-        result_name,
+        note2,
         case("C", 0, "C"),
         case("C#", 0, "C#"),
         case("Db", 0, "Db"),
@@ -324,15 +321,14 @@ mod tests {
         case("A#", 12, "A#"),
         case("Ab", 12, "Ab")
     )]
-    fn test_add_semitones(note_name: &str, n: Semitones, result_name: &str) {
-        let note = Note::from_str(note_name).unwrap();
-        assert_eq!(note + n, Note::from_str(result_name).unwrap());
+    fn test_add_semitones(note1: Note, n: Semitones, note2: Note) {
+        assert_eq!(note1 + n, note2);
     }
 
     #[rstest(
-        note_name,
+        note1,
         n,
-        result_name,
+        note2,
         case("C", 0, "C"),
         case("C#", 0, "C#"),
         case("Db", 0, "Db"),
@@ -343,8 +339,7 @@ mod tests {
         case("A", 3, "Gb"),
         case("A", 12, "A")
     )]
-    fn test_subtract_semitones(note_name: &str, n: Semitones, result_name: &str) {
-        let note = Note::from_str(note_name).unwrap();
-        assert_eq!(note - n, Note::from_str(result_name).unwrap());
+    fn test_subtract_semitones(note1: Note, n: Semitones, note2: Note) {
+        assert_eq!(note1 - n, note2);
     }
 }

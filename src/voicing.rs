@@ -303,8 +303,6 @@ impl From<&[UkeString]> for Voicing {
 
 #[cfg(test)]
 mod tests {
-    use std::str::FromStr;
-
     use rstest::rstest;
 
     use super::*;
@@ -356,7 +354,7 @@ mod tests {
     }
 
     #[rstest(
-        frets, chord_str, spells_out,
+        frets, chord, spells_out,
         case([0, 0, 0, 3], "C", true), // G C E C
         case([5, 4, 3, 3], "C", true), // C E G C
         case([0, 2, 0, 3], "C", false), // G D E C
@@ -364,22 +362,20 @@ mod tests {
         case([0, 3, 3, 3], "Cm", true), // G Eb G C
         case([1, 1, 1, 4], "C#", true), // G# C# F C#
     )]
-    fn test_spells_out(frets: [FretID; STRING_COUNT], chord_str: &str, spells_out: bool) {
+    fn test_spells_out(frets: [FretID; STRING_COUNT], chord: Chord, spells_out: bool) {
         let voicing = Voicing::new(frets, Tuning::C);
-        let chord = Chord::from_str(chord_str).unwrap();
         assert_eq!(voicing.spells_out(&chord), spells_out);
     }
 
     #[rstest(
-        frets, chord_str, tuning,
+        frets, chord, tuning,
         case([0, 0, 0, 3], "C", Tuning::C),
         case([0, 0, 0, 3], "D", Tuning::D),
         case([2, 2, 2, 0], "D", Tuning::C),
     )]
-    fn test_get_chords(frets: [FretID; STRING_COUNT], chord_str: &str, tuning: Tuning) {
+    fn test_get_chords(frets: [FretID; STRING_COUNT], chord: Chord, tuning: Tuning) {
         let voicing = Voicing::new(frets, tuning);
         let chords = voicing.get_chords();
-        let chord = Chord::from_str(chord_str).unwrap();
         assert_eq!(chords, vec![chord]);
     }
 

@@ -115,15 +115,13 @@ impl fmt::Display for ChordChart {
 
 #[cfg(test)]
 mod tests {
-    use std::str::FromStr;
-
     use indoc::indoc;
     use rstest::rstest;
 
     use super::*;
     use crate::{Chord, Tuning, VoicingConfig};
 
-    #[rstest(chord_name, tuning, diagram,
+    #[rstest(chord, tuning, diagram,
         case(
             "C",
             Tuning::C,
@@ -195,8 +193,7 @@ mod tests {
             "),
         ),
     )]
-    fn test_to_diagram(chord_name: &str, tuning: Tuning, diagram: &str) {
-        let chord = Chord::from_str(chord_name).unwrap();
+    fn test_to_diagram(chord: Chord, tuning: Tuning, diagram: &str) {
         let config = VoicingConfig {
             tuning,
             ..Default::default()
