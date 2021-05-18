@@ -136,7 +136,6 @@ impl Sub<Semitones> for Chord {
 
 #[cfg(test)]
 mod tests {
-    #![allow(clippy::many_single_char_names)]
     use rstest::rstest;
     use PitchClass::*;
 
@@ -180,14 +179,10 @@ mod tests {
         case("Bb", "Bb", "D", "F"),
         case("B", "B", "D#", "F#")
     )]
-    fn test_from_str_major(chord: &str, root: &str, third: &str, fifth: &str) {
-        let c = Chord::from_str(chord).unwrap();
-        let r = Note::from_str(root).unwrap();
-        let t = Note::from_str(third).unwrap();
-        let f = Note::from_str(fifth).unwrap();
-        let notes: Vec<Note> = c.notes().collect();
-        assert_eq!(notes, vec![r, t, f]);
-        assert_eq!(c.chord_type, ChordType::Major);
+    fn test_from_str_major(chord: Chord, root: Note, third: Note, fifth: Note) {
+        let notes: Vec<Note> = chord.notes().collect();
+        assert_eq!(notes, vec![root, third, fifth]);
+        assert_eq!(chord.chord_type, ChordType::Major);
     }
 
     #[rstest(
@@ -213,14 +208,10 @@ mod tests {
         case("Bbm", "Bb", "Db", "F"),
         case("Bm", "B", "D", "F#")
     )]
-    fn test_from_str_minor(chord: &str, root: &str, third: &str, fifth: &str) {
-        let c = Chord::from_str(chord).unwrap();
-        let r = Note::from_str(root).unwrap();
-        let t = Note::from_str(third).unwrap();
-        let f = Note::from_str(fifth).unwrap();
-        let notes: Vec<Note> = c.notes().collect();
-        assert_eq!(notes, vec![r, t, f]);
-        assert_eq!(c.chord_type, ChordType::Minor);
+    fn test_from_str_minor(chord: Chord, root: Note, third: Note, fifth: Note) {
+        let notes: Vec<Note> = chord.notes().collect();
+        assert_eq!(notes, vec![root, third, fifth]);
+        assert_eq!(chord.chord_type, ChordType::Minor);
     }
 
     #[rstest(
@@ -246,14 +237,10 @@ mod tests {
         case("Bbsus2", "Bb", "C", "F"),
         case("Bsus2", "B", "C#", "F#")
     )]
-    fn test_from_str_suspended_second(chord: &str, root: &str, third: &str, fifth: &str) {
-        let c = Chord::from_str(chord).unwrap();
-        let r = Note::from_str(root).unwrap();
-        let t = Note::from_str(third).unwrap();
-        let f = Note::from_str(fifth).unwrap();
-        let notes: Vec<Note> = c.notes().collect();
-        assert_eq!(notes, vec![r, t, f]);
-        assert_eq!(c.chord_type, ChordType::SuspendedSecond);
+    fn test_from_str_suspended_second(chord: Chord, root: Note, third: Note, fifth: Note) {
+        let notes: Vec<Note> = chord.notes().collect();
+        assert_eq!(notes, vec![root, third, fifth]);
+        assert_eq!(chord.chord_type, ChordType::SuspendedSecond);
     }
 
     #[rstest(
@@ -279,14 +266,10 @@ mod tests {
         case("Bbsus4", "Bb", "Eb", "F"),
         case("Bsus4", "B", "E", "F#")
     )]
-    fn test_from_str_suspended_fourth(chord: &str, root: &str, third: &str, fifth: &str) {
-        let c = Chord::from_str(chord).unwrap();
-        let r = Note::from_str(root).unwrap();
-        let t = Note::from_str(third).unwrap();
-        let f = Note::from_str(fifth).unwrap();
-        let notes: Vec<Note> = c.notes().collect();
-        assert_eq!(notes, vec![r, t, f]);
-        assert_eq!(c.chord_type, ChordType::SuspendedFourth);
+    fn test_from_str_suspended_fourth(chord: Chord, root: Note, third: Note, fifth: Note) {
+        let notes: Vec<Note> = chord.notes().collect();
+        assert_eq!(notes, vec![root, third, fifth]);
+        assert_eq!(chord.chord_type, ChordType::SuspendedFourth);
     }
 
     #[rstest(
@@ -312,14 +295,10 @@ mod tests {
         case("Bbaug", "Bb", "D", "F#"),
         case("Baug", "B", "D#", "G")
     )]
-    fn test_from_str_augmented(chord: &str, root: &str, third: &str, fifth: &str) {
-        let c = Chord::from_str(chord).unwrap();
-        let r = Note::from_str(root).unwrap();
-        let t = Note::from_str(third).unwrap();
-        let f = Note::from_str(fifth).unwrap();
-        let notes: Vec<Note> = c.notes().collect();
-        assert_eq!(notes, vec![r, t, f]);
-        assert_eq!(c.chord_type, ChordType::Augmented);
+    fn test_from_str_augmented(chord: Chord, root: Note, third: Note, fifth: Note) {
+        let notes: Vec<Note> = chord.notes().collect();
+        assert_eq!(notes, vec![root, third, fifth]);
+        assert_eq!(chord.chord_type, ChordType::Augmented);
     }
 
     #[rstest(
@@ -345,14 +324,10 @@ mod tests {
         case("Bbdim", "Bb", "Db", "E"),
         case("Bdim", "B", "D", "F")
     )]
-    fn test_from_str_diminished(chord: &str, root: &str, third: &str, fifth: &str) {
-        let c = Chord::from_str(chord).unwrap();
-        let r = Note::from_str(root).unwrap();
-        let t = Note::from_str(third).unwrap();
-        let f = Note::from_str(fifth).unwrap();
-        let notes: Vec<Note> = c.notes().collect();
-        assert_eq!(notes, vec![r, t, f]);
-        assert_eq!(c.chord_type, ChordType::Diminished);
+    fn test_from_str_diminished(chord: Chord, root: Note, third: Note, fifth: Note) {
+        let notes: Vec<Note> = chord.notes().collect();
+        assert_eq!(notes, vec![root, third, fifth]);
+        assert_eq!(chord.chord_type, ChordType::Diminished);
     }
 
     #[rstest(
@@ -380,20 +355,15 @@ mod tests {
         case("B7", "B", "D#", "F#", "A")
     )]
     fn test_from_str_dominant_seventh(
-        chord: &str,
-        root: &str,
-        third: &str,
-        fifth: &str,
-        seventh: &str,
+        chord: Chord,
+        root: Note,
+        third: Note,
+        fifth: Note,
+        seventh: Note,
     ) {
-        let c = Chord::from_str(chord).unwrap();
-        let r = Note::from_str(root).unwrap();
-        let t = Note::from_str(third).unwrap();
-        let f = Note::from_str(fifth).unwrap();
-        let s = Note::from_str(seventh).unwrap();
-        let notes: Vec<Note> = c.notes().collect();
-        assert_eq!(notes, vec![r, t, f, s]);
-        assert_eq!(c.chord_type, ChordType::DominantSeventh);
+        let notes: Vec<Note> = chord.notes().collect();
+        assert_eq!(notes, vec![root, third, fifth, seventh]);
+        assert_eq!(chord.chord_type, ChordType::DominantSeventh);
     }
 
     #[rstest(
@@ -421,20 +391,15 @@ mod tests {
         case("Bm7", "B", "D", "F#", "A")
     )]
     fn test_from_str_minor_seventh(
-        chord: &str,
-        root: &str,
-        third: &str,
-        fifth: &str,
-        seventh: &str,
+        chord: Chord,
+        root: Note,
+        third: Note,
+        fifth: Note,
+        seventh: Note,
     ) {
-        let c = Chord::from_str(chord).unwrap();
-        let r = Note::from_str(root).unwrap();
-        let t = Note::from_str(third).unwrap();
-        let f = Note::from_str(fifth).unwrap();
-        let s = Note::from_str(seventh).unwrap();
-        let notes: Vec<Note> = c.notes().collect();
-        assert_eq!(notes, vec![r, t, f, s]);
-        assert_eq!(c.chord_type, ChordType::MinorSeventh);
+        let notes: Vec<Note> = chord.notes().collect();
+        assert_eq!(notes, vec![root, third, fifth, seventh]);
+        assert_eq!(chord.chord_type, ChordType::MinorSeventh);
     }
 
     #[rstest(
@@ -462,20 +427,15 @@ mod tests {
         case("Bmaj7", "B", "D#", "F#", "A#")
     )]
     fn test_from_str_major_seventh(
-        chord: &str,
-        root: &str,
-        third: &str,
-        fifth: &str,
-        seventh: &str,
+        chord: Chord,
+        root: Note,
+        third: Note,
+        fifth: Note,
+        seventh: Note,
     ) {
-        let c = Chord::from_str(chord).unwrap();
-        let r = Note::from_str(root).unwrap();
-        let t = Note::from_str(third).unwrap();
-        let f = Note::from_str(fifth).unwrap();
-        let s = Note::from_str(seventh).unwrap();
-        let notes: Vec<Note> = c.notes().collect();
-        assert_eq!(notes, vec![r, t, f, s]);
-        assert_eq!(c.chord_type, ChordType::MajorSeventh);
+        let notes: Vec<Note> = chord.notes().collect();
+        assert_eq!(notes, vec![root, third, fifth, seventh]);
+        assert_eq!(chord.chord_type, ChordType::MajorSeventh);
     }
 
     #[rstest(
@@ -503,20 +463,15 @@ mod tests {
         case("BmMaj7", "B", "D", "F#", "A#")
     )]
     fn test_from_str_minor_major_seventh(
-        chord: &str,
-        root: &str,
-        third: &str,
-        fifth: &str,
-        seventh: &str,
+        chord: Chord,
+        root: Note,
+        third: Note,
+        fifth: Note,
+        seventh: Note,
     ) {
-        let c = Chord::from_str(chord).unwrap();
-        let r = Note::from_str(root).unwrap();
-        let t = Note::from_str(third).unwrap();
-        let f = Note::from_str(fifth).unwrap();
-        let s = Note::from_str(seventh).unwrap();
-        let notes: Vec<Note> = c.notes().collect();
-        assert_eq!(notes, vec![r, t, f, s]);
-        assert_eq!(c.chord_type, ChordType::MinorMajorSeventh);
+        let notes: Vec<Note> = chord.notes().collect();
+        assert_eq!(notes, vec![root, third, fifth, seventh]);
+        assert_eq!(chord.chord_type, ChordType::MinorMajorSeventh);
     }
 
     #[rstest(
@@ -544,20 +499,15 @@ mod tests {
         case("Baug7", "B", "D#", "G", "A")
     )]
     fn test_from_str_augmented_seventh(
-        chord: &str,
-        root: &str,
-        third: &str,
-        fifth: &str,
-        seventh: &str,
+        chord: Chord,
+        root: Note,
+        third: Note,
+        fifth: Note,
+        seventh: Note,
     ) {
-        let c = Chord::from_str(chord).unwrap();
-        let r = Note::from_str(root).unwrap();
-        let t = Note::from_str(third).unwrap();
-        let f = Note::from_str(fifth).unwrap();
-        let s = Note::from_str(seventh).unwrap();
-        let notes: Vec<Note> = c.notes().collect();
-        assert_eq!(notes, vec![r, t, f, s]);
-        assert_eq!(c.chord_type, ChordType::AugmentedSeventh);
+        let notes: Vec<Note> = chord.notes().collect();
+        assert_eq!(notes, vec![root, third, fifth, seventh]);
+        assert_eq!(chord.chord_type, ChordType::AugmentedSeventh);
     }
 
     #[rstest(
@@ -585,20 +535,15 @@ mod tests {
         case("BaugMaj7", "B", "D#", "G", "A#")
     )]
     fn test_from_str_augmented_major_seventh(
-        chord: &str,
-        root: &str,
-        third: &str,
-        fifth: &str,
-        seventh: &str,
+        chord: Chord,
+        root: Note,
+        third: Note,
+        fifth: Note,
+        seventh: Note,
     ) {
-        let c = Chord::from_str(chord).unwrap();
-        let r = Note::from_str(root).unwrap();
-        let t = Note::from_str(third).unwrap();
-        let f = Note::from_str(fifth).unwrap();
-        let s = Note::from_str(seventh).unwrap();
-        let notes: Vec<Note> = c.notes().collect();
-        assert_eq!(notes, vec![r, t, f, s]);
-        assert_eq!(c.chord_type, ChordType::AugmentedMajorSeventh);
+        let notes: Vec<Note> = chord.notes().collect();
+        assert_eq!(notes, vec![root, third, fifth, seventh]);
+        assert_eq!(chord.chord_type, ChordType::AugmentedMajorSeventh);
     }
 
     #[rstest(
@@ -626,20 +571,15 @@ mod tests {
         case("Bdim7", "B", "D", "F", "Ab")
     )]
     fn test_from_str_diminished_seventh(
-        chord: &str,
-        root: &str,
-        third: &str,
-        fifth: &str,
-        seventh: &str,
+        chord: Chord,
+        root: Note,
+        third: Note,
+        fifth: Note,
+        seventh: Note,
     ) {
-        let c = Chord::from_str(chord).unwrap();
-        let r = Note::from_str(root).unwrap();
-        let t = Note::from_str(third).unwrap();
-        let f = Note::from_str(fifth).unwrap();
-        let s = Note::from_str(seventh).unwrap();
-        let notes: Vec<Note> = c.notes().collect();
-        assert_eq!(notes, vec![r, t, f, s]);
-        assert_eq!(c.chord_type, ChordType::DiminishedSeventh);
+        let notes: Vec<Note> = chord.notes().collect();
+        assert_eq!(notes, vec![root, third, fifth, seventh]);
+        assert_eq!(chord.chord_type, ChordType::DiminishedSeventh);
     }
 
     #[rstest(
@@ -667,25 +607,20 @@ mod tests {
         case("Bm7b5", "B", "D", "F", "A")
     )]
     fn test_from_str_half_diminished_seventh(
-        chord: &str,
-        root: &str,
-        third: &str,
-        fifth: &str,
-        seventh: &str,
+        chord: Chord,
+        root: Note,
+        third: Note,
+        fifth: Note,
+        seventh: Note,
     ) {
-        let c = Chord::from_str(chord).unwrap();
-        let r = Note::from_str(root).unwrap();
-        let t = Note::from_str(third).unwrap();
-        let f = Note::from_str(fifth).unwrap();
-        let s = Note::from_str(seventh).unwrap();
-        let notes: Vec<Note> = c.notes().collect();
-        assert_eq!(notes, vec![r, t, f, s]);
-        assert_eq!(c.chord_type, ChordType::HalfDiminishedSeventh);
+        let notes: Vec<Note> = chord.notes().collect();
+        assert_eq!(notes, vec![root, third, fifth, seventh]);
+        assert_eq!(chord.chord_type, ChordType::HalfDiminishedSeventh);
     }
 
     #[rstest(
         pitches,
-        chord_name,
+        chord,
         // Test C-chords.
         case(vec![C, E, G], "C"),
         case(vec![C, DSharp, G], "Cm"),
@@ -709,16 +644,14 @@ mod tests {
         // Test pitch class list in different order.
         case(vec![C, G, E], "C"),
     )]
-    fn test_get_chord_type(pitches: Vec<PitchClass>, chord_name: &str) {
-        let chord1 = Chord::try_from(&pitches[..]).unwrap();
-        let chord2 = Chord::from_str(chord_name).unwrap();
-        assert_eq!(chord1, chord2);
+    fn test_get_chord_type(pitches: Vec<PitchClass>, chord: Chord) {
+        assert_eq!(Chord::try_from(&pitches[..]).unwrap(), chord);
     }
 
     #[rstest(
-        chord,
+        chord1,
         n,
-        result,
+        chord2,
         case("C", 0, "C"),
         case("C#", 0, "C#"),
         case("Db", 0, "Db"),
@@ -731,15 +664,14 @@ mod tests {
         case("A#", 12, "A#"),
         case("Ab", 12, "Ab")
     )]
-    fn test_add_semitones(chord: &str, n: Semitones, result: &str) {
-        let c = Chord::from_str(chord).unwrap();
-        assert_eq!(c + n, Chord::from_str(result).unwrap());
+    fn test_add_semitones(chord1: Chord, n: Semitones, chord2: Chord) {
+        assert_eq!(chord1 + n, chord2);
     }
 
     #[rstest(
-        chord,
+        chord1,
         n,
-        result,
+        chord2,
         case("C", 0, "C"),
         case("C#", 0, "C#"),
         case("Db", 0, "Db"),
@@ -750,15 +682,14 @@ mod tests {
         case("A#", 12, "A#"),
         case("Ab", 12, "Ab")
     )]
-    fn test_subtract_semitones(chord: &str, n: Semitones, result: &str) {
-        let c = Chord::from_str(chord).unwrap();
-        assert_eq!(c - n, Chord::from_str(result).unwrap());
+    fn test_subtract_semitones(chord1: Chord, n: Semitones, chord2: Chord) {
+        assert_eq!(chord1 - n, chord2);
     }
 
     #[rstest(
-        chord,
+        chord1,
         n,
-        result,
+        chord2,
         case("C", 0, "C"),
         case("C#", 0, "C#"),
         case("Db", 0, "Db"),
@@ -777,8 +708,7 @@ mod tests {
         case("A#", -12, "A#"),
         case("Ab", -12, "Ab")
     )]
-    fn test_transpose(chord: &str, n: i8, result: &str) {
-        let c = Chord::from_str(chord).unwrap();
-        assert_eq!(c.transpose(n), Chord::from_str(result).unwrap());
+    fn test_transpose(chord1: Chord, n: i8, chord2: Chord) {
+        assert_eq!(chord1.transpose(n), chord2);
     }
 }

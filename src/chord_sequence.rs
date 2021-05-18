@@ -47,9 +47,8 @@ mod tests {
         case("C F G", &["C", "F", "G"]),
         case("Dsus2 Am7 C#", &["Dsus2", "Am7", "C#"]),
     )]
-    fn test_from_str(chord_seq: &str, chords: &[&str]) {
-        let cs = ChordSequence::from_str(chord_seq).unwrap();
-        let chords1: Vec<Chord> = cs.chords().cloned().collect();
+    fn test_from_str(chord_seq: ChordSequence, chords: &[&str]) {
+        let chords1: Vec<Chord> = chord_seq.chords().cloned().collect();
         let chords2: Vec<Chord> = chords.iter().map(|c| Chord::from_str(c).unwrap()).collect();
         assert_eq!(chords1, chords2);
     }
@@ -69,9 +68,7 @@ mod tests {
         case("C F G", -1, "B E Gb"),
         case("C F G", 12, "C F G"),
     )]
-    fn test_transpose(chord_seq1: &str, semitones: i8, chord_seq2: &str) {
-        let cs1 = ChordSequence::from_str(chord_seq1).unwrap();
-        let cs2 = ChordSequence::from_str(chord_seq2).unwrap();
-        assert_eq!(cs1.transpose(semitones), cs2);
+    fn test_transpose(chord_seq1: ChordSequence, semitones: i8, chord_seq2: ChordSequence) {
+        assert_eq!(chord_seq1.transpose(semitones), chord_seq2);
     }
 }

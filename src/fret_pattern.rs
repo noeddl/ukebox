@@ -70,13 +70,12 @@ mod tests {
     use super::*;
 
     #[rstest(
-        s, frets,
+        fret_pattern, frets,
         case("2220", [2, 2, 2, 0]),
         case("2 2 2 0", [2, 2, 2, 0]),
         case("7 8 9 10", [7, 8, 9, 10]),
     )]
-    fn test_from_str(s: &str, frets: [FretID; STRING_COUNT]) {
-        let fret_pattern = FretPattern::from_str(s).unwrap();
+    fn test_from_str(fret_pattern: FretPattern, frets: [FretID; STRING_COUNT]) {
         assert_eq!(fret_pattern.frets, frets);
     }
 
