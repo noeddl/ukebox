@@ -562,6 +562,18 @@ fn test_name_with_tuning(
     option,
     chart,
     case(
+        "C",
+        None,
+        indoc!("
+            [C - C major]
+
+            A  ||---|---|-3-|---|- C
+            E o||---|---|---|---|- E
+            C o||---|---|---|---|- C
+            G o||---|---|---|---|- G
+        ")
+    ),
+    case(
         "C Am",
         None,
         indoc!("

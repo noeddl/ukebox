@@ -37,9 +37,16 @@ impl VoicingGraph {
     }
 
     fn add_nodes(&mut self, chord: &Chord) -> Vec<NodeIndex> {
-        chord
-            .voicings(self.config)
-            .map(|voicing| self.graph.add_node(voicing))
+        let voicings: Vec<Voicing> = chord.voicings(self.config).collect();
+
+        // When determining the "path" of a single chord we want to get the voicing
+        // in the lowest position. To achieve this we have to iterate over the chord's
+        // voicings in reversed order to account for the behaviour of the path-finding
+        // algorithm when all distances are equal.
+        voicings
+            .iter()
+            .rev()
+            .map(|voicing| self.graph.add_node(*voicing))
             .collect()
     }
 
