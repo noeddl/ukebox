@@ -186,6 +186,8 @@ impl Voicing {
             1 if max_fret > 3 => max_fret,
             // e.g. 0003
             1 => 1,
+            // e.g. 2003
+            2 if max_fret == 3 => 1,
             _ => self.get_min_pressed_fret(),
         };
 
@@ -455,6 +457,7 @@ mod tests {
         case([0, 0, 0, 10], [0, 0, 0, 1]),
         // Two fingered strings.
         case([2, 0, 1, 0], [2, 0, 1, 0]),
+        case([2, 0, 0, 3], [2, 0, 0, 3]),
         // Three fingered strings without barre.
         case([2, 2, 2, 0], [1, 2, 3, 0]),
         case([0, 2, 3, 2], [0, 1, 3, 2]),
