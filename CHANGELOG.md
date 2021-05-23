@@ -4,7 +4,7 @@
 
 * Simplify chord name parsing and remove `regex` dependency.
 * Compute and display a fingering for each chord voicing.
-* Add subcommand `voice-lead` to compute and display a good sounding and comfortably playable sequence of voicings for a given sequence of chords ([#17](https://github.com/noeddl/ukebox/issues/17)).
+* Add subcommand `voice-lead` to suggest a good sounding and comfortably playable sequence of voicings for a given sequence of chords ([#17](https://github.com/noeddl/ukebox/issues/17)).
 
 ## [0.7.0] - 2021-03-25
 
