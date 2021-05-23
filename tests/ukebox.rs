@@ -104,6 +104,19 @@ fn test_unknown_pattern() -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
+#[test]
+fn test_no_voicing_seq_found() -> Result<(), Box<dyn Error>> {
+    let mut cmd = Command::cargo_bin("ukebox")?;
+    cmd.arg("voice-lead");
+    cmd.arg("--max-fret").arg("2");
+    cmd.arg("C F G");
+    cmd.assert()
+        .success()
+        .stdout("No matching chord voicing sequence was found\n");
+
+    Ok(())
+}
+
 #[rstest(
     chord,
     chart,

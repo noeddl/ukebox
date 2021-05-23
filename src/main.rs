@@ -165,6 +165,8 @@ fn main() {
             let mut voicing_graph = VoicingGraph::new(config);
             voicing_graph.add(&chord_seq);
 
+            let mut path_found = false;
+
             for (path, _dist) in voicing_graph.paths(1) {
                 for (chord, voicing) in chord_seq.chords().zip(path.iter()) {
                     println!("[{}]\n", chord);
@@ -173,6 +175,12 @@ fn main() {
                 }
                 //println!("{:?}\n", dist);
                 //println!("---------------------------\n");
+
+                path_found = true;
+            }
+
+            if !path_found {
+                println!("No matching chord voicing sequence was found");
             }
         }
     }
