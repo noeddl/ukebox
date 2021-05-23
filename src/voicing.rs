@@ -143,14 +143,17 @@ impl Voicing {
         }
 
         // 0232 and 2323 should not be treated as having a barre.
-        let alternating_frets = pressed_frets
-            .iter()
-            .zip([min_fret, min_fret + 1].iter().cycle())
-            .filter(|(f1, f2)| f1 == f2)
-            .count();
+        // Same with 1313 and 0141.
+        for i in 1..4 {
+            let alternating_frets = pressed_frets
+                .iter()
+                .zip([min_fret, min_fret + i].iter().cycle())
+                .filter(|(f1, f2)| f1 == f2)
+                .count();
 
-        if alternating_frets == pressed_frets.len() {
-            return false;
+            if alternating_frets == pressed_frets.len() {
+                return false;
+            }
         }
 
         // 0111 can be played with fingering 0123.
@@ -183,6 +186,8 @@ impl Voicing {
             1 if max_fret > 3 => max_fret,
             // e.g. 0003
             1 => 1,
+            // e.g. 2003
+            2 if max_fret == 3 => 1,
             _ => self.get_min_pressed_fret(),
         };
 
@@ -412,12 +417,14 @@ mod tests {
         case([1, 0, 1, 1], false),
         case([0, 1, 1, 1], false),
         case([0, 1, 2, 1], false),
+        case([0, 1, 4, 1], false),
         case([0, 2, 1, 2], false),
         case([0, 3, 2, 1], false),
         // Three fingered strings with barre.
         case([0, 2, 1, 1], true),
         // Four fingered strings without barre.
         case([1, 2, 1, 2], false),
+        case([1, 3, 1, 3], false),
         case([2, 4, 1, 3], false),
         case([3, 3, 3, 1], false),
         case([1, 2, 2, 2], false),
@@ -450,6 +457,7 @@ mod tests {
         case([0, 0, 0, 10], [0, 0, 0, 1]),
         // Two fingered strings.
         case([2, 0, 1, 0], [2, 0, 1, 0]),
+        case([2, 0, 0, 3], [2, 0, 0, 3]),
         // Three fingered strings without barre.
         case([2, 2, 2, 0], [1, 2, 3, 0]),
         case([0, 2, 3, 2], [0, 1, 3, 2]),
