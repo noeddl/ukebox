@@ -6,7 +6,7 @@
 [![license](https://img.shields.io/crates/l/ukebox)](#license)
 [![rustc](https://img.shields.io/badge/rustc-1.48+-lightgray.svg)](https://blog.rust-lang.org/2020/11/19/Rust-1.48.html)
 
-`ukebox` is a ukulele chord finder for the command line written in Rust.
+`ukebox` is a ukulele chord toolbox for the command line written in Rust.
 
 ## Features
 
@@ -15,6 +15,7 @@
 * supports **different ukulele tunings** (C, D and G)
 * can present each chord in **different positions** along the fretbord
 * allows you to **transpose** a chord by any number of semitones
+* helps you find a good **voice leading** for a given chord sequence
 
 ## Installation
 
@@ -46,9 +47,10 @@ OPTIONS:
     -t, --tuning <TUNING>    Type of tuning to be used [default: C]  [possible values: C, D, G]
 
 SUBCOMMANDS:
-    chart    Chord chart lookup
-    help     Prints this message or the help of the given subcommand(s)
-    name     Chord name lookup
+    chart         Chord chart lookup
+    help          Prints this message or the help of the given subcommand(s)
+    name          Chord name lookup
+    voice-lead    Voice leading for a sequence of chords
 ```
 
 When running the program with Rust, replace the command `ukebox` with `cargo run --release`, e.g. `cargo run --release -- chart G`.
@@ -210,6 +212,80 @@ If the fret pattern contains fret numbers greater than 9 you have to add spaces 
 ```
 $ ukebox name "7 7 7 10"
 G - G major
+```
+
+### Voice leading
+
+Use the subcommand `voice-lead` to get some inspiration for finding a good [voice leading](https://en.wikipedia.org/wiki/Voice_leading) for a given sequence of chords. In order to decide that one voice leading may better than the other, `ukebox` uses both the "semitone distance" between two voicings (to find good sounding transitions between voicings) as well as the distance between the fingerings to be used to play them (to make sure the transitions are also comfortably playable). This feature is still very experimental and will hopefully be improved some more in the future. For its implementation, I took a lot of inspiration from [these](http://www.petecorey.com/blog/2018/07/30/voice-leading-with-elixir/) [blog](http://www.petecorey.com/blog/2018/08/13/algorithmically-fingering-guitar-chords-with-elixir/) [articles](http://www.petecorey.com/blog/2018/08/27/computing-fingering-distance-with-dr-levenshtein/) by Pete Corey.
+
+```
+USAGE:
+    ukebox voice-lead [OPTIONS] <CHORD_SEQUENCE>
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+OPTIONS:
+        --max-fret <FRET_ID>       Maximal fret up to which to play <chord> [default: 12]
+        --max-span <FRET_COUNT>    Maximal span between the first and the last fret pressed down when playing <chord>
+                                   [default: 4]
+        --min-fret <FRET_ID>       Minimal fret (= minimal position) from which to play <chord> [default: 0]
+        --transpose <SEMITONES>    Number of semitones to add (e.g. 1, +1) or to subtract (e.g. -1) [default: 0]
+    -t, --tuning <TUNING>          Type of tuning to be used [default: C]  [possible values: C, D, G]
+
+ARGS:
+    <CHORD_SEQUENCE>    Chord sequence
+```
+
+Some examples:
+
+```
+$ ukebox voice-lead "C F G"
+[C - C major]
+
+A  ||---|---|-3-|---|- C
+E o||---|---|---|---|- E
+C o||---|---|---|---|- C
+G o||---|---|---|---|- G
+
+[F - F major]
+
+A  ||---|---|-3-|---|- C
+E  ||-1-|---|---|---|- F
+C o||---|---|---|---|- C
+G  ||---|-2-|---|---|- A
+
+[G - G major]
+
+A  ||---|-2-|---|---|- B
+E  ||---|---|-3-|---|- G
+C  ||---|-1-|---|---|- D
+G o||---|---|---|---|- G
+```
+
+```
+$ ukebox voice-lead "C F G" --tuning D
+[C - C major]
+
+B   ||-1-|---|---|---|- C
+F#  ||-1-|---|---|---|- G
+D   ||---|-2-|---|---|- E
+A   ||---|---|-3-|---|- C
+
+[F - F major]
+
+B   ||-1-|---|---|---|- C
+F#  ||---|---|-4-|---|- A
+D   ||---|---|-3-|---|- F
+A   ||---|---|-2-|---|- C
+
+[G - G major]
+
+B  o||---|---|---|---|- B
+F#  ||-1-|---|---|---|- G
+D  o||---|---|---|---|- D
+A   ||---|-2-|---|---|- B
 ```
 
 ## Supported chord types

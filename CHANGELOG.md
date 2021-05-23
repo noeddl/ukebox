@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.8.0] - 2021-05-23
+
+* Simplify chord name parsing and remove `regex` dependency.
+* Compute and display a fingering for each chord voicing.
+* Add subcommand `voice-lead` to suggest a good sounding and comfortably playable sequence of voicings for a given sequence of chords ([#17](https://github.com/noeddl/ukebox/issues/17)).
+
 ## [0.7.0] - 2021-03-25
 
 * Major rewrite of basic data structures and the computation of chord charts so that all voicings of a chord can be found and displayed.
