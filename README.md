@@ -6,7 +6,7 @@
 [![license](https://img.shields.io/crates/l/ukebox)](#license)
 [![rustc](https://img.shields.io/badge/rustc-1.48+-lightgray.svg)](https://blog.rust-lang.org/2020/11/19/Rust-1.48.html)
 
-`ukebox` is a ukulele chord finder for the command line written in Rust.
+`ukebox` is a ukulele chord toolbox for the command line written in Rust.
 
 ## Features
 
