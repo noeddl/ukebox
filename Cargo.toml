@@ -16,7 +16,7 @@ categories = ["command-line-utilities"]
 [dependencies]
 itertools = "0.10"
 lazy_static = "1.4"
-petgraph = "0.5"
+petgraph = "0.6"
 structopt = "0.3"
 
 [dev-dependencies]
