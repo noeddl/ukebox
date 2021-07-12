@@ -22,5 +22,5 @@ structopt = "0.3"
 [dev-dependencies]
 assert_cmd = "1.0"
 indoc = "1.0"
-predicates = "1"
+predicates = "2"
 rstest = "0.10"
