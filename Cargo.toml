@@ -20,7 +20,7 @@ petgraph = "0.6"
 structopt = "0.3"
 
 [dev-dependencies]
-assert_cmd = "1.0"
+assert_cmd = "2.0"
 indoc = "1.0"
 predicates = "2"
 rstest = "0.11"
