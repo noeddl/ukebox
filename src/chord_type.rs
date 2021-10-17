@@ -52,6 +52,21 @@ impl ChordType {
             .map(|s| Interval::from_str(s).unwrap())
     }
 
+    /// Return an iterator over the chord type's optional intervals.
+    pub fn optional_intervals(&self) -> impl Iterator<Item = Interval> + '_ {
+        use ChordType::*;
+
+        let interval_names = match self {
+            MajorSeventh | MajorNinth | DominantSeventh | SuspendedFourth | SuspendedSecond
+            | MinorSeventh | MinorMajorSeventh => vec!["P5"],
+            _ => vec![],
+        };
+
+        interval_names
+            .into_iter()
+            .map(|s| Interval::from_str(s).unwrap())
+    }
+
     pub fn to_symbol(self) -> String {
         use ChordType::*;
 
