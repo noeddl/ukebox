@@ -23,15 +23,21 @@ impl fmt::Display for ParseChordError {
 }
 
 /// A chord such as C, Cm and so on.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Chord {
     pub root: Note,
     pub chord_type: ChordType,
+    pub notes: Vec<Note>,
 }
 
 impl Chord {
     pub fn new(root: Note, chord_type: ChordType) -> Self {
-        Self { root, chord_type }
+        let notes = chord_type.intervals().map(|i| root + i).collect();
+        Self {
+            root,
+            chord_type,
+            notes,
+        }
     }
 
     /// Return an iterator over the chord's notes.
@@ -68,8 +74,8 @@ impl Chord {
 
     pub fn transpose(&self, semitones: i8) -> Chord {
         match semitones {
-            s if s < 0 => *self - semitones.abs() as Semitones,
-            _ => *self + semitones as Semitones,
+            s if s < 0 => self.clone() - semitones.abs() as Semitones,
+            _ => self.clone() + semitones as Semitones,
         }
     }
 }
