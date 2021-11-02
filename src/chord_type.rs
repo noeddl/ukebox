@@ -67,6 +67,12 @@ impl ChordType {
             .map(|s| Interval::from_str(s).unwrap())
     }
 
+    /// Return an iterator over the chord type's required intervals.
+    pub fn required_intervals(&self) -> impl Iterator<Item = Interval> + '_ {
+        self.intervals()
+            .filter(move |&i1| self.optional_intervals().all(|i2| i2 != i1))
+    }
+
     pub fn to_symbol(self) -> String {
         use ChordType::*;
 
@@ -215,5 +221,21 @@ mod tests {
     )]
     fn test_get_chord_type(pitches: Vec<PitchClass>, chord_type: ChordType) {
         assert_eq!(ChordType::try_from(&pitches[..]).unwrap(), chord_type);
+    }
+
+    #[rstest(
+        chord_type, intervals,
+        case(Major, vec!["P1", "M3", "P5"]),
+        case(MajorSeventh, vec!["P1", "M3", "M7"]),
+    )]
+    fn test_required_intervals(chord_type: ChordType, intervals: Vec<&str>) {
+        let req_ints: Vec<_> = chord_type.required_intervals().collect();
+
+        let exp_ints: Vec<_> = intervals
+            .iter()
+            .map(|s| Interval::from_str(s).unwrap())
+            .collect();
+
+        assert_eq!(req_ints, exp_ints);
     }
 }

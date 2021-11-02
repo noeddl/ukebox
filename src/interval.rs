@@ -17,7 +17,7 @@ impl fmt::Display for ParseIntervalError {
 
 /// An interval is the difference between two notes.
 /// https://en.wikipedia.org/wiki/Interval_(music)
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub enum Interval {
     PerfectUnison,
     MajorSecond,
