@@ -186,8 +186,7 @@ mod tests {
         case("B", "B", "D#", "F#")
     )]
     fn test_from_str_major(chord: Chord, root: Note, third: Note, fifth: Note) {
-        let notes: Vec<Note> = chord.notes().collect();
-        assert_eq!(notes, vec![root, third, fifth]);
+        assert_eq!(chord.notes, vec![root, third, fifth]);
         assert_eq!(chord.chord_type, ChordType::Major);
     }
 
@@ -215,8 +214,7 @@ mod tests {
         case("Bm", "B", "D", "F#")
     )]
     fn test_from_str_minor(chord: Chord, root: Note, third: Note, fifth: Note) {
-        let notes: Vec<Note> = chord.notes().collect();
-        assert_eq!(notes, vec![root, third, fifth]);
+        assert_eq!(chord.notes, vec![root, third, fifth]);
         assert_eq!(chord.chord_type, ChordType::Minor);
     }
 
@@ -244,8 +242,7 @@ mod tests {
         case("Bsus2", "B", "C#", "F#")
     )]
     fn test_from_str_suspended_second(chord: Chord, root: Note, third: Note, fifth: Note) {
-        let notes: Vec<Note> = chord.notes().collect();
-        assert_eq!(notes, vec![root, third, fifth]);
+        assert_eq!(chord.notes, vec![root, third, fifth]);
         assert_eq!(chord.chord_type, ChordType::SuspendedSecond);
     }
 
@@ -273,8 +270,7 @@ mod tests {
         case("Bsus4", "B", "E", "F#")
     )]
     fn test_from_str_suspended_fourth(chord: Chord, root: Note, third: Note, fifth: Note) {
-        let notes: Vec<Note> = chord.notes().collect();
-        assert_eq!(notes, vec![root, third, fifth]);
+        assert_eq!(chord.notes, vec![root, third, fifth]);
         assert_eq!(chord.chord_type, ChordType::SuspendedFourth);
     }
 
@@ -302,8 +298,7 @@ mod tests {
         case("Baug", "B", "D#", "G")
     )]
     fn test_from_str_augmented(chord: Chord, root: Note, third: Note, fifth: Note) {
-        let notes: Vec<Note> = chord.notes().collect();
-        assert_eq!(notes, vec![root, third, fifth]);
+        assert_eq!(chord.notes, vec![root, third, fifth]);
         assert_eq!(chord.chord_type, ChordType::Augmented);
     }
 
@@ -331,8 +326,7 @@ mod tests {
         case("Bdim", "B", "D", "F")
     )]
     fn test_from_str_diminished(chord: Chord, root: Note, third: Note, fifth: Note) {
-        let notes: Vec<Note> = chord.notes().collect();
-        assert_eq!(notes, vec![root, third, fifth]);
+        assert_eq!(chord.notes, vec![root, third, fifth]);
         assert_eq!(chord.chord_type, ChordType::Diminished);
     }
 
@@ -367,8 +361,7 @@ mod tests {
         fifth: Note,
         seventh: Note,
     ) {
-        let notes: Vec<Note> = chord.notes().collect();
-        assert_eq!(notes, vec![root, third, fifth, seventh]);
+        assert_eq!(chord.notes, vec![root, third, fifth, seventh]);
         assert_eq!(chord.chord_type, ChordType::DominantSeventh);
     }
 
@@ -403,8 +396,7 @@ mod tests {
         fifth: Note,
         seventh: Note,
     ) {
-        let notes: Vec<Note> = chord.notes().collect();
-        assert_eq!(notes, vec![root, third, fifth, seventh]);
+        assert_eq!(chord.notes, vec![root, third, fifth, seventh]);
         assert_eq!(chord.chord_type, ChordType::MinorSeventh);
     }
 
@@ -439,8 +431,7 @@ mod tests {
         fifth: Note,
         seventh: Note,
     ) {
-        let notes: Vec<Note> = chord.notes().collect();
-        assert_eq!(notes, vec![root, third, fifth, seventh]);
+        assert_eq!(chord.notes, vec![root, third, fifth, seventh]);
         assert_eq!(chord.chord_type, ChordType::MajorSeventh);
     }
 
@@ -475,8 +466,7 @@ mod tests {
         fifth: Note,
         seventh: Note,
     ) {
-        let notes: Vec<Note> = chord.notes().collect();
-        assert_eq!(notes, vec![root, third, fifth, seventh]);
+        assert_eq!(chord.notes, vec![root, third, fifth, seventh]);
         assert_eq!(chord.chord_type, ChordType::MinorMajorSeventh);
     }
 
@@ -511,8 +501,7 @@ mod tests {
         fifth: Note,
         seventh: Note,
     ) {
-        let notes: Vec<Note> = chord.notes().collect();
-        assert_eq!(notes, vec![root, third, fifth, seventh]);
+        assert_eq!(chord.notes, vec![root, third, fifth, seventh]);
         assert_eq!(chord.chord_type, ChordType::AugmentedSeventh);
     }
 
@@ -547,8 +536,7 @@ mod tests {
         fifth: Note,
         seventh: Note,
     ) {
-        let notes: Vec<Note> = chord.notes().collect();
-        assert_eq!(notes, vec![root, third, fifth, seventh]);
+        assert_eq!(chord.notes, vec![root, third, fifth, seventh]);
         assert_eq!(chord.chord_type, ChordType::AugmentedMajorSeventh);
     }
 
@@ -583,8 +571,7 @@ mod tests {
         fifth: Note,
         seventh: Note,
     ) {
-        let notes: Vec<Note> = chord.notes().collect();
-        assert_eq!(notes, vec![root, third, fifth, seventh]);
+        assert_eq!(chord.notes, vec![root, third, fifth, seventh]);
         assert_eq!(chord.chord_type, ChordType::DiminishedSeventh);
     }
 
@@ -619,8 +606,7 @@ mod tests {
         fifth: Note,
         seventh: Note,
     ) {
-        let notes: Vec<Note> = chord.notes().collect();
-        assert_eq!(notes, vec![root, third, fifth, seventh]);
+        assert_eq!(chord.notes, vec![root, third, fifth, seventh]);
         assert_eq!(chord.chord_type, ChordType::HalfDiminishedSeventh);
     }
 
