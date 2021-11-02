@@ -6,7 +6,9 @@ use std::str::FromStr;
 
 use itertools::Itertools;
 
-use crate::{ChordType, Note, PitchClass, Semitones, UkeString, Voicing, VoicingConfig};
+use crate::{
+    ChordType, Note, PitchClass, Semitones, UkeString, Voicing, VoicingConfig, STRING_COUNT,
+};
 
 /// Custom error for strings that cannot be parsed into chords.
 #[derive(Debug)]
@@ -40,9 +42,20 @@ impl Chord {
         }
     }
 
-    /// Return an iterator over the chord's notes.
-    pub fn notes(&self) -> impl Iterator<Item = Note> + '_ {
-        self.chord_type.intervals().map(move |i| self.root + i)
+    /// Return an iterator over the chord's notes that are played on our instrument.
+    ///
+    /// If the chord contains more notes than we have strings, only required notes are played.
+    pub fn played_notes(&self) -> impl Iterator<Item = Note> + '_ {
+        self.chord_type
+            .intervals()
+            .filter(move |&i1| {
+                if self.notes.len() > STRING_COUNT {
+                    self.chord_type.required_intervals().any(|i2| i2 == i1)
+                } else {
+                    true
+                }
+            })
+            .map(move |i| self.root + i)
     }
 
     pub fn voicings(&self, config: VoicingConfig) -> impl Iterator<Item = Voicing> + '_ {
@@ -52,7 +65,7 @@ impl Chord {
             // For each ukulele string, keep track of all the frets that when pressed down
             // while playing the string result in a note of the chord.
             .map(|root| {
-                self.notes()
+                self.played_notes()
                     // Allow each note to be checked twice on the fretboard.
                     .cartesian_product(vec![0, 12])
                     // Determine the fret on which `note` is played.
