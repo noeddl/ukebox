@@ -10,6 +10,7 @@ pub enum ChordType {
     Major,
     MajorSeventh,
     MajorNinth,
+    MajorThirteenth,
     DominantSeventh,
     SuspendedFourth,
     SuspendedSecond,
@@ -33,6 +34,7 @@ impl ChordType {
             Major => vec!["P1", "M3", "P5"],
             MajorSeventh => vec!["P1", "M3", "P5", "M7"],
             MajorNinth => vec!["P1", "M3", "P5", "M7", "M9"],
+            MajorThirteenth => vec!["P1", "M3", "P5", "M7", "M9", "P11", "M13"],
             DominantSeventh => vec!["P1", "M3", "P5", "m7"],
             SuspendedFourth => vec!["P1", "P4", "P5"],
             SuspendedSecond => vec!["P1", "M2", "P5"],
@@ -59,6 +61,7 @@ impl ChordType {
         let interval_names = match self {
             MajorSeventh | MajorNinth | DominantSeventh | SuspendedFourth | SuspendedSecond
             | MinorSeventh | MinorMajorSeventh => vec!["P5"],
+            MajorThirteenth => vec!["P5", "M9", "P11"],
             _ => vec![],
         };
 
@@ -80,6 +83,7 @@ impl ChordType {
             Major => "",
             MajorSeventh => "maj7",
             MajorNinth => "maj9",
+            MajorThirteenth => "maj13",
             DominantSeventh => "7",
             SuspendedFourth => "sus4",
             SuspendedSecond => "sus2",
@@ -106,6 +110,7 @@ impl fmt::Display for ChordType {
             Major => "major",
             MajorSeventh => "major 7th",
             MajorNinth => "major 9th",
+            MajorThirteenth => "major 13th",
             DominantSeventh => "dominant 7th",
             SuspendedFourth => "suspended 4th",
             SuspendedSecond => "suspended 2nd",
@@ -134,6 +139,7 @@ impl FromStr for ChordType {
             "" => Ok(Major),
             "maj7" => Ok(MajorSeventh),
             "maj9" => Ok(MajorNinth),
+            "maj13" => Ok(MajorThirteenth),
             "7" => Ok(DominantSeventh),
             "sus4" => Ok(SuspendedFourth),
             "sus2" => Ok(SuspendedSecond),
@@ -168,6 +174,7 @@ impl TryFrom<&[PitchClass]> for ChordType {
             [0, 4, 7] => Ok(Major),
             [0, 4, 7, 11] => Ok(MajorSeventh),
             [0, 2, 4, 7, 11] => Ok(MajorNinth),
+            [0, 2, 4, 5, 7, 9, 11] => Ok(MajorThirteenth),
             [0, 4, 7, 10] => Ok(DominantSeventh),
             [0, 5, 7] => Ok(SuspendedFourth),
             [0, 2, 7] => Ok(SuspendedSecond),
@@ -199,6 +206,7 @@ mod tests {
         case(vec![C, E, G], Major),
         case(vec![C, E, G, B], MajorSeventh),
         case(vec![C, E, G, B, D], MajorNinth),
+        case(vec![C, E, G, B, D, F, A], MajorThirteenth),
         case(vec![C, E, G, ASharp], DominantSeventh),
         case(vec![C, F, G], SuspendedFourth),
         case(vec![C, D, G], SuspendedSecond),

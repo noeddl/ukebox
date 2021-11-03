@@ -281,6 +281,50 @@ mod tests {
         third,
         fifth,
         seventh,
+        ninth,
+        eleventh,
+        thirteenth,
+        case("Cmaj13", "C", "E", "G", "B", "D", "F", "A"),
+        case("C#maj13", "C#", "F", "G#", "C", "D#", "F#", "A#"),
+        case("Dbmaj13", "Db", "F", "Ab", "C", "Eb", "Gb", "Bb"),
+        case("Dmaj13", "D", "F#", "A", "C#", "E", "G", "B"),
+        case("D#maj13", "D#", "G", "A#", "D", "F", "G#", "C"),
+        case("Ebmaj13", "Eb", "G", "Bb", "D", "F", "Ab", "C"),
+        case("Emaj13", "E", "G#", "B", "D#", "F#", "A", "C#"),
+        case("Fmaj13", "F", "A", "C", "E", "G", "A#", "D"),
+        case("F#maj13", "F#", "A#", "C#", "F", "G#", "B", "D#"),
+        case("Gbmaj13", "Gb", "Bb", "Db", "F", "Ab", "B", "Eb"),
+        case("Gmaj13", "G", "B", "D", "F#", "A", "C", "E"),
+        case("G#maj13", "G#", "C", "D#", "G", "A#", "C#", "F"),
+        case("Abmaj13", "Ab", "C", "Eb", "G", "Bb", "Db", "F"),
+        case("Amaj13", "A", "C#", "E", "G#", "B", "D", "F#"),
+        case("A#maj13", "A#", "D", "F", "A", "C", "D#", "G"),
+        case("Bbmaj13", "Bb", "D", "F", "A", "C", "Eb", "G"),
+        case("Bmaj13", "B", "D#", "F#", "A#", "C#", "E", "G#")
+    )]
+    fn test_from_str_major_thirteenth(
+        chord: Chord,
+        root: Note,
+        third: Note,
+        fifth: Note,
+        seventh: Note,
+        ninth: Note,
+        eleventh: Note,
+        thirteenth: Note,
+    ) {
+        assert_eq!(
+            chord.notes,
+            vec![root, third, fifth, seventh, ninth, eleventh, thirteenth]
+        );
+        assert_eq!(chord.chord_type, ChordType::MajorThirteenth);
+    }
+
+    #[rstest(
+        chord,
+        root,
+        third,
+        fifth,
+        seventh,
         case("C7", "C", "E", "G", "Bb"),
         case("C#7", "C#", "F", "G#", "B"),
         case("Db7", "Db", "F", "Ab", "B"),
