@@ -535,7 +535,9 @@ fn test_all(
     case("0000", "Am7 - A minor 7th"),
     case("0003", "C - C major"),
     case("0013", "Csus4 - C suspended 4th\nFsus2 - F suspended 2nd"),
-    case("10 10 10 10", "Gm7 - G minor 7th")
+    case("10 10 10 10", "Gm7 - G minor 7th"),
+    case("7604", "Dmaj9 - D major 9th"),
+    case("1304", "Emaj13 - E major 13th")
 )]
 fn test_name(chart: &str, names: &'static str) -> Result<(), Box<dyn Error + 'static>> {
     let mut cmd = Command::cargo_bin("ukebox")?;
