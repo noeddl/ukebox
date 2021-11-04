@@ -2,8 +2,6 @@ use std::convert::TryFrom;
 use std::fmt;
 use std::str::FromStr;
 
-use itertools::Itertools;
-
 use crate::{Interval, PitchClass, Semitones, PITCH_CLASS_COUNT};
 
 /// The type of the chord depending on the intervals it contains.
@@ -117,6 +115,18 @@ impl ChordType {
         })
     }
 
+    pub fn required_semitones(&self) -> impl Iterator<Item = Semitones> + '_ {
+        self.required_intervals()
+            .map(|i| i.to_semitones())
+            .map(|s| {
+                if s >= PITCH_CLASS_COUNT {
+                    s - PITCH_CLASS_COUNT
+                } else {
+                    s
+                }
+            })
+    }
+
     pub fn to_symbol(self) -> String {
         use ChordType::*;
 
@@ -210,11 +220,17 @@ impl TryFrom<&[PitchClass]> for ChordType {
         pitch_diffs.sort_unstable();
 
         for chord_type in ChordType::values() {
-            if pitch_diffs
-                .iter()
-                .cloned()
-                .eq(chord_type.semitones().sorted())
-            {
+            let interval_count = chord_type.intervals().count();
+
+            let mut semitones: Vec<_> = if interval_count > pitch_diffs.len() {
+                chord_type.required_semitones().collect()
+            } else {
+                chord_type.semitones().collect()
+            };
+
+            semitones.sort_unstable();
+
+            if pitch_diffs == semitones {
                 return Ok(chord_type);
             }
         }
@@ -237,7 +253,9 @@ mod tests {
         case(vec![C, E, G], Major),
         case(vec![C, E, G, B], MajorSeventh),
         case(vec![C, E, G, B, D], MajorNinth),
+        case(vec![C, E, B, D], MajorNinth),
         case(vec![C, E, G, B, D, F, A], MajorThirteenth),
+        case(vec![C, E, B, A], MajorThirteenth),
         case(vec![C, E, G, ASharp], DominantSeventh),
         case(vec![C, F, G], SuspendedFourth),
         case(vec![C, D, G], SuspendedSecond),
