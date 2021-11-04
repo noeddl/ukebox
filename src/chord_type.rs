@@ -2,7 +2,9 @@ use std::convert::TryFrom;
 use std::fmt;
 use std::str::FromStr;
 
-use crate::{Interval, PitchClass};
+use itertools::Itertools;
+
+use crate::{Interval, PitchClass, Semitones, PITCH_CLASS_COUNT};
 
 /// The type of the chord depending on the intervals it contains.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
@@ -26,6 +28,35 @@ pub enum ChordType {
 }
 
 impl ChordType {
+    /// Iterator over the values of the ChordType enum.
+    ///
+    /// Unfortunately, we have to list them all and make sure to update
+    /// this list if a value is added or removed.
+    pub fn values() -> impl Iterator<Item = ChordType> {
+        use ChordType::*;
+
+        [
+            Major,
+            MajorSeventh,
+            MajorNinth,
+            MajorThirteenth,
+            DominantSeventh,
+            SuspendedFourth,
+            SuspendedSecond,
+            Minor,
+            MinorSeventh,
+            MinorMajorSeventh,
+            Diminished,
+            DiminishedSeventh,
+            HalfDiminishedSeventh,
+            Augmented,
+            AugmentedSeventh,
+            AugmentedMajorSeventh,
+        ]
+        .iter()
+        .copied()
+    }
+
     /// Return an iterator over the chord type's intervals.
     pub fn intervals(&self) -> impl Iterator<Item = Interval> + '_ {
         use ChordType::*;
@@ -74,6 +105,16 @@ impl ChordType {
     pub fn required_intervals(&self) -> impl Iterator<Item = Interval> + '_ {
         self.intervals()
             .filter(move |&i1| self.optional_intervals().all(|i2| i2 != i1))
+    }
+
+    pub fn semitones(&self) -> impl Iterator<Item = Semitones> + '_ {
+        self.intervals().map(|i| i.to_semitones()).map(|s| {
+            if s >= PITCH_CLASS_COUNT {
+                s - PITCH_CLASS_COUNT
+            } else {
+                s
+            }
+        })
     }
 
     pub fn to_symbol(self) -> String {
@@ -162,33 +203,23 @@ impl TryFrom<&[PitchClass]> for ChordType {
 
     /// Determine the chord type from a list of pitch classes representing a chord.
     fn try_from(pitches: &[PitchClass]) -> Result<Self, Self::Error> {
-        use ChordType::*;
-
         // Subtract the root note's pitch class from all pitch classes to get the
         // difference in semitones.
         let mut pitch_diffs: Vec<_> = pitches.iter().map(|pc| *pc - pitches[0]).collect();
 
         pitch_diffs.sort_unstable();
 
-        match pitch_diffs[..] {
-            [0, 4, 7] => Ok(Major),
-            [0, 4, 7, 11] => Ok(MajorSeventh),
-            [0, 2, 4, 7, 11] => Ok(MajorNinth),
-            [0, 2, 4, 5, 7, 9, 11] => Ok(MajorThirteenth),
-            [0, 4, 7, 10] => Ok(DominantSeventh),
-            [0, 5, 7] => Ok(SuspendedFourth),
-            [0, 2, 7] => Ok(SuspendedSecond),
-            [0, 3, 7] => Ok(Minor),
-            [0, 3, 7, 10] => Ok(MinorSeventh),
-            [0, 3, 7, 11] => Ok(MinorMajorSeventh),
-            [0, 3, 6] => Ok(Diminished),
-            [0, 3, 6, 9] => Ok(DiminishedSeventh),
-            [0, 3, 6, 10] => Ok(HalfDiminishedSeventh),
-            [0, 4, 8] => Ok(Augmented),
-            [0, 4, 8, 10] => Ok(AugmentedSeventh),
-            [0, 4, 8, 11] => Ok(AugmentedMajorSeventh),
-            _ => Err("No matching chord type found."),
+        for chord_type in ChordType::values() {
+            if pitch_diffs
+                .iter()
+                .cloned()
+                .eq(chord_type.semitones().sorted())
+            {
+                return Ok(chord_type);
+            }
         }
+
+        Err("No matching chord type found.")
     }
 }
 
