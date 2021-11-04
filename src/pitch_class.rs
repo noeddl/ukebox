@@ -1,10 +1,7 @@
 #![allow(clippy::suspicious_arithmetic_impl)]
 use std::ops::{Add, Sub};
 
-use crate::Semitones;
-
-/// Number of pitch classes.
-const PITCH_CLASS_COUNT: Semitones = 12;
+use crate::{Semitones, PITCH_CLASS_COUNT};
 
 /// A pitch class is "a set of all pitches that are a whole number of octaves
 /// apart, e.g., the pitch class C consists of the Cs in all octaves."

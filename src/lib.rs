@@ -36,6 +36,9 @@ pub const STRING_COUNT: usize = 4;
 /// Number of fingers on our left hand to be used for pressing down strings.
 pub const FINGER_COUNT: usize = 4;
 
+/// Number of pitch classes.
+pub const PITCH_CLASS_COUNT: Semitones = 12;
+
 /// Minimal number of frets to be shown in a chord chart.
 pub const MIN_CHART_WIDTH: Semitones = 4;
 
