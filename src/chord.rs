@@ -353,6 +353,43 @@ mod tests {
         root,
         third,
         fifth,
+        sixth,
+        ninth,
+        case("C6/9", "C", "E", "G", "A", "D"),
+        case("C#6/9", "C#", "F", "G#", "A#", "D#"),
+        case("Db6/9", "Db", "F", "Ab", "Bb", "Eb"),
+        case("D6/9", "D", "F#", "A", "B", "E"),
+        case("D#6/9", "D#", "G", "A#", "C", "F"),
+        case("Eb6/9", "Eb", "G", "Bb", "C", "F"),
+        case("E6/9", "E", "G#", "B", "C#", "F#"),
+        case("F6/9", "F", "A", "C", "D", "G"),
+        case("F#6/9", "F#", "A#", "C#", "D#", "G#"),
+        case("Gb6/9", "Gb", "Bb", "Db", "Eb", "Ab"),
+        case("G6/9", "G", "B", "D", "E", "A"),
+        case("G#6/9", "G#", "C", "D#", "F", "A#"),
+        case("Ab6/9", "Ab", "C", "Eb", "F", "Bb"),
+        case("A6/9", "A", "C#", "E", "F#", "B"),
+        case("A#6/9", "A#", "D", "F", "G", "C"),
+        case("Bb6/9", "Bb", "D", "F", "G", "C"),
+        case("B6/9", "B", "D#", "F#", "G#", "C#")
+    )]
+    fn test_from_str_sixth_ninth(
+        chord: Chord,
+        root: Note,
+        third: Note,
+        fifth: Note,
+        sixth: Note,
+        ninth: Note,
+    ) {
+        assert_eq!(chord.notes, vec![root, third, fifth, sixth, ninth]);
+        assert_eq!(chord.chord_type, ChordType::SixthNinth);
+    }
+
+    #[rstest(
+        chord,
+        root,
+        third,
+        fifth,
         seventh,
         case("C7", "C", "E", "G", "Bb"),
         case("C#7", "C#", "F", "G#", "B"),
