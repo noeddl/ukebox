@@ -462,6 +462,48 @@ mod tests {
         root,
         third,
         fifth,
+        seventh,
+        ninth,
+        thirteenth,
+        case("C13", "C", "E", "G", "Bb", "D", "A"),
+        case("C#13", "C#", "F", "G#", "B", "D#", "A#"),
+        case("Db13", "Db", "F", "Ab", "B", "Eb", "Bb"),
+        case("D13", "D", "F#", "A", "C", "E", "B"),
+        case("D#13", "D#", "G", "A#", "C#", "F", "C"),
+        case("Eb13", "Eb", "G", "Bb", "Db", "F", "C"),
+        case("E13", "E", "G#", "B", "D", "F#", "C#"),
+        case("F13", "F", "A", "C", "Eb", "G", "D"),
+        case("F#13", "F#", "A#", "C#", "E", "G#", "D#"),
+        case("Gb13", "Gb", "Bb", "Db", "E", "Ab", "Eb"),
+        case("G13", "G", "B", "D", "F", "A", "E"),
+        case("G#13", "G#", "C", "D#", "F#", "A#", "F"),
+        case("Ab13", "Ab", "C", "Eb", "Gb", "Bb", "F"),
+        case("A13", "A", "C#", "E", "G", "B", "F#"),
+        case("A#13", "A#", "D", "F", "G#", "C", "G"),
+        case("Bb13", "Bb", "D", "F", "Ab", "C", "G"),
+        case("B13", "B", "D#", "F#", "A", "C#", "G#")
+    )]
+    fn test_from_str_dominant_thirteenth(
+        chord: Chord,
+        root: Note,
+        third: Note,
+        fifth: Note,
+        seventh: Note,
+        ninth: Note,
+        thirteenth: Note,
+    ) {
+        assert_eq!(
+            chord.notes,
+            vec![root, third, fifth, seventh, ninth, thirteenth]
+        );
+        assert_eq!(chord.chord_type, ChordType::DominantThirteenth);
+    }
+
+    #[rstest(
+        chord,
+        root,
+        third,
+        fifth,
         case("Csus4", "C", "F", "G"),
         case("C#sus4", "C#", "F#", "G#"),
         case("Dbsus4", "Db", "Gb", "Ab"),
