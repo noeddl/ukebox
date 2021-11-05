@@ -425,6 +425,43 @@ mod tests {
         root,
         third,
         fifth,
+        seventh,
+        ninth,
+        case("C9", "C", "E", "G", "Bb", "D"),
+        case("C#9", "C#", "F", "G#", "B", "D#"),
+        case("Db9", "Db", "F", "Ab", "B", "Eb"),
+        case("D9", "D", "F#", "A", "C", "E"),
+        case("D#9", "D#", "G", "A#", "C#", "F"),
+        case("Eb9", "Eb", "G", "Bb", "Db", "F"),
+        case("E9", "E", "G#", "B", "D", "F#"),
+        case("F9", "F", "A", "C", "Eb", "G"),
+        case("F#9", "F#", "A#", "C#", "E", "G#"),
+        case("Gb9", "Gb", "Bb", "Db", "E", "Ab"),
+        case("G9", "G", "B", "D", "F", "A"),
+        case("G#9", "G#", "C", "D#", "F#", "A#"),
+        case("Ab9", "Ab", "C", "Eb", "Gb", "Bb"),
+        case("A9", "A", "C#", "E", "G", "B"),
+        case("A#9", "A#", "D", "F", "G#", "C"),
+        case("Bb9", "Bb", "D", "F", "Ab", "C"),
+        case("B9", "B", "D#", "F#", "A", "C#")
+    )]
+    fn test_from_str_dominant_ninth(
+        chord: Chord,
+        root: Note,
+        third: Note,
+        fifth: Note,
+        seventh: Note,
+        ninth: Note,
+    ) {
+        assert_eq!(chord.notes, vec![root, third, fifth, seventh, ninth]);
+        assert_eq!(chord.chord_type, ChordType::DominantNinth);
+    }
+
+    #[rstest(
+        chord,
+        root,
+        third,
+        fifth,
         case("Csus4", "C", "F", "G"),
         case("C#sus4", "C#", "F#", "G#"),
         case("Dbsus4", "Db", "Gb", "Ab"),
