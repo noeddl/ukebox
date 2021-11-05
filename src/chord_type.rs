@@ -2,7 +2,7 @@ use std::convert::TryFrom;
 use std::fmt;
 use std::str::FromStr;
 
-use crate::{Interval, PitchClass, Semitones, PITCH_CLASS_COUNT};
+use crate::{Interval, PitchClass, PITCH_CLASS_COUNT};
 
 /// The type of the chord depending on the intervals it contains.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
@@ -105,28 +105,6 @@ impl ChordType {
             .filter(move |&i1| self.optional_intervals().all(|i2| i2 != i1))
     }
 
-    pub fn semitones(&self) -> impl Iterator<Item = Semitones> + '_ {
-        self.intervals().map(|i| i.to_semitones()).map(|s| {
-            if s >= PITCH_CLASS_COUNT {
-                s - PITCH_CLASS_COUNT
-            } else {
-                s
-            }
-        })
-    }
-
-    pub fn required_semitones(&self) -> impl Iterator<Item = Semitones> + '_ {
-        self.required_intervals()
-            .map(|i| i.to_semitones())
-            .map(|s| {
-                if s >= PITCH_CLASS_COUNT {
-                    s - PITCH_CLASS_COUNT
-                } else {
-                    s
-                }
-            })
-    }
-
     pub fn to_symbol(self) -> String {
         use ChordType::*;
 
@@ -220,13 +198,19 @@ impl TryFrom<&[PitchClass]> for ChordType {
         pitch_diffs.sort_unstable();
 
         for chord_type in ChordType::values() {
-            let interval_count = chord_type.intervals().count();
-
-            let mut semitones: Vec<_> = if interval_count > pitch_diffs.len() {
-                chord_type.required_semitones().collect()
-            } else {
-                chord_type.semitones().collect()
-            };
+            let mut semitones: Vec<_> = chord_type
+                .required_intervals()
+                .chain(chord_type.optional_intervals())
+                .take(pitch_diffs.len())
+                .map(|i| i.to_semitones())
+                .map(|s| {
+                    if s >= PITCH_CLASS_COUNT {
+                        s - PITCH_CLASS_COUNT
+                    } else {
+                        s
+                    }
+                })
+                .collect();
 
             semitones.sort_unstable();
 
