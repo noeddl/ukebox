@@ -324,6 +324,35 @@ mod tests {
         root,
         third,
         fifth,
+        sixth,
+        case("C6", "C", "E", "G", "A"),
+        case("C#6", "C#", "F", "G#", "A#"),
+        case("Db6", "Db", "F", "Ab", "Bb"),
+        case("D6", "D", "F#", "A", "B"),
+        case("D#6", "D#", "G", "A#", "C"),
+        case("Eb6", "Eb", "G", "Bb", "C"),
+        case("E6", "E", "G#", "B", "C#"),
+        case("F6", "F", "A", "C", "D"),
+        case("F#6", "F#", "A#", "C#", "D#"),
+        case("Gb6", "Gb", "Bb", "Db", "Eb"),
+        case("G6", "G", "B", "D", "E"),
+        case("G#6", "G#", "C", "D#", "F"),
+        case("Ab6", "Ab", "C", "Eb", "F"),
+        case("A6", "A", "C#", "E", "F#"),
+        case("A#6", "A#", "D", "F", "G"),
+        case("Bb6", "Bb", "D", "F", "G"),
+        case("B6", "B", "D#", "F#", "G#")
+    )]
+    fn test_from_str_major_sixth(chord: Chord, root: Note, third: Note, fifth: Note, sixth: Note) {
+        assert_eq!(chord.notes, vec![root, third, fifth, sixth]);
+        assert_eq!(chord.chord_type, ChordType::MajorSixth);
+    }
+
+    #[rstest(
+        chord,
+        root,
+        third,
+        fifth,
         seventh,
         case("C7", "C", "E", "G", "Bb"),
         case("C#7", "C#", "F", "G#", "B"),
