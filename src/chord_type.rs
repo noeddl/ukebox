@@ -238,10 +238,15 @@ impl TryFrom<&[PitchClass]> for ChordType {
                 })
                 .collect();
 
-            semitones.sort_unstable();
+            // We need at least all the required intervals to determine the chord type.
+            let min_len = chord_type.required_intervals().count();
 
-            if pitch_diffs == semitones {
-                return Ok(chord_type);
+            if pitch_diffs.len() >= min_len {
+                semitones.sort_unstable();
+
+                if pitch_diffs == semitones {
+                    return Ok(chord_type);
+                }
             }
         }
 
@@ -295,6 +300,15 @@ mod tests {
     )]
     fn test_get_chord_type(pitches: Vec<PitchClass>, chord_type: ChordType) {
         assert_eq!(ChordType::try_from(&pitches[..]).unwrap(), chord_type);
+    }
+
+    #[rstest(
+        pitches,
+        case(vec![C, E]),
+        case(vec![D]),
+    )]
+    fn test_get_chord_type_error(pitches: Vec<PitchClass>) {
+        assert!(ChordType::try_from(&pitches[..]).is_err());
     }
 
     #[rstest(
