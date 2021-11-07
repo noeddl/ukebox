@@ -1,8 +1,9 @@
+use std::cmp::min;
 use std::convert::TryFrom;
 use std::fmt;
 use std::str::FromStr;
 
-use crate::{Interval, PitchClass, PITCH_CLASS_COUNT};
+use crate::{Interval, PitchClass, PITCH_CLASS_COUNT, STRING_COUNT};
 
 /// The type of the chord depending on the intervals it contains.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
@@ -239,7 +240,8 @@ impl TryFrom<&[PitchClass]> for ChordType {
 
         for chord_type in ChordType::values() {
             // We need at least all the required intervals to determine the chord type.
-            let min_len = chord_type.required_intervals().count();
+            // But if we can fit more notes because we have enough strings, we should do it.
+            let min_len = min(chord_type.intervals().count(), STRING_COUNT);
 
             if pitch_diffs.len() >= min_len {
                 let mut semitones: Vec<_> = chord_type
@@ -296,7 +298,6 @@ mod tests {
         case(vec![C, F, G], SuspendedFourth),
         case(vec![C, D, G], SuspendedSecond),
         case(vec![C, F, G, ASharp], DominantSeventhSuspendedFourth),
-        case(vec![C, F, ASharp], DominantSeventhSuspendedFourth),
         case(vec![C, DSharp, G], Minor),
         case(vec![C, DSharp, G, ASharp], MinorSeventh),
         case(vec![C, DSharp, G, B], MinorMajorSeventh),
@@ -322,6 +323,7 @@ mod tests {
         pitches,
         case(vec![C, E]),
         case(vec![D]),
+        case(vec![C, F, ASharp]), // missing fifth
     )]
     fn test_get_chord_type_error(pitches: Vec<PitchClass>) {
         assert!(ChordType::try_from(&pitches[..]).is_err());
