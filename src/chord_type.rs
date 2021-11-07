@@ -238,24 +238,24 @@ impl TryFrom<&[PitchClass]> for ChordType {
         pitch_diffs.sort_unstable();
 
         for chord_type in ChordType::values() {
-            let mut semitones: Vec<_> = chord_type
-                .required_intervals()
-                .chain(chord_type.optional_intervals())
-                .take(pitch_diffs.len())
-                .map(|i| i.to_semitones())
-                .map(|s| {
-                    if s >= PITCH_CLASS_COUNT {
-                        s - PITCH_CLASS_COUNT
-                    } else {
-                        s
-                    }
-                })
-                .collect();
-
             // We need at least all the required intervals to determine the chord type.
             let min_len = chord_type.required_intervals().count();
 
             if pitch_diffs.len() >= min_len {
+                let mut semitones: Vec<_> = chord_type
+                    .required_intervals()
+                    .chain(chord_type.optional_intervals())
+                    .take(pitch_diffs.len())
+                    .map(|i| i.to_semitones())
+                    .map(|s| {
+                        if s >= PITCH_CLASS_COUNT {
+                            s - PITCH_CLASS_COUNT
+                        } else {
+                            s
+                        }
+                    })
+                    .collect();
+
                 semitones.sort_unstable();
 
                 if pitch_diffs == semitones {
