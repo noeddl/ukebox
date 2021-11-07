@@ -464,24 +464,25 @@ mod tests {
         fifth,
         seventh,
         ninth,
+        eleventh,
         thirteenth,
-        case("C13", "C", "E", "G", "Bb", "D", "A"),
-        case("C#13", "C#", "F", "G#", "B", "D#", "A#"),
-        case("Db13", "Db", "F", "Ab", "B", "Eb", "Bb"),
-        case("D13", "D", "F#", "A", "C", "E", "B"),
-        case("D#13", "D#", "G", "A#", "C#", "F", "C"),
-        case("Eb13", "Eb", "G", "Bb", "Db", "F", "C"),
-        case("E13", "E", "G#", "B", "D", "F#", "C#"),
-        case("F13", "F", "A", "C", "Eb", "G", "D"),
-        case("F#13", "F#", "A#", "C#", "E", "G#", "D#"),
-        case("Gb13", "Gb", "Bb", "Db", "E", "Ab", "Eb"),
-        case("G13", "G", "B", "D", "F", "A", "E"),
-        case("G#13", "G#", "C", "D#", "F#", "A#", "F"),
-        case("Ab13", "Ab", "C", "Eb", "Gb", "Bb", "F"),
-        case("A13", "A", "C#", "E", "G", "B", "F#"),
-        case("A#13", "A#", "D", "F", "G#", "C", "G"),
-        case("Bb13", "Bb", "D", "F", "Ab", "C", "G"),
-        case("B13", "B", "D#", "F#", "A", "C#", "G#")
+        case("C13", "C", "E", "G", "Bb", "D", "F", "A"),
+        case("C#13", "C#", "F", "G#", "B", "D#", "F#", "A#"),
+        case("Db13", "Db", "F", "Ab", "B", "Eb", "Gb", "Bb"),
+        case("D13", "D", "F#", "A", "C", "E", "G", "B"),
+        case("D#13", "D#", "G", "A#", "C#", "F", "G#", "C"),
+        case("Eb13", "Eb", "G", "Bb", "Db", "F", "Ab", "C"),
+        case("E13", "E", "G#", "B", "D", "F#", "A", "C#"),
+        case("F13", "F", "A", "C", "Eb", "G", "A#", "D"),
+        case("F#13", "F#", "A#", "C#", "E", "G#", "B", "D#"),
+        case("Gb13", "Gb", "Bb", "Db", "E", "Ab", "B", "Eb"),
+        case("G13", "G", "B", "D", "F", "A", "C", "E"),
+        case("G#13", "G#", "C", "D#", "F#", "A#", "C#", "F"),
+        case("Ab13", "Ab", "C", "Eb", "Gb", "Bb", "Db", "F"),
+        case("A13", "A", "C#", "E", "G", "B", "D", "F#"),
+        case("A#13", "A#", "D", "F", "G#", "C", "D#", "G"),
+        case("Bb13", "Bb", "D", "F", "Ab", "C", "Eb", "G"),
+        case("B13", "B", "D#", "F#", "A", "C#", "E", "G#")
     )]
     fn test_from_str_dominant_thirteenth(
         chord: Chord,
@@ -490,11 +491,12 @@ mod tests {
         fifth: Note,
         seventh: Note,
         ninth: Note,
+        eleventh: Note,
         thirteenth: Note,
     ) {
         assert_eq!(
             chord.notes,
-            vec![root, third, fifth, seventh, ninth, thirteenth]
+            vec![root, third, fifth, seventh, ninth, eleventh, thirteenth]
         );
         assert_eq!(chord.chord_type, ChordType::DominantThirteenth);
     }

@@ -81,7 +81,7 @@ impl ChordType {
             SixthNinth => vec!["P1", "M3", "P5", "M6", "M9"],
             DominantSeventh => vec!["P1", "M3", "P5", "m7"],
             DominantNinth => vec!["P1", "M3", "P5", "m7", "M9"],
-            DominantThirteenth => vec!["P1", "M3", "P5", "m7", "M9", "M13"],
+            DominantThirteenth => vec!["P1", "M3", "P5", "m7", "M9", "P11", "M13"],
             SuspendedFourth => vec!["P1", "P4", "P5"],
             SuspendedSecond => vec!["P1", "M2", "P5"],
             DominantSeventhSuspendedFourth => vec!["P1", "P4", "P5", "m7"],
@@ -119,8 +119,7 @@ impl ChordType {
             | DominantSeventhSuspendedSecond
             | MinorSeventh
             | MinorMajorSeventh => vec!["P5"],
-            DominantThirteenth => vec!["P5", "M9"],
-            MajorThirteenth => vec!["P5", "M9", "P11"],
+            MajorThirteenth | DominantThirteenth => vec!["P5", "M9", "P11"],
             _ => vec![],
         };
 
