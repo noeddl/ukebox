@@ -20,6 +20,7 @@ pub enum ChordType {
     SuspendedFourth,
     SuspendedSecond,
     DominantSeventhSuspendedFourth,
+    DominantSeventhSuspendedSecond,
     Minor,
     MinorSeventh,
     MinorMajorSeventh,
@@ -52,6 +53,7 @@ impl ChordType {
             SuspendedFourth,
             SuspendedSecond,
             DominantSeventhSuspendedFourth,
+            DominantSeventhSuspendedSecond,
             Minor,
             MinorSeventh,
             MinorMajorSeventh,
@@ -83,6 +85,7 @@ impl ChordType {
             SuspendedFourth => vec!["P1", "P4", "P5"],
             SuspendedSecond => vec!["P1", "M2", "P5"],
             DominantSeventhSuspendedFourth => vec!["P1", "P4", "P5", "m7"],
+            DominantSeventhSuspendedSecond => vec!["P1", "M2", "P5", "m7"],
             Minor => vec!["P1", "m3", "P5"],
             MinorSeventh => vec!["P1", "m3", "P5", "m7"],
             MinorMajorSeventh => vec!["P1", "m3", "P5", "M7"],
@@ -113,6 +116,7 @@ impl ChordType {
             | SuspendedFourth
             | SuspendedSecond
             | DominantSeventhSuspendedFourth
+            | DominantSeventhSuspendedSecond
             | MinorSeventh
             | MinorMajorSeventh => vec!["P5"],
             DominantThirteenth => vec!["P5", "M9"],
@@ -147,6 +151,7 @@ impl ChordType {
             SuspendedFourth => "sus4",
             SuspendedSecond => "sus2",
             DominantSeventhSuspendedFourth => "7sus4",
+            DominantSeventhSuspendedSecond => "7sus2",
             Minor => "m",
             MinorSeventh => "m7",
             MinorMajorSeventh => "mMaj7",
@@ -179,6 +184,7 @@ impl fmt::Display for ChordType {
             SuspendedFourth => "suspended 4th",
             SuspendedSecond => "suspended 2nd",
             DominantSeventhSuspendedFourth => "dominant 7th suspended 4th",
+            DominantSeventhSuspendedSecond => "dominant 7th suspended 2nd",
             Minor => "minor",
             MinorSeventh => "minor 7th",
             MinorMajorSeventh => "minor/major 7th",
@@ -213,6 +219,7 @@ impl FromStr for ChordType {
             "sus4" => Ok(SuspendedFourth),
             "sus2" => Ok(SuspendedSecond),
             "7sus4" => Ok(DominantSeventhSuspendedFourth),
+            "7sus2" => Ok(DominantSeventhSuspendedSecond),
             "m" => Ok(Minor),
             "m7" => Ok(MinorSeventh),
             "mMaj7" => Ok(MinorMajorSeventh),
@@ -298,6 +305,7 @@ mod tests {
         case(vec![C, F, G], SuspendedFourth),
         case(vec![C, D, G], SuspendedSecond),
         case(vec![C, F, G, ASharp], DominantSeventhSuspendedFourth),
+        case(vec![C, D, G, ASharp], DominantSeventhSuspendedSecond),
         case(vec![C, DSharp, G], Minor),
         case(vec![C, DSharp, G, ASharp], MinorSeventh),
         case(vec![C, DSharp, G, B], MinorMajorSeventh),
