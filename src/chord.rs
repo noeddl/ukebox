@@ -502,7 +502,7 @@ mod tests {
     #[rstest(
         chord,
         root,
-        third,
+        fourth,
         fifth,
         case("Csus4", "C", "F", "G"),
         case("C#sus4", "C#", "F#", "G#"),
@@ -522,15 +522,15 @@ mod tests {
         case("Bbsus4", "Bb", "Eb", "F"),
         case("Bsus4", "B", "E", "F#")
     )]
-    fn test_from_str_suspended_fourth(chord: Chord, root: Note, third: Note, fifth: Note) {
-        assert_eq!(chord.notes, vec![root, third, fifth]);
+    fn test_from_str_suspended_fourth(chord: Chord, root: Note, fourth: Note, fifth: Note) {
+        assert_eq!(chord.notes, vec![root, fourth, fifth]);
         assert_eq!(chord.chord_type, ChordType::SuspendedFourth);
     }
 
     #[rstest(
         chord,
         root,
-        third,
+        second,
         fifth,
         case("Csus2", "C", "D", "G"),
         case("C#sus2", "C#", "D#", "G#"),
@@ -550,15 +550,15 @@ mod tests {
         case("Bbsus2", "Bb", "C", "F"),
         case("Bsus2", "B", "C#", "F#")
     )]
-    fn test_from_str_suspended_second(chord: Chord, root: Note, third: Note, fifth: Note) {
-        assert_eq!(chord.notes, vec![root, third, fifth]);
+    fn test_from_str_suspended_second(chord: Chord, root: Note, second: Note, fifth: Note) {
+        assert_eq!(chord.notes, vec![root, second, fifth]);
         assert_eq!(chord.chord_type, ChordType::SuspendedSecond);
     }
 
     #[rstest(
         chord,
         root,
-        third,
+        fourth,
         fifth,
         seventh,
         case("C7sus4", "C", "F", "G", "Bb"),
@@ -582,11 +582,11 @@ mod tests {
     fn test_from_str_dominant_seventh_suspended_fourth(
         chord: Chord,
         root: Note,
-        third: Note,
+        fourth: Note,
         fifth: Note,
         seventh: Note,
     ) {
-        assert_eq!(chord.notes, vec![root, third, fifth, seventh]);
+        assert_eq!(chord.notes, vec![root, fourth, fifth, seventh]);
         assert_eq!(chord.chord_type, ChordType::DominantSeventhSuspendedFourth);
     }
 
