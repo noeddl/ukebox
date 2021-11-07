@@ -560,6 +560,41 @@ mod tests {
         root,
         third,
         fifth,
+        seventh,
+        case("C7sus4", "C", "F", "G", "Bb"),
+        case("C#7sus4", "C#", "F#", "G#", "B"),
+        case("Db7sus4", "Db", "Gb", "Ab", "B"),
+        case("D7sus4", "D", "G", "A", "C"),
+        case("D#7sus4", "D#", "G#", "A#", "C#"),
+        case("Eb7sus4", "Eb", "Ab", "Bb", "Db"),
+        case("E7sus4", "E", "A", "B", "D"),
+        case("F7sus4", "F", "Bb", "C", "Eb"),
+        case("F#7sus4", "F#", "B", "C#", "E"),
+        case("Gb7sus4", "Gb", "B", "Db", "E"),
+        case("G7sus4", "G", "C", "D", "F"),
+        case("G#7sus4", "G#", "C#", "D#", "F#"),
+        case("Ab7sus4", "Ab", "Db", "Eb", "Gb"),
+        case("A7sus4", "A", "D", "E", "G"),
+        case("A#7sus4", "A#", "D#", "F", "G#"),
+        case("Bb7sus4", "Bb", "Eb", "F", "Ab"),
+        case("B7sus4", "B", "E", "F#", "A")
+    )]
+    fn test_from_str_dominant_seventh_suspended_fourth(
+        chord: Chord,
+        root: Note,
+        third: Note,
+        fifth: Note,
+        seventh: Note,
+    ) {
+        assert_eq!(chord.notes, vec![root, third, fifth, seventh]);
+        assert_eq!(chord.chord_type, ChordType::DominantSeventhSuspendedFourth);
+    }
+
+    #[rstest(
+        chord,
+        root,
+        third,
+        fifth,
         case("Cm", "C", "Eb", "G"),
         case("C#m", "C#", "E", "G#"),
         case("Dbm", "Db", "E", "Ab"),
