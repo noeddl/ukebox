@@ -16,6 +16,11 @@ pub enum ChordType {
     SixthNinth,
     DominantSeventh,
     DominantNinth,
+    /// According to Wikipedia, the dominant eleventh chord is often played as a suspended
+    /// chord without the third. But as this overlaps with the dominant seventh suspended
+    /// fourth chord and other sources list the dominant eleventh including the third,
+    /// let's also keep it around here. (See https://en.wikipedia.org/wiki/Eleventh_chord)
+    DominantEleventh,
     DominantThirteenth,
     SuspendedFourth,
     SuspendedSecond,
@@ -49,6 +54,7 @@ impl ChordType {
             SixthNinth,
             DominantSeventh,
             DominantNinth,
+            DominantEleventh,
             DominantThirteenth,
             SuspendedFourth,
             SuspendedSecond,
@@ -81,6 +87,7 @@ impl ChordType {
             SixthNinth => vec!["P1", "M3", "P5", "M6", "M9"],
             DominantSeventh => vec!["P1", "M3", "P5", "m7"],
             DominantNinth => vec!["P1", "M3", "P5", "m7", "M9"],
+            DominantEleventh => vec!["P1", "M3", "P5", "m7", "M9", "P11"],
             DominantThirteenth => vec!["P1", "M3", "P5", "m7", "M9", "P11", "M13"],
             SuspendedFourth => vec!["P1", "P4", "P5"],
             SuspendedSecond => vec!["P1", "M2", "P5"],
@@ -119,7 +126,7 @@ impl ChordType {
             | DominantSeventhSuspendedSecond
             | MinorSeventh
             | MinorMajorSeventh => vec!["P5"],
-            MajorThirteenth | DominantThirteenth => vec!["P5", "M9", "P11"],
+            MajorThirteenth | DominantEleventh | DominantThirteenth => vec!["P5", "M9", "P11"],
             _ => vec![],
         };
 
@@ -146,6 +153,7 @@ impl ChordType {
             SixthNinth => "6/9",
             DominantSeventh => "7",
             DominantNinth => "9",
+            DominantEleventh => "11",
             DominantThirteenth => "13",
             SuspendedFourth => "sus4",
             SuspendedSecond => "sus2",
@@ -179,6 +187,7 @@ impl fmt::Display for ChordType {
             SixthNinth => "sixth/ninth",
             DominantSeventh => "dominant 7th",
             DominantNinth => "dominant 9th",
+            DominantEleventh => "dominant 11th",
             DominantThirteenth => "dominant 13th",
             SuspendedFourth => "suspended 4th",
             SuspendedSecond => "suspended 2nd",
@@ -214,6 +223,7 @@ impl FromStr for ChordType {
             "6/9" => Ok(SixthNinth),
             "7" => Ok(DominantSeventh),
             "9" => Ok(DominantNinth),
+            "11" => Ok(DominantEleventh),
             "13" => Ok(DominantThirteenth),
             "sus4" => Ok(SuspendedFourth),
             "sus2" => Ok(SuspendedSecond),
@@ -308,6 +318,8 @@ mod tests {
         case(vec![C, E, G, ASharp], DominantSeventh),
         case(vec![C, E, G, ASharp, D], DominantNinth),
         case(vec![C, E, ASharp, D], DominantNinth),
+        case(vec![C, E, G, ASharp, D, F], DominantEleventh),
+        case(vec![C, E, ASharp, F], DominantEleventh),
         case(vec![C, E, G, ASharp, D, F, A], DominantThirteenth),
         case(vec![C, E, ASharp, D, A], DominantThirteenth),
         case(vec![C, E, ASharp, A], DominantThirteenth),
