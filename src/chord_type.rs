@@ -244,30 +244,39 @@ impl TryFrom<&[PitchClass]> for ChordType {
 
         pitch_diffs.sort_unstable();
 
+        let to_semitones = |i: Interval| {
+            let s = i.to_semitones();
+            if s >= PITCH_CLASS_COUNT {
+                s - PITCH_CLASS_COUNT
+            } else {
+                s
+            }
+        };
+
         for chord_type in ChordType::values() {
             // We need at least all the required intervals to determine the chord type.
             // But if we can fit more notes because we have enough strings, we should do it.
             let min_len = min(chord_type.intervals().count(), STRING_COUNT);
 
             if pitch_diffs.len() >= min_len {
-                let mut semitones: Vec<_> = chord_type
-                    .required_intervals()
-                    .chain(chord_type.optional_intervals())
-                    .take(pitch_diffs.len())
-                    .map(|i| i.to_semitones())
-                    .map(|s| {
-                        if s >= PITCH_CLASS_COUNT {
-                            s - PITCH_CLASS_COUNT
-                        } else {
-                            s
-                        }
-                    })
-                    .collect();
+                let required_semitones: Vec<_> =
+                    chord_type.required_intervals().map(to_semitones).collect();
 
-                semitones.sort_unstable();
+                let req = pitch_diffs
+                    .iter()
+                    .filter(|s| required_semitones.contains(s));
 
-                if pitch_diffs == semitones {
-                    return Ok(chord_type);
+                if req.count() == required_semitones.len() {
+                    let optional_semitones: Vec<_> =
+                        chord_type.optional_intervals().map(to_semitones).collect();
+
+                    let mut opt = pitch_diffs
+                        .iter()
+                        .filter(|s| !required_semitones.contains(s));
+
+                    if opt.all(|s| optional_semitones.contains(s)) {
+                        return Ok(chord_type);
+                    }
                 }
             }
         }
