@@ -258,26 +258,24 @@ impl TryFrom<&[PitchClass]> for ChordType {
             // But if we can fit more notes because we have enough strings, we should do it.
             let min_len = min(chord_type.intervals().count(), STRING_COUNT);
 
-            if pitch_diffs.len() >= min_len {
-                let required_semitones: Vec<_> =
-                    chord_type.required_intervals().map(to_semitones).collect();
+            if pitch_diffs.len() < min_len {
+                continue;
+            }
 
-                let req = pitch_diffs
-                    .iter()
-                    .filter(|s| required_semitones.contains(s));
+            let req_sems: Vec<_> = chord_type.required_intervals().map(to_semitones).collect();
 
-                if req.count() == required_semitones.len() {
-                    let optional_semitones: Vec<_> =
-                        chord_type.optional_intervals().map(to_semitones).collect();
+            let req = pitch_diffs.iter().filter(|s| req_sems.contains(s));
 
-                    let mut opt = pitch_diffs
-                        .iter()
-                        .filter(|s| !required_semitones.contains(s));
+            if req.count() != req_sems.len() {
+                continue;
+            }
 
-                    if opt.all(|s| optional_semitones.contains(s)) {
-                        return Ok(chord_type);
-                    }
-                }
+            let opt_sems: Vec<_> = chord_type.optional_intervals().map(to_semitones).collect();
+
+            let mut opt = pitch_diffs.iter().filter(|s| !req_sems.contains(s));
+
+            if opt.all(|s| opt_sems.contains(s)) {
+                return Ok(chord_type);
             }
         }
 
