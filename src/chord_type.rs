@@ -254,14 +254,15 @@ impl TryFrom<&[PitchClass]> for ChordType {
         };
 
         for chord_type in ChordType::values() {
-            // We need at least all the required intervals to determine the chord type.
-            // But if we can fit more notes because we have enough strings, we should do it.
+            // If a chord has less required intervals than we have strings, add optional intervals
+            // until all strings are used.
             let min_len = min(chord_type.intervals().count(), STRING_COUNT);
 
             if pitch_diffs.len() < min_len {
                 continue;
             }
 
+            // All the required intervals need to be there.
             let req_sems: Vec<_> = chord_type.required_intervals().map(to_semitones).collect();
 
             let req = pitch_diffs.iter().filter(|s| req_sems.contains(s));
@@ -270,6 +271,7 @@ impl TryFrom<&[PitchClass]> for ChordType {
                 continue;
             }
 
+            // The remaining semitones must all correspond to optional intervals from the chord.
             let opt_sems: Vec<_> = chord_type.optional_intervals().map(to_semitones).collect();
 
             let mut opt = pitch_diffs.iter().filter(|s| !req_sems.contains(s));
