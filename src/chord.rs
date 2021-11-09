@@ -47,14 +47,9 @@ impl Chord {
     /// If the chord contains more notes than we have strings, only required notes are played.
     pub fn played_notes(&self) -> impl Iterator<Item = Note> + '_ {
         self.chord_type
-            .intervals()
-            .filter(move |&i1| {
-                if self.notes.len() > STRING_COUNT {
-                    self.chord_type.required_intervals().any(|i2| i2 == i1)
-                } else {
-                    true
-                }
-            })
+            .required_intervals()
+            .chain(self.chord_type.optional_intervals())
+            .take(STRING_COUNT)
             .map(move |i| self.root + i)
     }
 
@@ -1055,5 +1050,23 @@ mod tests {
     )]
     fn test_transpose(chord1: Chord, n: i8, chord2: Chord) {
         assert_eq!(chord1.transpose(n), chord2);
+    }
+
+    #[rstest(
+        chord,
+        played_notes,
+        case("C", vec!["C", "E", "G"]),
+        case("C7", vec!["C", "E", "Bb", "G"]),
+        case("C11", vec!["C", "E", "Bb", "F"]),
+        case("C13", vec!["C", "E", "Bb", "A"]),
+    )]
+    fn test_played_notes(chord: Chord, played_notes: Vec<&str>) {
+        let pn1: Vec<_> = chord.played_notes().collect();
+        let pn2: Vec<_> = played_notes
+            .iter()
+            .map(|&s| Note::from_str(s).unwrap())
+            .collect();
+
+        assert_eq!(pn1, pn2);
     }
 }
