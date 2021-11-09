@@ -767,6 +767,35 @@ mod tests {
         root,
         third,
         fifth,
+        sixth,
+        case("Cm6", "C", "Eb", "G", "A"),
+        case("C#m6", "C#", "E", "G#", "A#"),
+        case("Dbm6", "Db", "E", "Ab", "Bb"),
+        case("Dm6", "D", "F", "A", "B"),
+        case("D#m6", "D#", "F#", "A#", "C"),
+        case("Ebm6", "Eb", "Gb", "Bb", "C"),
+        case("Em6", "E", "G", "B", "C#"),
+        case("Fm6", "F", "Ab", "C", "D"),
+        case("F#m6", "F#", "A", "C#", "D#"),
+        case("Gbm6", "Gb", "A", "Db", "Eb"),
+        case("Gm6", "G", "Bb", "D", "E"),
+        case("G#m6", "G#", "B", "D#", "F"),
+        case("Abm6", "Ab", "B", "Eb", "F"),
+        case("Am6", "A", "C", "E", "F#"),
+        case("A#m6", "A#", "C#", "F", "G"),
+        case("Bbm6", "Bb", "Db", "F", "G"),
+        case("Bm6", "B", "D", "F#", "G#")
+    )]
+    fn test_from_str_minor_sixth(chord: Chord, root: Note, third: Note, fifth: Note, sixth: Note) {
+        assert_eq!(chord.notes, vec![root, third, fifth, sixth]);
+        assert_eq!(chord.chord_type, ChordType::MinorSixth);
+    }
+
+    #[rstest(
+        chord,
+        root,
+        third,
+        fifth,
         case("Cdim", "C", "Eb", "Gb"),
         case("C#dim", "C#", "E", "G"),
         case("Dbdim", "Db", "E", "G"),
