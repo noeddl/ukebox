@@ -126,7 +126,8 @@ impl ChordType {
             | DominantSeventhSuspendedSecond
             | MinorSeventh
             | MinorMajorSeventh => vec!["P5"],
-            MajorThirteenth | DominantEleventh | DominantThirteenth => vec!["P5", "M9", "P11"],
+            DominantEleventh => vec!["P5", "M9"],
+            MajorThirteenth | DominantThirteenth => vec!["P5", "M9", "P11"],
             _ => vec![],
         };
 
