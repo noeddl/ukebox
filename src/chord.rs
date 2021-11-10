@@ -796,6 +796,129 @@ mod tests {
         root,
         third,
         fifth,
+        seventh,
+        ninth,
+        case("Cm9", "C", "Eb", "G", "Bb", "D"),
+        case("C#m9", "C#", "E", "G#", "B", "D#"),
+        case("Dbm9", "Db", "E", "Ab", "B", "Eb"),
+        case("Dm9", "D", "F", "A", "C", "E"),
+        case("D#m9", "D#", "F#", "A#", "C#", "F"),
+        case("Ebm9", "Eb", "Gb", "Bb", "Db", "F"),
+        case("Em9", "E", "G", "B", "D", "F#"),
+        case("Fm9", "F", "Ab", "C", "Eb", "G"),
+        case("F#m9", "F#", "A", "C#", "E", "G#"),
+        case("Gbm9", "Gb", "A", "Db", "E", "Ab"),
+        case("Gm9", "G", "Bb", "D", "F", "A"),
+        case("G#m9", "G#", "B", "D#", "F#", "A#"),
+        case("Abm9", "Ab", "B", "Eb", "Gb", "Bb"),
+        case("Am9", "A", "C", "E", "G", "B"),
+        case("A#m9", "A#", "C#", "F", "G#", "C"),
+        case("Bbm9", "Bb", "Db", "F", "Ab", "C"),
+        case("Bm9", "B", "D", "F#", "A", "C#")
+    )]
+    fn test_from_str_minor_ninth(
+        chord: Chord,
+        root: Note,
+        third: Note,
+        fifth: Note,
+        seventh: Note,
+        ninth: Note,
+    ) {
+        assert_eq!(chord.notes, vec![root, third, fifth, seventh, ninth]);
+        assert_eq!(chord.chord_type, ChordType::MinorNinth);
+    }
+
+    #[rstest(
+        chord,
+        root,
+        third,
+        fifth,
+        seventh,
+        ninth,
+        eleventh,
+        case("Cm11", "C", "Eb", "G", "Bb", "D", "F"),
+        case("C#m11", "C#", "E", "G#", "B", "D#", "F#"),
+        case("Dbm11", "Db", "E", "Ab", "B", "Eb", "Gb"),
+        case("Dm11", "D", "F", "A", "C", "E", "G"),
+        case("D#m11", "D#", "F#", "A#", "C#", "F", "G#"),
+        case("Ebm11", "Eb", "Gb", "Bb", "Db", "F", "Ab"),
+        case("Em11", "E", "G", "B", "D", "F#", "A"),
+        case("Fm11", "F", "Ab", "C", "Eb", "G", "A#"),
+        case("F#m11", "F#", "A", "C#", "E", "G#", "B"),
+        case("Gbm11", "Gb", "A", "Db", "E", "Ab", "B"),
+        case("Gm11", "G", "Bb", "D", "F", "A", "C"),
+        case("G#m11", "G#", "B", "D#", "F#", "A#", "C#"),
+        case("Abm11", "Ab", "B", "Eb", "Gb", "Bb", "Db"),
+        case("Am11", "A", "C", "E", "G", "B", "D"),
+        case("A#m11", "A#", "C#", "F", "G#", "C", "D#"),
+        case("Bbm11", "Bb", "Db", "F", "Ab", "C", "Eb"),
+        case("Bm11", "B", "D", "F#", "A", "C#", "E")
+    )]
+    fn test_from_str_minor_eleventh(
+        chord: Chord,
+        root: Note,
+        third: Note,
+        fifth: Note,
+        seventh: Note,
+        ninth: Note,
+        eleventh: Note,
+    ) {
+        assert_eq!(
+            chord.notes,
+            vec![root, third, fifth, seventh, ninth, eleventh]
+        );
+        assert_eq!(chord.chord_type, ChordType::MinorEleventh);
+    }
+
+    #[rstest(
+        chord,
+        root,
+        third,
+        fifth,
+        seventh,
+        ninth,
+        eleventh,
+        thirteenth,
+        case("Cm13", "C", "Eb", "G", "Bb", "D", "F", "A"),
+        case("C#m13", "C#", "E", "G#", "B", "D#", "F#", "A#"),
+        case("Dbm13", "Db", "E", "Ab", "B", "Eb", "Gb", "Bb"),
+        case("Dm13", "D", "F", "A", "C", "E", "G", "B"),
+        case("D#m13", "D#", "F#", "A#", "C#", "F", "G#", "C"),
+        case("Ebm13", "Eb", "Gb", "Bb", "Db", "F", "Ab", "C"),
+        case("Em13", "E", "G", "B", "D", "F#", "A", "C#"),
+        case("Fm13", "F", "Ab", "C", "Eb", "G", "A#", "D"),
+        case("F#m13", "F#", "A", "C#", "E", "G#", "B", "D#"),
+        case("Gbm13", "Gb", "A", "Db", "E", "Ab", "B", "Eb"),
+        case("Gm13", "G", "Bb", "D", "F", "A", "C", "E"),
+        case("G#m13", "G#", "B", "D#", "F#", "A#", "C#", "F"),
+        case("Abm13", "Ab", "B", "Eb", "Gb", "Bb", "Db", "F"),
+        case("Am13", "A", "C", "E", "G", "B", "D", "F#"),
+        case("A#m13", "A#", "C#", "F", "G#", "C", "D#", "G"),
+        case("Bbm13", "Bb", "Db", "F", "Ab", "C", "Eb", "G"),
+        case("Bm13", "B", "D", "F#", "A", "C#", "E", "G#")
+    )]
+    fn test_from_str_minor_thirteenth(
+        chord: Chord,
+        root: Note,
+        third: Note,
+        fifth: Note,
+        seventh: Note,
+        ninth: Note,
+        eleventh: Note,
+        thirteenth: Note,
+    ) {
+        assert_eq!(
+            chord.notes,
+            vec![root, third, fifth, seventh, ninth, eleventh, thirteenth]
+        );
+        assert_eq!(chord.chord_type, ChordType::MinorThirteenth);
+    }
+
+    #[rstest(
+        chord,
+        root,
+        third,
+        fifth,
         case("Cdim", "C", "Eb", "Gb"),
         case("C#dim", "C#", "E", "G"),
         case("Dbdim", "Db", "E", "G"),
