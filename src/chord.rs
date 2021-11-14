@@ -1015,6 +1015,33 @@ mod tests {
     #[rstest(
         chord,
         root,
+        fifth,
+        case("C5", "C", "G"),
+        case("C#5", "C#", "G#"),
+        case("Db5", "Db", "Ab"),
+        case("D5", "D", "A"),
+        case("D#5", "D#", "A#"),
+        case("Eb5", "Eb", "Bb"),
+        case("E5", "E", "B"),
+        case("F5", "F", "C"),
+        case("F#5", "F#", "C#"),
+        case("Gb5", "Gb", "Db"),
+        case("G5", "G", "D"),
+        case("G#5", "G#", "D#"),
+        case("Ab5", "Ab", "Eb"),
+        case("A5", "A", "E"),
+        case("A#5", "A#", "F"),
+        case("Bb5", "Bb", "F"),
+        case("B5", "B", "F#")
+    )]
+    fn test_from_str_fifth(chord: Chord, root: Note, fifth: Note) {
+        assert_eq!(chord.notes, vec![root, fifth]);
+        assert_eq!(chord.chord_type, ChordType::Fifth);
+    }
+
+    #[rstest(
+        chord,
+        root,
         third,
         fifth,
         case("Caug", "C", "E", "G#"),
