@@ -40,6 +40,7 @@ pub enum ChordType {
     Augmented,
     AugmentedSeventh,
     AugmentedMajorSeventh,
+    AddedNinth,
 }
 
 impl ChordType {
@@ -79,6 +80,7 @@ impl ChordType {
             Augmented,
             AugmentedSeventh,
             AugmentedMajorSeventh,
+            AddedNinth,
         ]
         .iter()
         .copied()
@@ -117,6 +119,7 @@ impl ChordType {
             Augmented => vec!["P1", "M3", "A5"],
             AugmentedSeventh => vec!["P1", "M3", "A5", "m7"],
             AugmentedMajorSeventh => vec!["P1", "M3", "A5", "M7"],
+            AddedNinth => vec!["P1", "M3", "P5", "M9"],
         };
 
         interval_names
@@ -142,7 +145,8 @@ impl ChordType {
             | MinorSeventh
             | MinorMajorSeventh
             | MinorSixth
-            | MinorNinth => vec!["P5"],
+            | MinorNinth
+            | AddedNinth => vec!["P5"],
             DominantEleventh | MinorEleventh => vec!["P5", "M9"],
             MajorThirteenth | DominantThirteenth | MinorThirteenth => vec!["P5", "M9", "P11"],
             _ => vec![],
@@ -191,6 +195,7 @@ impl ChordType {
             Augmented => "aug",
             AugmentedSeventh => "aug7",
             AugmentedMajorSeventh => "augMaj7",
+            AddedNinth => "add9",
         };
 
         s.to_string()
@@ -230,6 +235,7 @@ impl fmt::Display for ChordType {
             Augmented => "augmented",
             AugmentedSeventh => "augmented 7th",
             AugmentedMajorSeventh => "augmented major 7th",
+            AddedNinth => "added 9th",
         };
 
         write!(f, "{}", s)
@@ -271,6 +277,8 @@ impl FromStr for ChordType {
             "aug" => Ok(Augmented),
             "aug7" => Ok(AugmentedSeventh),
             "augMaj7" => Ok(AugmentedMajorSeventh),
+            "add9" => Ok(AddedNinth),
+            "add2" => Ok(AddedNinth),
             _ => Err("no valid chord type"),
         }
     }
@@ -377,6 +385,8 @@ mod tests {
         case(vec![C, E, GSharp], Augmented),
         case(vec![C, E, GSharp, ASharp], AugmentedSeventh),
         case(vec![C, E, GSharp, B], AugmentedMajorSeventh),
+        case(vec![C, E, G, D], AddedNinth),
+        case(vec![C, D, E, G], AddedNinth),
         // Test some chords with other root notes.
         case(vec![D, FSharp, A], Major),
         case(vec![D, F, A], Minor),
