@@ -578,6 +578,43 @@ mod tests {
     #[rstest(
         chord,
         root,
+        third,
+        fifth,
+        seventh,
+        ninth,
+        case("C7#9", "C", "E", "G", "Bb", "D#"),
+        case("C#7#9", "C#", "F", "G#", "B", "E"),
+        case("Db7#9", "Db", "F", "Ab", "B", "E"),
+        case("D7#9", "D", "F#", "A", "C", "F"),
+        case("D#7#9", "D#", "G", "A#", "C#", "F#"),
+        case("Eb7#9", "Eb", "G", "Bb", "Db", "F#"),
+        case("E7#9", "E", "G#", "B", "D", "G"),
+        case("F7#9", "F", "A", "C", "Eb", "G#"),
+        case("F#7#9", "F#", "A#", "C#", "E", "A"),
+        case("Gb7#9", "Gb", "Bb", "Db", "E", "A"),
+        case("G7#9", "G", "B", "D", "F", "A#"),
+        case("G#7#9", "G#", "C", "D#", "F#", "B"),
+        case("Ab7#9", "Ab", "C", "Eb", "Gb", "B"),
+        case("A7#9", "A", "C#", "E", "G", "C"),
+        case("A#7#9", "A#", "D", "F", "G#", "C#"),
+        case("Bb7#9", "Bb", "D", "F", "Ab", "C#"),
+        case("B7#9", "B", "D#", "F#", "A", "D")
+    )]
+    fn test_from_str_dominant_seventh_sharp_ninth(
+        chord: Chord,
+        root: Note,
+        third: Note,
+        fifth: Note,
+        seventh: Note,
+        ninth: Note,
+    ) {
+        assert_eq!(chord.notes, vec![root, third, fifth, seventh, ninth]);
+        assert_eq!(chord.chord_type, ChordType::DominantSeventhSharpNinth);
+    }
+
+    #[rstest(
+        chord,
+        root,
         fourth,
         fifth,
         case("Csus4", "C", "F", "G"),
