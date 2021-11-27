@@ -160,7 +160,6 @@ mod tests {
         case("Z"),
         case("c"),
         case("ABC"),
-        case("C7b5"),
         case("C#mb5"),
         case("C#mbla"),
         case("CmMaj"),
@@ -610,6 +609,41 @@ mod tests {
     ) {
         assert_eq!(chord.notes, vec![root, third, fifth, seventh, ninth]);
         assert_eq!(chord.chord_type, ChordType::DominantSeventhSharpNinth);
+    }
+
+    #[rstest(
+        chord,
+        root,
+        third,
+        fifth,
+        seventh,
+        case("C7b5", "C", "E", "Gb", "Bb"),
+        case("C#7b5", "C#", "F", "G", "B"),
+        case("Db7b5", "Db", "F", "G", "B"),
+        case("D7b5", "D", "F#", "Ab", "C"),
+        case("D#7b5", "D#", "G", "A", "C#"),
+        case("Eb7b5", "Eb", "G", "A", "Db"),
+        case("E7b5", "E", "G#", "Bb", "D"),
+        case("F7b5", "F", "A", "B", "Eb"),
+        case("F#7b5", "F#", "A#", "C", "E"),
+        case("Gb7b5", "Gb", "Bb", "C", "E"),
+        case("G7b5", "G", "B", "Db", "F"),
+        case("G#7b5", "G#", "C", "D", "F#"),
+        case("Ab7b5", "Ab", "C", "D", "Gb"),
+        case("A7b5", "A", "C#", "Eb", "G"),
+        case("A#7b5", "A#", "D", "E", "G#"),
+        case("Bb7b5", "Bb", "D", "E", "Ab"),
+        case("B7b5", "B", "D#", "F", "A")
+    )]
+    fn test_from_str_dominant_seventh_flat_fifth(
+        chord: Chord,
+        root: Note,
+        third: Note,
+        fifth: Note,
+        seventh: Note,
+    ) {
+        assert_eq!(chord.notes, vec![root, third, fifth, seventh]);
+        assert_eq!(chord.chord_type, ChordType::DominantSeventhFlatFifth);
     }
 
     #[rstest(
