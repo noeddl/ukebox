@@ -6,6 +6,16 @@ use std::str::FromStr;
 use crate::{Interval, PitchClass, PITCH_CLASS_COUNT, STRING_COUNT};
 
 /// The type of the chord depending on the intervals it contains.
+///
+/// Sources used:
+///
+/// * <https://en.wikipedia.org/wiki/Chord_(music)>
+/// * <https://github.com/hyvyys/chord-fingering/blob/master/src/CHORD_DATA.js>
+/// * <https://en.wikibooks.org/wiki/Music_Theory/Complete_List_of_Chord_Patterns>
+/// * <http://www.hakwright.co.uk/music/quick_crd_ref.html>
+/// * <https://chords.gock.net>
+/// * <https://ukulele-chords.com>
+/// * <https://ukulelehelper.com>
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub enum ChordType {
     Major,
