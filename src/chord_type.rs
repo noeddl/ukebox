@@ -250,7 +250,7 @@ impl fmt::Display for ChordType {
             MajorEleventh => "major 11th",
             MajorThirteenth => "major 13th",
             MajorSixth => "major 6th",
-            SixthNinth => "sixth/ninth",
+            SixthNinth => "6th/9th",
             DominantSeventh => "dominant 7th",
             DominantNinth => "dominant 9th",
             DominantEleventh => "dominant 11th",
