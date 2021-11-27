@@ -44,7 +44,8 @@ impl Chord {
 
     /// Return an iterator over the chord's notes that are played on our instrument.
     ///
-    /// If the chord contains more notes than we have strings, only required notes are played.
+    /// If the chord contains more notes than we have strings on our instrument,
+    /// only required notes are played.
     pub fn played_notes(&self) -> impl Iterator<Item = Note> + '_ {
         self.chord_type
             .required_intervals()
