@@ -1176,6 +1176,41 @@ mod tests {
     }
 
     #[rstest(
+        chord,
+        root,
+        third,
+        fourth,
+        fifth,
+        case("Cadd4", "C", "E", "F", "G"),
+        case("C#add4", "C#", "F", "F#", "G#"),
+        case("Dbadd4", "Db", "F", "Gb", "Ab"),
+        case("Dadd4", "D", "F#", "G", "A"),
+        case("D#add4", "D#", "G", "G#", "A#"),
+        case("Ebadd4", "Eb", "G", "Ab", "Bb"),
+        case("Eadd4", "E", "G#", "A", "B"),
+        case("Fadd4", "F", "A", "Bb", "C"),
+        case("F#add4", "F#", "A#", "B", "C#"),
+        case("Gbadd4", "Gb", "Bb", "B", "Db"),
+        case("Gadd4", "G", "B", "C", "D"),
+        case("G#add4", "G#", "C", "C#", "D#"),
+        case("Abadd4", "Ab", "C", "Db", "Eb"),
+        case("Aadd4", "A", "C#", "D", "E"),
+        case("A#add4", "A#", "D", "D#", "F"),
+        case("Bbadd4", "Bb", "D", "Eb", "F"),
+        case("Badd4", "B", "D#", "E", "F#")
+    )]
+    fn test_from_str_added_fourth(
+        chord: Chord,
+        root: Note,
+        third: Note,
+        fourth: Note,
+        fifth: Note,
+    ) {
+        assert_eq!(chord.notes, vec![root, third, fourth, fifth]);
+        assert_eq!(chord.chord_type, ChordType::AddedFourth);
+    }
+
+    #[rstest(
         pitches,
         chord,
         // Test C-chords.
