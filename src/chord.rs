@@ -1138,30 +1138,39 @@ mod tests {
     }
 
     #[rstest(
-        chord,
+        chord_base,
         root,
         third,
         fifth,
         ninth,
-        case("Cadd9", "C", "E", "G", "D"),
-        case("C#add9", "C#", "F", "G#", "D#"),
-        case("Dbadd9", "Db", "F", "Ab", "Eb"),
-        case("Dadd9", "D", "F#", "A", "E"),
-        case("D#add9", "D#", "G", "A#", "F"),
-        case("Ebadd9", "Eb", "G", "Bb", "F"),
-        case("Eadd9", "E", "G#", "B", "F#"),
-        case("Fadd9", "F", "A", "C", "G"),
-        case("F#add9", "F#", "A#", "C#", "G#"),
-        case("Gbadd9", "Gb", "Bb", "Db", "Ab"),
-        case("Gadd9", "G", "B", "D", "A"),
-        case("G#add9", "G#", "C", "D#", "A#"),
-        case("Abadd9", "Ab", "C", "Eb", "Bb"),
-        case("Aadd9", "A", "C#", "E", "B"),
-        case("A#add9", "A#", "D", "F", "C"),
-        case("Bbadd9", "Bb", "D", "F", "C"),
-        case("Badd9", "B", "D#", "F#", "C#")
+        case("C", "C", "E", "G", "D"),
+        case("C#", "C#", "F", "G#", "D#"),
+        case("Db", "Db", "F", "Ab", "Eb"),
+        case("D", "D", "F#", "A", "E"),
+        case("D#", "D#", "G", "A#", "F"),
+        case("Eb", "Eb", "G", "Bb", "F"),
+        case("E", "E", "G#", "B", "F#"),
+        case("F", "F", "A", "C", "G"),
+        case("F#", "F#", "A#", "C#", "G#"),
+        case("Gb", "Gb", "Bb", "Db", "Ab"),
+        case("G", "G", "B", "D", "A"),
+        case("G#", "G#", "C", "D#", "A#"),
+        case("Ab", "Ab", "C", "Eb", "Bb"),
+        case("A", "A", "C#", "E", "B"),
+        case("A#", "A#", "D", "F", "C"),
+        case("Bb", "Bb", "D", "F", "C"),
+        case("B", "B", "D#", "F#", "C#")
     )]
-    fn test_from_str_added_ninth(chord: Chord, root: Note, third: Note, fifth: Note, ninth: Note) {
+    fn test_from_str_added_ninth(
+        #[values("add9", "add2")] chord_suffix: &str,
+        chord_base: &str,
+        root: Note,
+        third: Note,
+        fifth: Note,
+        ninth: Note,
+    ) {
+        let chord = Chord::from_str(&format!("{}{}", chord_base, chord_suffix)).unwrap();
+
         assert_eq!(chord.notes, vec![root, third, fifth, ninth]);
         assert_eq!(chord.chord_type, ChordType::AddedNinth);
     }
