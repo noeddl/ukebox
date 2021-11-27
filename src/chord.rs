@@ -1176,36 +1176,39 @@ mod tests {
     }
 
     #[rstest(
-        chord,
+        chord_base,
         root,
         third,
         fifth,
         seventh,
-        case("Caug7", "C", "E", "G#", "Bb"),
-        case("C#aug7", "C#", "F", "A", "B"),
-        case("Dbaug7", "Db", "F", "A", "B"),
-        case("Daug7", "D", "F#", "A#", "C"),
-        case("D#aug7", "D#", "G", "B", "C#"),
-        case("Ebaug7", "Eb", "G", "B", "Db"),
-        case("Eaug7", "E", "G#", "C", "D"),
-        case("Faug7", "F", "A", "C#", "Eb"),
-        case("F#aug7", "F#", "A#", "D", "E"),
-        case("Gbaug7", "Gb", "Bb", "D", "E"),
-        case("Gaug7", "G", "B", "D#", "F"),
-        case("G#aug7", "G#", "C", "E", "F#"),
-        case("Abaug7", "Ab", "C", "E", "Gb"),
-        case("Aaug7", "A", "C#", "F", "G"),
-        case("A#aug7", "A#", "D", "F#", "G#"),
-        case("Bbaug7", "Bb", "D", "F#", "Ab"),
-        case("Baug7", "B", "D#", "G", "A")
+        case("C", "C", "E", "G#", "Bb"),
+        case("C#", "C#", "F", "A", "B"),
+        case("Db", "Db", "F", "A", "B"),
+        case("D", "D", "F#", "A#", "C"),
+        case("D#", "D#", "G", "B", "C#"),
+        case("Eb", "Eb", "G", "B", "Db"),
+        case("E", "E", "G#", "C", "D"),
+        case("F", "F", "A", "C#", "Eb"),
+        case("F#", "F#", "A#", "D", "E"),
+        case("Gb", "Gb", "Bb", "D", "E"),
+        case("G", "G", "B", "D#", "F"),
+        case("G#", "G#", "C", "E", "F#"),
+        case("Ab", "Ab", "C", "E", "Gb"),
+        case("A", "A", "C#", "F", "G"),
+        case("A#", "A#", "D", "F#", "G#"),
+        case("Bb", "Bb", "D", "F#", "Ab"),
+        case("B", "B", "D#", "G", "A")
     )]
     fn test_from_str_augmented_seventh(
-        chord: Chord,
+        #[values("aug7", "7#5")] chord_suffix: &str,
+        chord_base: &str,
         root: Note,
         third: Note,
         fifth: Note,
         seventh: Note,
     ) {
+        let chord = Chord::from_str(&format!("{}{}", chord_base, chord_suffix)).unwrap();
+
         assert_eq!(chord.notes, vec![root, third, fifth, seventh]);
         assert_eq!(chord.chord_type, ChordType::AugmentedSeventh);
     }

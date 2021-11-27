@@ -308,6 +308,7 @@ impl FromStr for ChordType {
             "5" => Ok(Fifth),
             "aug" => Ok(Augmented),
             "aug7" => Ok(AugmentedSeventh),
+            "7#5" => Ok(AugmentedSeventh),
             "augMaj7" => Ok(AugmentedMajorSeventh),
             "add9" => Ok(AddedNinth),
             "add2" => Ok(AddedNinth),
