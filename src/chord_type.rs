@@ -293,48 +293,9 @@ impl FromStr for ChordType {
     type Err = &'static str;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        use ChordType::*;
-
-        match s {
-            "" => Ok(Major),
-            "maj7" => Ok(MajorSeventh),
-            "maj9" => Ok(MajorNinth),
-            "maj11" => Ok(MajorEleventh),
-            "maj13" => Ok(MajorThirteenth),
-            "6" => Ok(MajorSixth),
-            "6/9" => Ok(SixthNinth),
-            "7" => Ok(DominantSeventh),
-            "9" => Ok(DominantNinth),
-            "11" => Ok(DominantEleventh),
-            "13" => Ok(DominantThirteenth),
-            "7b9" => Ok(DominantSeventhFlatNinth),
-            "7#9" => Ok(DominantSeventhSharpNinth),
-            "7b5" => Ok(DominantSeventhFlatFifth),
-            //"7#5" => Ok(DominantSeventhSharpFifth),
-            "sus4" => Ok(SuspendedFourth),
-            "sus2" => Ok(SuspendedSecond),
-            "7sus4" => Ok(DominantSeventhSuspendedFourth),
-            "7sus2" => Ok(DominantSeventhSuspendedSecond),
-            "m" => Ok(Minor),
-            "m7" => Ok(MinorSeventh),
-            "mMaj7" => Ok(MinorMajorSeventh),
-            "m6" => Ok(MinorSixth),
-            "m9" => Ok(MinorNinth),
-            "m11" => Ok(MinorEleventh),
-            "m13" => Ok(MinorThirteenth),
-            "dim" => Ok(Diminished),
-            "dim7" => Ok(DiminishedSeventh),
-            "m7b5" => Ok(HalfDiminishedSeventh),
-            "5" => Ok(Fifth),
-            "aug" => Ok(Augmented),
-            "aug7" => Ok(AugmentedSeventh),
-            "7#5" => Ok(AugmentedSeventh),
-            "augMaj7" => Ok(AugmentedMajorSeventh),
-            "add9" => Ok(AddedNinth),
-            "add2" => Ok(AddedNinth),
-            "add4" => Ok(AddedFourth),
-            _ => Err("no valid chord type"),
-        }
+        ChordType::values()
+            .find(|ct| ct.symbols().iter().any(|sym| sym == s))
+            .ok_or("no valid chord type")
     }
 }
 
