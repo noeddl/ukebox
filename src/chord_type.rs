@@ -194,7 +194,7 @@ impl ChordType {
             .filter(move |&i1| self.optional_intervals().all(|i2| i2 != i1))
     }
 
-    pub fn symbols(self) -> Vec<String> {
+    pub fn symbols(self) -> impl Iterator<Item = &'static str> + 'static {
         use ChordType::*;
 
         let symbols = match self {
@@ -235,11 +235,11 @@ impl ChordType {
             AddedFourth => vec!["add4"],
         };
 
-        symbols.iter().map(|s| s.to_string()).collect()
+        symbols.into_iter()
     }
 
     pub fn to_symbol(self) -> String {
-        self.symbols()[0].clone()
+        self.symbols().next().unwrap().to_string()
     }
 }
 
@@ -294,7 +294,7 @@ impl FromStr for ChordType {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         ChordType::values()
-            .find(|ct| ct.symbols().iter().any(|sym| sym == s))
+            .find(|ct| ct.symbols().any(|sym| sym == s))
             .ok_or("no valid chord type")
     }
 }
