@@ -17,7 +17,7 @@ impl fmt::Display for ParseIntervalError {
 
 /// An interval is the difference between two notes.
 /// https://en.wikipedia.org/wiki/Interval_(music)
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub enum Interval {
     PerfectUnison,
     MajorSecond,
@@ -27,9 +27,15 @@ pub enum Interval {
     DiminishedFifth,
     PerfectFifth,
     AugmentedFifth,
+    MajorSixth,
     DiminishedSeventh,
     MinorSeventh,
     MajorSeventh,
+    MinorNinth,
+    MajorNinth,
+    AugmentedNinth,
+    PerfectEleventh,
+    MajorThirteenth,
 }
 
 impl Interval {
@@ -46,9 +52,15 @@ impl Interval {
             DiminishedFifth => 6,
             PerfectFifth => 7,
             AugmentedFifth => 8,
+            MajorSixth => 9,
             DiminishedSeventh => 9,
             MinorSeventh => 10,
             MajorSeventh => 11,
+            MinorNinth => 13,
+            MajorNinth => 14,
+            AugmentedNinth => 15,
+            PerfectEleventh => 17,
+            MajorThirteenth => 21,
         }
     }
 
@@ -66,9 +78,15 @@ impl Interval {
             DiminishedFifth => 5,
             PerfectFifth => 5,
             AugmentedFifth => 5,
+            MajorSixth => 6,
             DiminishedSeventh => 7,
             MinorSeventh => 7,
             MajorSeventh => 7,
+            MinorNinth => 9,
+            MajorNinth => 9,
+            AugmentedNinth => 9,
+            PerfectEleventh => 11,
+            MajorThirteenth => 13,
         }
     }
 }
@@ -90,9 +108,15 @@ impl FromStr for Interval {
             "d5" => DiminishedFifth,
             "P5" => PerfectFifth,
             "A5" => AugmentedFifth,
+            "M6" => MajorSixth,
             "d7" => DiminishedSeventh,
             "m7" => MinorSeventh,
             "M7" => MajorSeventh,
+            "m9" => MinorNinth,
+            "M9" => MajorNinth,
+            "A9" => AugmentedNinth,
+            "P11" => PerfectEleventh,
+            "M13" => MajorThirteenth,
             _ => return Err(ParseIntervalError { name }),
         };
 

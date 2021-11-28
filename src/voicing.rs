@@ -96,7 +96,7 @@ impl Voicing {
         self.notes()
             .sorted()
             .dedup()
-            .eq(chord.notes().sorted().dedup())
+            .eq(chord.played_notes().sorted().dedup())
     }
 
     pub fn get_chords(&self) -> Vec<Chord> {

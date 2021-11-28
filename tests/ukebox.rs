@@ -532,10 +532,12 @@ fn test_all(
 #[rstest(
     chart,
     names,
-    case("0000", "Am7 - A minor 7th"),
+    case("0000", "C6 - C major 6th\nAm7 - A minor 7th"),
     case("0003", "C - C major"),
     case("0013", "Csus4 - C suspended 4th\nFsus2 - F suspended 2nd"),
-    case("10 10 10 10", "Gm7 - G minor 7th")
+    case("10 10 10 10", "Gm7 - G minor 7th\nA#6 - A# major 6th"),
+    case("7604", "Dmaj9 - D major 9th"),
+    case("1304", "Emaj13 - E major 13th")
 )]
 fn test_name(chart: &str, names: &'static str) -> Result<(), Box<dyn Error + 'static>> {
     let mut cmd = Command::cargo_bin("ukebox")?;
@@ -552,9 +554,9 @@ fn test_name(chart: &str, names: &'static str) -> Result<(), Box<dyn Error + 'st
     case("0003", "C", "C - C major"),
     case("0003", "D", "D - D major"),
     case("0003", "G", "G - G major"),
-    case("10 10 10 10", "C", "Gm7 - G minor 7th"),
-    case("10 10 10 10", "D", "Am7 - A minor 7th"),
-    case("10 10 10 10", "G", "Dm7 - D minor 7th")
+    case("10 10 10 10", "C", "Gm7 - G minor 7th\nA#6 - A# major 6th"),
+    case("10 10 10 10", "D", "C6 - C major 6th\nAm7 - A minor 7th"),
+    case("10 10 10 10", "G", "Dm7 - D minor 7th\nF6 - F major 6th")
 )]
 fn test_name_with_tuning(
     chart: &str,
