@@ -194,48 +194,52 @@ impl ChordType {
             .filter(move |&i1| self.optional_intervals().all(|i2| i2 != i1))
     }
 
-    pub fn to_symbol(self) -> String {
+    pub fn symbols(self) -> Vec<String> {
         use ChordType::*;
 
-        let s = match self {
-            Major => "",
-            MajorSeventh => "maj7",
-            MajorNinth => "maj9",
-            MajorEleventh => "maj11",
-            MajorThirteenth => "maj13",
-            MajorSixth => "6",
-            SixthNinth => "6/9",
-            DominantSeventh => "7",
-            DominantNinth => "9",
-            DominantEleventh => "11",
-            DominantThirteenth => "13",
-            DominantSeventhFlatNinth => "7b9",
-            DominantSeventhSharpNinth => "7#9",
-            DominantSeventhFlatFifth => "7b5",
+        let symbols = match self {
+            Major => &[""],
+            MajorSeventh => &["maj7"],
+            MajorNinth => &["maj9"],
+            MajorEleventh => &["maj11"],
+            MajorThirteenth => &["maj13"],
+            MajorSixth => &["6"],
+            SixthNinth => &["6/9"],
+            DominantSeventh => &["7"],
+            DominantNinth => &["9"],
+            DominantEleventh => &["11"],
+            DominantThirteenth => &["13"],
+            DominantSeventhFlatNinth => &["7b9"],
+            DominantSeventhSharpNinth => &["7#9"],
+            DominantSeventhFlatFifth => &["7b5"],
             //DominantSeventhSharpFifth => "7#5",
-            SuspendedFourth => "sus4",
-            SuspendedSecond => "sus2",
-            DominantSeventhSuspendedFourth => "7sus4",
-            DominantSeventhSuspendedSecond => "7sus2",
-            Minor => "m",
-            MinorSeventh => "m7",
-            MinorMajorSeventh => "mMaj7",
-            MinorSixth => "m6",
-            MinorNinth => "m9",
-            MinorEleventh => "m11",
-            MinorThirteenth => "m13",
-            Diminished => "dim",
-            DiminishedSeventh => "dim7",
-            HalfDiminishedSeventh => "m7b5",
-            Fifth => "5",
-            Augmented => "aug",
-            AugmentedSeventh => "aug7",
-            AugmentedMajorSeventh => "augMaj7",
-            AddedNinth => "add9",
-            AddedFourth => "add4",
+            SuspendedFourth => &["sus4"],
+            SuspendedSecond => &["sus2"],
+            DominantSeventhSuspendedFourth => &["7sus4"],
+            DominantSeventhSuspendedSecond => &["7sus2"],
+            Minor => &["m"],
+            MinorSeventh => &["m7"],
+            MinorMajorSeventh => &["mMaj7"],
+            MinorSixth => &["m6"],
+            MinorNinth => &["m9"],
+            MinorEleventh => &["m11"],
+            MinorThirteenth => &["m13"],
+            Diminished => &["dim"],
+            DiminishedSeventh => &["dim7"],
+            HalfDiminishedSeventh => &["m7b5"],
+            Fifth => &["5"],
+            Augmented => &["aug"],
+            AugmentedSeventh => &["aug7"],
+            AugmentedMajorSeventh => &["augMaj7"],
+            AddedNinth => &["add9"],
+            AddedFourth => &["add4"],
         };
 
-        s.to_string()
+        symbols.iter().map(|s| s.to_string()).collect()
+    }
+
+    pub fn to_symbol(self) -> String {
+        self.symbols()[0].clone()
     }
 }
 
