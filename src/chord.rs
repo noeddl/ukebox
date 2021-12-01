@@ -194,7 +194,7 @@ mod tests {
         case("B", "B", "D#", "F#")
     )]
     fn test_from_str_major(
-        #[values("")] chord_suffix: &str,
+        #[values("", "maj", "M")] chord_suffix: &str,
         chord_base: &str,
         root: Note,
         third: Note,
@@ -231,7 +231,7 @@ mod tests {
         case("B", "B", "D#", "F#", "A#")
     )]
     fn test_from_str_major_seventh(
-        #[values("maj7")] chord_suffix: &str,
+        #[values("maj7", "M7")] chord_suffix: &str,
         chord_base: &str,
         root: Note,
         third: Note,
@@ -270,7 +270,7 @@ mod tests {
         case("B", "B", "D#", "F#", "A#", "C#")
     )]
     fn test_from_str_major_ninth(
-        #[values("maj9")] chord_suffix: &str,
+        #[values("maj9", "M9")] chord_suffix: &str,
         chord_base: &str,
         root: Note,
         third: Note,
@@ -311,7 +311,7 @@ mod tests {
         case("B", "B", "D#", "F#", "A#", "C#", "E")
     )]
     fn test_from_str_major_eleventh(
-        #[values("maj11")] chord_suffix: &str,
+        #[values("maj11", "M11")] chord_suffix: &str,
         chord_base: &str,
         root: Note,
         third: Note,
@@ -357,7 +357,7 @@ mod tests {
         case("B", "B", "D#", "F#", "A#", "C#", "E", "G#")
     )]
     fn test_from_str_major_thirteenth(
-        #[values("maj13")] chord_suffix: &str,
+        #[values("maj13", "M13")] chord_suffix: &str,
         chord_base: &str,
         root: Note,
         third: Note,
@@ -401,7 +401,7 @@ mod tests {
         case("B", "B", "D#", "F#", "G#")
     )]
     fn test_from_str_major_sixth(
-        #[values("6")] chord_suffix: &str,
+        #[values("6", "maj6", "M6")] chord_suffix: &str,
         chord_base: &str,
         root: Note,
         third: Note,
@@ -440,7 +440,7 @@ mod tests {
         case("B", "B", "D#", "F#", "G#", "C#")
     )]
     fn test_from_str_sixth_ninth(
-        #[values("6/9")] chord_suffix: &str,
+        #[values("6/9", "maj6/9", "M6/9")] chord_suffix: &str,
         chord_base: &str,
         root: Note,
         third: Note,
@@ -479,7 +479,7 @@ mod tests {
         case("B", "B", "D#", "F#", "A")
     )]
     fn test_from_str_dominant_seventh(
-        #[values("7")] chord_suffix: &str,
+        #[values("7", "dom")] chord_suffix: &str,
         chord_base: &str,
         root: Note,
         third: Note,
@@ -729,7 +729,7 @@ mod tests {
         case("B", "B", "D#", "F", "A")
     )]
     fn test_from_str_dominant_seventh_flat_fifth(
-        #[values("7b5")] chord_suffix: &str,
+        #[values("7b5", "7dim5")] chord_suffix: &str,
         chord_base: &str,
         root: Note,
         third: Note,
@@ -766,7 +766,7 @@ mod tests {
         case("B", "B", "E", "F#")
     )]
     fn test_from_str_suspended_fourth(
-        #[values("sus4")] chord_suffix: &str,
+        #[values("sus4", "sus")] chord_suffix: &str,
         chord_base: &str,
         root: Note,
         fourth: Note,
@@ -839,7 +839,7 @@ mod tests {
         case("B", "B", "E", "F#", "A")
     )]
     fn test_from_str_dominant_seventh_suspended_fourth(
-        #[values("7sus4")] chord_suffix: &str,
+        #[values("7sus4", "7sus")] chord_suffix: &str,
         chord_base: &str,
         root: Note,
         fourth: Note,
@@ -914,7 +914,7 @@ mod tests {
         case("B", "B", "D", "F#")
     )]
     fn test_from_str_minor(
-        #[values("m")] chord_suffix: &str,
+        #[values("m", "min")] chord_suffix: &str,
         chord_base: &str,
         root: Note,
         third: Note,
@@ -951,7 +951,7 @@ mod tests {
         case("B", "B", "D", "F#", "A")
     )]
     fn test_from_str_minor_seventh(
-        #[values("m7")] chord_suffix: &str,
+        #[values("m7", "min7")] chord_suffix: &str,
         chord_base: &str,
         root: Note,
         third: Note,
@@ -989,7 +989,7 @@ mod tests {
         case("B", "B", "D", "F#", "A#")
     )]
     fn test_from_str_minor_major_seventh(
-        #[values("mMaj7")] chord_suffix: &str,
+        #[values("mMaj7", "mM7", "minMaj7")] chord_suffix: &str,
         chord_base: &str,
         root: Note,
         third: Note,
@@ -1027,7 +1027,7 @@ mod tests {
         case("B", "B", "D", "F#", "G#")
     )]
     fn test_from_str_minor_sixth(
-        #[values("m6")] chord_suffix: &str,
+        #[values("m6", "min6")] chord_suffix: &str,
         chord_base: &str,
         root: Note,
         third: Note,
@@ -1066,7 +1066,7 @@ mod tests {
         case("B", "B", "D", "F#", "A", "C#")
     )]
     fn test_from_str_minor_ninth(
-        #[values("m9")] chord_suffix: &str,
+        #[values("m9", "min9")] chord_suffix: &str,
         chord_base: &str,
         root: Note,
         third: Note,
@@ -1107,7 +1107,7 @@ mod tests {
         case("B", "B", "D", "F#", "A", "C#", "E")
     )]
     fn test_from_str_minor_eleventh(
-        #[values("m11")] chord_suffix: &str,
+        #[values("m11", "min11")] chord_suffix: &str,
         chord_base: &str,
         root: Note,
         third: Note,
@@ -1153,7 +1153,7 @@ mod tests {
         case("B", "B", "D", "F#", "A", "C#", "E", "G#")
     )]
     fn test_from_str_minor_thirteenth(
-        #[values("m13")] chord_suffix: &str,
+        #[values("m13", "min13")] chord_suffix: &str,
         chord_base: &str,
         root: Note,
         third: Note,
@@ -1196,7 +1196,7 @@ mod tests {
         case("B", "B", "D", "F")
     )]
     fn test_from_str_diminished(
-        #[values("dim")] chord_suffix: &str,
+        #[values("dim", "o")] chord_suffix: &str,
         chord_base: &str,
         root: Note,
         third: Note,
@@ -1233,7 +1233,7 @@ mod tests {
         case("B", "B", "D", "F", "Ab")
     )]
     fn test_from_str_diminished_seventh(
-        #[values("dim7")] chord_suffix: &str,
+        #[values("dim7", "o7")] chord_suffix: &str,
         chord_base: &str,
         root: Note,
         third: Note,
@@ -1271,7 +1271,7 @@ mod tests {
         case("B", "B", "D", "F", "A")
     )]
     fn test_from_str_half_diminished_seventh(
-        #[values("m7b5")] chord_suffix: &str,
+        #[values("m7b5", "ø", "ø7")] chord_suffix: &str,
         chord_base: &str,
         root: Note,
         third: Note,
@@ -1342,7 +1342,7 @@ mod tests {
         case("B", "B", "D#", "G")
     )]
     fn test_from_str_augmented(
-        #[values("aug")] chord_suffix: &str,
+        #[values("aug", "+")] chord_suffix: &str,
         chord_base: &str,
         root: Note,
         third: Note,
@@ -1379,7 +1379,7 @@ mod tests {
         case("B", "B", "D#", "G", "A")
     )]
     fn test_from_str_augmented_seventh(
-        #[values("aug7", "7#5")] chord_suffix: &str,
+        #[values("aug7", "+7", "7#5")] chord_suffix: &str,
         chord_base: &str,
         root: Note,
         third: Note,
@@ -1417,7 +1417,7 @@ mod tests {
         case("B", "B", "D#", "G", "A#")
     )]
     fn test_from_str_augmented_major_seventh(
-        #[values("augMaj7")] chord_suffix: &str,
+        #[values("augMaj7", "+M7")] chord_suffix: &str,
         chord_base: &str,
         root: Note,
         third: Note,
