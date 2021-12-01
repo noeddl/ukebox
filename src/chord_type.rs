@@ -10,6 +10,7 @@ use crate::{Interval, PitchClass, PITCH_CLASS_COUNT, STRING_COUNT};
 /// Sources used:
 ///
 /// * <https://en.wikipedia.org/wiki/Chord_(music)>
+/// * <https://en.wikipedia.org/wiki/Chord_names_and_symbols_(popular_music)>
 /// * <https://github.com/hyvyys/chord-fingering/blob/master/src/CHORD_DATA.js>
 /// * <https://en.wikibooks.org/wiki/Music_Theory/Complete_List_of_Chord_Patterns>
 /// * <http://www.hakwright.co.uk/music/quick_crd_ref.html>
@@ -194,48 +195,53 @@ impl ChordType {
             .filter(move |&i1| self.optional_intervals().all(|i2| i2 != i1))
     }
 
-    pub fn to_symbol(self) -> String {
+    /// Return an iterator over the symbols that can be used to denote a chord type.
+    pub fn symbols(self) -> impl Iterator<Item = &'static str> + 'static {
         use ChordType::*;
 
-        let s = match self {
-            Major => "",
-            MajorSeventh => "maj7",
-            MajorNinth => "maj9",
-            MajorEleventh => "maj11",
-            MajorThirteenth => "maj13",
-            MajorSixth => "6",
-            SixthNinth => "6/9",
-            DominantSeventh => "7",
-            DominantNinth => "9",
-            DominantEleventh => "11",
-            DominantThirteenth => "13",
-            DominantSeventhFlatNinth => "7b9",
-            DominantSeventhSharpNinth => "7#9",
-            DominantSeventhFlatFifth => "7b5",
+        let symbols = match self {
+            Major => vec!["", "maj", "M"],
+            MajorSeventh => vec!["maj7", "M7"],
+            MajorNinth => vec!["maj9", "M9"],
+            MajorEleventh => vec!["maj11", "M11"],
+            MajorThirteenth => vec!["maj13", "M13"],
+            MajorSixth => vec!["6", "maj6", "M6"],
+            SixthNinth => vec!["6/9", "maj6/9", "M6/9"],
+            DominantSeventh => vec!["7", "dom"],
+            DominantNinth => vec!["9"],
+            DominantEleventh => vec!["11"],
+            DominantThirteenth => vec!["13"],
+            DominantSeventhFlatNinth => vec!["7b9"],
+            DominantSeventhSharpNinth => vec!["7#9"],
+            DominantSeventhFlatFifth => vec!["7b5", "7dim5"],
             //DominantSeventhSharpFifth => "7#5",
-            SuspendedFourth => "sus4",
-            SuspendedSecond => "sus2",
-            DominantSeventhSuspendedFourth => "7sus4",
-            DominantSeventhSuspendedSecond => "7sus2",
-            Minor => "m",
-            MinorSeventh => "m7",
-            MinorMajorSeventh => "mMaj7",
-            MinorSixth => "m6",
-            MinorNinth => "m9",
-            MinorEleventh => "m11",
-            MinorThirteenth => "m13",
-            Diminished => "dim",
-            DiminishedSeventh => "dim7",
-            HalfDiminishedSeventh => "m7b5",
-            Fifth => "5",
-            Augmented => "aug",
-            AugmentedSeventh => "aug7",
-            AugmentedMajorSeventh => "augMaj7",
-            AddedNinth => "add9",
-            AddedFourth => "add4",
+            SuspendedFourth => vec!["sus4", "sus"],
+            SuspendedSecond => vec!["sus2"],
+            DominantSeventhSuspendedFourth => vec!["7sus4", "7sus"],
+            DominantSeventhSuspendedSecond => vec!["7sus2"],
+            Minor => vec!["m", "min"],
+            MinorSeventh => vec!["m7", "min7"],
+            MinorMajorSeventh => vec!["mMaj7", "mM7", "minMaj7"],
+            MinorSixth => vec!["m6", "min6"],
+            MinorNinth => vec!["m9", "min9"],
+            MinorEleventh => vec!["m11", "min11"],
+            MinorThirteenth => vec!["m13", "min13"],
+            Diminished => vec!["dim", "o"],
+            DiminishedSeventh => vec!["dim7", "o7"],
+            HalfDiminishedSeventh => vec!["m7b5", "ø", "ø7"],
+            Fifth => vec!["5"],
+            Augmented => vec!["aug", "+"],
+            AugmentedSeventh => vec!["aug7", "+7", "7#5"],
+            AugmentedMajorSeventh => vec!["augMaj7", "+M7"],
+            AddedNinth => vec!["add9", "add2"],
+            AddedFourth => vec!["add4"],
         };
 
-        s.to_string()
+        symbols.into_iter()
+    }
+
+    pub fn to_symbol(self) -> String {
+        self.symbols().next().unwrap().to_string()
     }
 }
 
@@ -289,48 +295,9 @@ impl FromStr for ChordType {
     type Err = &'static str;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        use ChordType::*;
-
-        match s {
-            "" => Ok(Major),
-            "maj7" => Ok(MajorSeventh),
-            "maj9" => Ok(MajorNinth),
-            "maj11" => Ok(MajorEleventh),
-            "maj13" => Ok(MajorThirteenth),
-            "6" => Ok(MajorSixth),
-            "6/9" => Ok(SixthNinth),
-            "7" => Ok(DominantSeventh),
-            "9" => Ok(DominantNinth),
-            "11" => Ok(DominantEleventh),
-            "13" => Ok(DominantThirteenth),
-            "7b9" => Ok(DominantSeventhFlatNinth),
-            "7#9" => Ok(DominantSeventhSharpNinth),
-            "7b5" => Ok(DominantSeventhFlatFifth),
-            //"7#5" => Ok(DominantSeventhSharpFifth),
-            "sus4" => Ok(SuspendedFourth),
-            "sus2" => Ok(SuspendedSecond),
-            "7sus4" => Ok(DominantSeventhSuspendedFourth),
-            "7sus2" => Ok(DominantSeventhSuspendedSecond),
-            "m" => Ok(Minor),
-            "m7" => Ok(MinorSeventh),
-            "mMaj7" => Ok(MinorMajorSeventh),
-            "m6" => Ok(MinorSixth),
-            "m9" => Ok(MinorNinth),
-            "m11" => Ok(MinorEleventh),
-            "m13" => Ok(MinorThirteenth),
-            "dim" => Ok(Diminished),
-            "dim7" => Ok(DiminishedSeventh),
-            "m7b5" => Ok(HalfDiminishedSeventh),
-            "5" => Ok(Fifth),
-            "aug" => Ok(Augmented),
-            "aug7" => Ok(AugmentedSeventh),
-            "7#5" => Ok(AugmentedSeventh),
-            "augMaj7" => Ok(AugmentedMajorSeventh),
-            "add9" => Ok(AddedNinth),
-            "add2" => Ok(AddedNinth),
-            "add4" => Ok(AddedFourth),
-            _ => Err("no valid chord type"),
-        }
+        ChordType::values()
+            .find(|ct| ct.symbols().any(|sym| sym == s))
+            .ok_or("no valid chord type")
     }
 }
 
