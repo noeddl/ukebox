@@ -10,6 +10,7 @@ use crate::{Interval, PitchClass, PITCH_CLASS_COUNT, STRING_COUNT};
 /// Sources used:
 ///
 /// * <https://en.wikipedia.org/wiki/Chord_(music)>
+/// * <https://en.wikipedia.org/wiki/Chord_names_and_symbols_(popular_music)>
 /// * <https://github.com/hyvyys/chord-fingering/blob/master/src/CHORD_DATA.js>
 /// * <https://en.wikibooks.org/wiki/Music_Theory/Complete_List_of_Chord_Patterns>
 /// * <http://www.hakwright.co.uk/music/quick_crd_ref.html>
