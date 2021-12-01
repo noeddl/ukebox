@@ -195,6 +195,7 @@ impl ChordType {
             .filter(move |&i1| self.optional_intervals().all(|i2| i2 != i1))
     }
 
+    /// Return an iterator over the symbols that can be used to denote a chord type.
     pub fn symbols(self) -> impl Iterator<Item = &'static str> + 'static {
         use ChordType::*;
 
