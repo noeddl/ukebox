@@ -205,7 +205,7 @@ impl Voicing {
                 if f == fret_id {
                     fingering[i] = finger as u8;
                     used_strings += 1;
-                    if !self.has_barre() && finger < FINGER_COUNT {
+                    if (!self.has_barre() || finger > 1) && finger < FINGER_COUNT {
                         finger += 1;
                     }
                 }
@@ -435,10 +435,12 @@ mod tests {
         case([1, 1, 1, 4], true),
         case([1, 1, 2, 1], true),
         case([1, 2, 1, 1], true),
+        case([1, 3, 3, 1], true),
         case([2, 1, 1, 1], true),
         case([3, 1, 1, 1], true),
         case([3, 2, 1, 1], true),
         case([3, 1, 2, 1], true),
+        case([3, 1, 1, 3], true),
     )]
     fn test_has_barre(frets: [FretID; STRING_COUNT], has_barre: bool) {
         let voicing = Voicing::new(frets, Tuning::C);
@@ -482,6 +484,8 @@ mod tests {
         case([1, 1, 1, 4], [1, 1, 1, 4]),
         case([3, 2, 1, 1], [3, 2, 1, 1]),
         case([4, 3, 2, 2], [3, 2, 1, 1]),
+        case([3, 1, 1, 3], [3, 1, 1, 4]),
+        case([1, 3, 3, 1], [1, 3, 4, 1]),
         // Fingering across a span of five frets.
         case([0, 0, 1, 5], [0, 0, 1, 4]),
         case([3, 0, 1, 5], [3, 0, 1, 4]),
