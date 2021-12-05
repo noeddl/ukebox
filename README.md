@@ -48,6 +48,7 @@ OPTIONS:
 
 SUBCOMMANDS:
     chart         Chord chart lookup
+    chords        List all supported chord types and symbols
     help          Prints this message or the help of the given subcommand(s)
     name          Chord name lookup
     voice-lead    Voice leading for a sequence of chords
@@ -290,24 +291,49 @@ A   ||---|-2-|---|---|- B
 
 ## Supported chord types
 
-Currently, `ukebox` can handle the following types of chords:
+Run `ukebox chords` to get a list of the chord types and symbols currently supported.
 
-* major chords, e.g. `C`, `D#`, `Eb`
-* minor chords, e.g. `Cm`, `D#m`, `Ebm`
-* suspended second chords, e.g. `Csus2`, `D#sus2`, `Ebsus2`
-* suspended fourth chords, e.g. `Csus4`, `D#sus4`, `Ebsus4`
-* augmented triads, e.g. `Caug`, `D#aug`, `Ebaug`
-* diminished triads, e.g. `Cdim`, `D#dim`, `Ebdim`
-* dominant 7th chords, e.g. `C7`, `D#7`, `Eb7`
-* minor 7th chords, e.g. `Cm7`, `D#m7`, `Ebm7`
-* major 7th chords, e.g. `Cmaj7`, `D#maj7`, `Ebmaj7`
-* minor/major 7th chords, e.g. `CmMaj7`, `D#mMaj7`, `EbmMaj7`
-* augmented 7th chords, e.g. `Caug7`, `D#aug7`, `Ebaug7`
-* augmented major 7th chords, e.g. `CaugMaj7`, `D#augMaj7`, `EbaugMaj7`
-* diminished 7th chords, e.g. `Cdim7`, `D#dim7`, `Ebdim7`
-* half-diminished 7th chords, e.g. `Cm7b5`, `D#m7b5`, `Ebm7b5`
+```
+$ ukebox chords
+Supported chord types and symbols
 
-More types of chords will be supported in future versions (see [#35](https://github.com/noeddl/ukebox/issues/35)).
+The root note C is used as an example.
+
+C major - C, Cmaj, CM
+C major 7th - Cmaj7, CM7
+C major 9th - Cmaj9, CM9
+C major 11th - Cmaj11, CM11
+C major 13th - Cmaj13, CM13
+C major 6th - C6, Cmaj6, CM6
+C 6th/9th - C6/9, Cmaj6/9, CM6/9
+C dominant 7th - C7, Cdom
+C dominant 9th - C9
+C dominant 11th - C11
+C dominant 13th - C13
+C dominant 7th flat 9th - C7b9
+C dominant 7th sharp 9th - C7#9
+C dominant 7th flat 5th - C7b5, C7dim5
+C suspended 4th - Csus4, Csus
+C suspended 2nd - Csus2
+C dominant 7th suspended 4th - C7sus4, C7sus
+C dominant 7th suspended 2nd - C7sus2
+C minor - Cm, Cmin
+C minor 7th - Cm7, Cmin7
+C minor/major 7th - CmMaj7, CmM7, CminMaj7
+C minor 6th - Cm6, Cmin6
+C minor 9th - Cm9, Cmin9
+C minor 11th - Cm11, Cmin11
+C minor 13th - Cm13, Cmin13
+C diminished - Cdim, Co
+C diminished 7th - Cdim7, Co7
+C half-diminished 7th - Cm7b5, Cø, Cø7
+C 5th - C5
+C augmented - Caug, C+
+C augmented 7th - Caug7, C+7, C7#5
+C augmented major 7th - CaugMaj7, C+M7
+C added 9th - Cadd9, Cadd2
+C added 4th - Cadd4
+```
 
 ## License
 

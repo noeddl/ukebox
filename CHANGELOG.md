@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.9.0] - 2021-12-05
+
+* Add more chord types and symbols ([#35](https://github.com/noeddl/ukebox/issues/35)).
+* Allow several symbols for the same chord ([#32](https://github.com/noeddl/ukebox/issues/32)).
+* Add subcommand `chords` that lists all chord types and symbols currently supported.
+* Fix bug in fingering calculation that made the same finger appear multiple times.
+
 ## [0.8.0] - 2021-05-23
 
 * Simplify chord name parsing and remove `regex` dependency.
