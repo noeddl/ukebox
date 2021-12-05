@@ -1,7 +1,8 @@
+use itertools::Itertools;
 use lazy_static::lazy_static;
 use structopt::StructOpt;
 use ukebox::{
-    Chord, ChordChart, ChordSequence, FretID, FretPattern, Semitones, Tuning, Voicing,
+    Chord, ChordChart, ChordSequence, ChordType, FretID, FretPattern, Semitones, Tuning, Voicing,
     VoicingConfig, VoicingGraph,
 };
 
@@ -33,14 +34,23 @@ struct Ukebox {
 
 #[derive(StructOpt)]
 enum Subcommand {
+    /// List all supported chord types and symbols
+    Chords {},
     /// Chord chart lookup
+    ///
+    /// Enter note names as capital letters A - G.
+    /// Add '#' for sharp notes, e.g. D#.
+    /// Add 'b' for flat notes, e.g. Eb.
+    ///
+    /// Run "ukebox chords" to get a list of the chord types and symbols currently supported.
+    #[structopt(verbatim_doc_comment)]
     Chart {
         /// Print out all voicings of <chord> that fulfill the given conditions
         #[structopt(short, long)]
         all: bool,
         #[structopt(flatten)]
         voicing_opts: VoicingOpts,
-        /// Name of the chord to be shown    
+        /// Name of the chord to be shown
         #[structopt(value_name = "CHORD")]
         chord: Chord,
     },
@@ -106,6 +116,15 @@ fn main() {
     let tuning = args.tuning;
 
     match args.cmd {
+        Subcommand::Chords {} => {
+            println!("Supported chord types and symbols\n");
+            println!("The root note C is used as an example.\n");
+
+            for chord_type in ChordType::values() {
+                let symbols = chord_type.symbols().map(|s| format!("C{}", s)).join(", ");
+                println!("C {} - {}", chord_type, symbols);
+            }
+        }
         Subcommand::Chart {
             all,
             voicing_opts,
