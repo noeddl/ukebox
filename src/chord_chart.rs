@@ -95,7 +95,7 @@ impl fmt::Display for ChordChart {
         let fingers_on_strings = self.voicing.fingers_on_strings();
 
         // Create a diagram for each ukulele string.
-        let mut s: String = self
+        let s: String = self
             .voicing
             .uke_strings()
             .rev()
@@ -106,7 +106,7 @@ impl fmt::Display for ChordChart {
         // If the fretboard section shown does not include the nut,
         // indicate the number of the first fret shown.
         if base_fret > 1 {
-            s.push_str(&format!("{:width$}\n", base_fret, width = root_width + 6))
+            return writeln!(f, "{}{:width$}", s, base_fret, width = root_width + 6);
         }
 
         write!(f, "{}", s)

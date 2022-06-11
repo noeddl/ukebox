@@ -2,7 +2,7 @@ use std::cmp::{max, min};
 
 use crate::{FingerPosition, Voicing, FINGER_COUNT};
 
-#[derive(Debug, Copy, Clone, PartialEq)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct Fingering {
     finger_positions: [FingerPosition; FINGER_COUNT],
 }
