@@ -23,7 +23,7 @@ impl FromStr for ChordSequence {
     type Err = &'static str;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let res: Result<Vec<_>, _> = s.split_whitespace().map(|s| Chord::from_str(s)).collect();
+        let res: Result<Vec<_>, _> = s.split_whitespace().map(Chord::from_str).collect();
 
         if let Ok(chords) = res {
             return Ok(Self { chords });

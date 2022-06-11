@@ -144,7 +144,7 @@ fn main() {
             if voicings.peek().is_none() {
                 println!("No matching chord voicing was found");
             } else {
-                println!("{}", format!("[{}]\n", chord));
+                println!("[{}]\n", chord);
             }
 
             for voicing in voicings {
