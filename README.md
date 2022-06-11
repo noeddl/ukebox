@@ -4,7 +4,7 @@
 [![Documentation](https://docs.rs/ukebox/badge.svg)](https://docs.rs/ukebox)
 [![travis](https://travis-ci.com/noeddl/ukebox.svg?branch=master)](https://travis-ci.com/noeddl/ukebox)
 [![license](https://img.shields.io/crates/l/ukebox)](#license)
-[![rustc](https://img.shields.io/badge/rustc-1.48+-lightgray.svg)](https://blog.rust-lang.org/2020/11/19/Rust-1.48.html)
+[![rustc](https://img.shields.io/badge/rustc-1.51+-lightgray.svg)](https://blog.rust-lang.org/2021/03/25/Rust-1.51.0.html)
 
 `ukebox` is a ukulele chord toolbox for the command line written in Rust.
 
