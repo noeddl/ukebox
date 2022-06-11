@@ -1,0 +1,147 @@
+name: Continuous integration
+
+on: [push, pull_request]
+
+env:
+  PROJECT_NAME: ukebox
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        rust:
+          - stable
+          - beta
+          - nightly
+          - 1.48.0  # MSRV
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: ${{ matrix.rust }}
+          override: true
+          components: rustfmt, clippy
+
+      - uses: actions-rs/cargo@v1
+        with:
+          command: build
+
+      - uses: actions-rs/cargo@v1
+        with:
+          command: test
+
+      - uses: actions-rs/cargo@v1
+        with:
+          command: fmt
+          args: --all -- --check
+
+      - uses: actions-rs/cargo@v1
+        with:
+          command: clippy
+          args: -- -D warnings
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/')
+    needs: [ci]
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+        target: [x86_64-unknown-linux-gnu, x86_64-unknown-linux-musl]
+        include:
+          - os: macOS-latest
+            target: x86_64-apple-darwin
+
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Install stable toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+          target: ${{ matrix.target }}
+
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Run build
+        uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --release --target ${{ matrix.target }}
+
+      - name: Package
+        shell: bash
+        run: |
+          strip --target ${{ matrix.target }}
+          cd target/${{ matrix.target }}/release
+          tar czvf ../../../${{ env.PROJECT_NAME }}-${{ github.ref_name }}-${{ matrix.target }}.tar.gz ${{ env.PROJECT_NAME }}
+          cd -
+
+      #- name: Archive code coverage results
+      #  uses: actions/upload-artifact@v3
+      #  with:
+      #    name: ${{ env.PROJECT_NAME }}-${{ github.ref_name }}-${{ matrix.target }}.tar.gz
+      #    path: ${{ env.PROJECT_NAME }}-${{ github.ref_name }}-${{ matrix.target }}.tar.gz
+
+      - name: Publish
+        uses: softprops/action-gh-release@v1
+        with:
+          draft: true
+          files: '${{ env.PROJECT_NAME }}*'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  release-win:
+    if: startsWith(github.ref, 'refs/tags/')
+    needs: [ci]
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest]
+        target: [x86_64-pc-windows-msvc, x86_64-pc-windows-gnu, i686-pc-windows-msvc]
+
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Install stable toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+          target: ${{ matrix.target }}
+
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Run build
+        uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --release --target ${{ matrix.target }}
+
+      - name: Package
+        shell: bash
+        run: |
+          strip --target ${{ matrix.target }}
+          cd target/${{ matrix.target }}/release
+          7z a ../../../${{ env.PROJECT_NAME }}-${{ github.ref_name }}-${{ matrix.target }}.zip ${{ env.PROJECT_NAME }}.exe
+          cd -
+
+      #- name: Archive code coverage results
+      #  uses: actions/upload-artifact@v3
+      #  with:
+      #    name: ${{ env.PROJECT_NAME }}-${{ github.ref_name }}-${{ matrix.target }}.zip
+      #    path: ${{ env.PROJECT_NAME }}-${{ github.ref_name }}-${{ matrix.target }}.zip
+
+      - name: Publish
+        uses: softprops/action-gh-release@v1
+        with:
+          draft: true
+          files: '${{ env.PROJECT_NAME }}*'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
