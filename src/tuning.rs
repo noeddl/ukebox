@@ -1,18 +1,19 @@
+use std::fmt;
 use std::str::FromStr;
 
-use structopt::clap::arg_enum;
+use clap;
+use clap::ArgEnum;
 
 use crate::{Interval, Note, Semitones};
 
 // Using clap's `arg_enum` macro allows the specification of all Tuning
 // variants as `possible_values` for the CLI `--tuning` option.
-arg_enum! {
-    #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-    pub enum Tuning {
-        C,
-        D,
-        G,
-    }
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, ArgEnum)]
+#[clap(rename_all = "UPPER")]
+pub enum Tuning {
+    C,
+    D,
+    G,
 }
 
 impl Tuning {
@@ -38,5 +39,17 @@ impl Tuning {
         ["G", "C", "E", "A"]
             .iter()
             .map(move |c| Note::from_str(c).unwrap() + interval)
+    }
+}
+
+impl fmt::Display for Tuning {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let s = match self {
+            Tuning::C => "C",
+            Tuning::D => "D",
+            Tuning::G => "G",
+        };
+
+        write!(f, "{}", s)
     }
 }

@@ -14,10 +14,10 @@ categories = ["command-line-utilities"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+clap = {version = "3.1", features = ["derive"]}
 itertools = "0.10"
 lazy_static = "1.4"
 petgraph = "0.6"
-structopt = "0.3"
 
 [dev-dependencies]
 assert_cmd = "2.0"

@@ -1,4 +1,5 @@
 use std::convert::TryInto;
+use std::error::Error;
 use std::fmt;
 use std::slice::Iter;
 use std::str::FromStr;
@@ -8,6 +9,8 @@ use crate::{FretID, STRING_COUNT};
 /// Custom error for strings that cannot be parsed into a fret pattern.
 #[derive(Debug)]
 pub struct ParseFretPatternError {}
+
+impl Error for ParseFretPatternError {}
 
 impl fmt::Display for ParseFretPatternError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

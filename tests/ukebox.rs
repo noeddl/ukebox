@@ -22,7 +22,7 @@ fn test_unknown_chord() -> Result<(), Box<dyn Error>> {
     cmd.arg("chart");
     cmd.arg("blafoo");
     cmd.assert().failure().stderr(predicate::str::contains(
-        "error: Invalid value for '<CHORD>': Could not parse chord name \"blafoo\"",
+        "error: Invalid value \"blafoo\" for '<CHORD>': Could not parse chord name \"blafoo\"",
     ));
 
     Ok(())
@@ -47,9 +47,12 @@ fn test_invalid_min_fret(min_fret: &str) -> Result<(), Box<dyn Error>> {
     cmd.arg("chart");
     cmd.arg("--min-fret").arg(min_fret);
     cmd.arg("C");
-    cmd.assert().failure().stderr(predicate::str::contains(
-        "error: Invalid value for '--min-fret <FRET_ID>': must be a number between 0 and 21",
-    ));
+    cmd.assert()
+        .failure()
+        .stderr(predicate::str::contains(format!(
+        "error: Invalid value \"{}\" for '--min-fret <FRET_ID>': must be a number between 0 and 21",
+        min_fret
+    )));
 
     Ok(())
 }
@@ -60,9 +63,12 @@ fn test_invalid_max_fret(max_fret: &str) -> Result<(), Box<dyn Error>> {
     cmd.arg("chart");
     cmd.arg("--max-fret").arg(max_fret);
     cmd.arg("C");
-    cmd.assert().failure().stderr(predicate::str::contains(
-        "error: Invalid value for '--max-fret <FRET_ID>': must be a number between 0 and 21",
-    ));
+    cmd.assert()
+        .failure()
+        .stderr(predicate::str::contains(format!(
+        "error: Invalid value \"{}\" for '--max-fret <FRET_ID>': must be a number between 0 and 21",
+        max_fret
+    )));
 
     Ok(())
 }
@@ -74,7 +80,7 @@ fn test_invalid_max_span(max_span: &str) -> Result<(), Box<dyn Error>> {
     cmd.arg("--max-span").arg(max_span);
     cmd.arg("C");
     cmd.assert().failure().stderr(predicate::str::contains(
-        "error: Invalid value for '--max-span <FRET_COUNT>': must be a number between 0 and 5",
+        format!("error: Invalid value \"{}\" for '--max-span <FRET_COUNT>': must be a number between 0 and 5", max_span),
     ));
 
     Ok(())
@@ -86,7 +92,7 @@ fn test_invalid_pattern() -> Result<(), Box<dyn Error>> {
     cmd.arg("name");
     cmd.arg("blafoo");
     cmd.assert().failure().stderr(predicate::str::contains(
-        "error: Invalid value for '<FRET_PATTERN>': Fret pattern has wrong format (should be something like 1234 or \"7 8 9 10\")",
+        "error: Invalid value \"blafoo\" for '<FRET_PATTERN>': Fret pattern has wrong format (should be something like 1234 or \"7 8 9 10\")",
     ));
 
     Ok(())
