@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.9.1] - 2022-06-15
+
+* Set up Github Actions for continuous integration and automatic compilation of binaries for different platforms when making new releases.
+* Update dependencies and remove vulnerability from regex 1.5.4.
+* Switch from structopt to clap.
+* Increase MSRV to 1.56.0 to allow for dependencies using Edition 2021.
+
 ## [0.9.0] - 2021-12-05
 
 * Add more chord types and symbols ([#35](https://github.com/noeddl/ukebox/issues/35)).

@@ -2,7 +2,7 @@
 
 [![Crates.io](https://img.shields.io/crates/v/ukebox)](https://crates.io/crates/ukebox)
 [![Documentation](https://docs.rs/ukebox/badge.svg)](https://docs.rs/ukebox)
-[![travis](https://travis-ci.com/noeddl/ukebox.svg?branch=master)](https://travis-ci.com/noeddl/ukebox)
+[![Continuous integration](https://github.com/noeddl/ukebox/actions/workflows/ci.yml/badge.svg)](https://github.com/noeddl/ukebox/actions/workflows/ci.yml)
 [![license](https://img.shields.io/crates/l/ukebox)](#license)
 [![rustc](https://img.shields.io/badge/rustc-1.56+-lightgray.svg)](https://blog.rust-lang.org/2021/10/21/Rust-1.56.0.html)
 
@@ -19,19 +19,13 @@
 
 ## Installation
 
-`ukebox` is intended to be a stand-alone command-line application but for the time being you need [Rust](https://www.rust-lang.org/) to build and run the program. The easiest way to install `ukebox` is to use `cargo`.
+Archives of precompiled binaries for each [release](https://github.com/noeddl/ukebox/releases) of `ukebox` are available for Windows, macOS and Linux.
+
+Alternatively, `ukebox` can be installed with `cargo`.
 
 ```
 $ cargo install ukebox
 ```
-
-Alternatively, get the source code by cloning the repo from Github.
-
-```
-$ git clone https://github.com/noeddl/ukebox
-```
-
-Downloadable binaries for different platforms will be provided in upcoming releases.
 
 ## Usage
 
