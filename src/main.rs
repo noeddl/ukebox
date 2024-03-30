@@ -26,9 +26,9 @@ lazy_static! {
 #[derive(Parser)]
 struct Ukebox {
     /// Type of tuning to be used
-    #[clap(short, long, global = true, value_name = "TUNING", default_value = &TUNING_STR, arg_enum)]
+    #[arg(short, long, global = true, value_name = "TUNING", default_value = &**TUNING_STR, value_enum)]
     tuning: Tuning,
-    #[clap(subcommand)]
+    #[command(subcommand)]
     cmd: Subcommand,
 }
 
@@ -43,29 +43,29 @@ enum Subcommand {
     /// Add 'b' for flat notes, e.g. Eb.
     ///
     /// Run "ukebox chords" to get a list of the chord types and symbols currently supported.
-    #[clap(verbatim_doc_comment)]
+    #[command(verbatim_doc_comment)]
     Chart {
         /// Print out all voicings of <chord> that fulfill the given conditions
-        #[clap(short, long)]
+        #[arg(short, long)]
         all: bool,
-        #[clap(flatten)]
+        #[command(flatten)]
         voicing_opts: VoicingOpts,
         /// Name of the chord to be shown
-        #[clap(value_name = "CHORD")]
+        #[arg(value_name = "CHORD")]
         chord: Chord,
     },
     /// Chord name lookup
     Name {
         /// A compact chart representing the finger positions of the chord to be looked up
-        #[clap(value_name = "FRET_PATTERN")]
+        #[arg(value_name = "FRET_PATTERN")]
         fret_pattern: FretPattern,
     },
     /// Voice leading for a sequence of chords
     VoiceLead {
-        #[clap(flatten)]
+        #[command(flatten)]
         voicing_opts: VoicingOpts,
         /// Chord sequence
-        #[clap(value_name = "CHORD_SEQUENCE")]
+        #[arg(value_name = "CHORD_SEQUENCE")]
         chord_seq: ChordSequence,
     },
 }
@@ -73,42 +73,22 @@ enum Subcommand {
 #[derive(Parser)]
 pub struct VoicingOpts {
     /// Minimal fret (= minimal position) from which to play <chord>
-    #[clap(long, value_name = "FRET_ID", default_value = &MIN_FRET_STR, validator = validate_fret_id)]
+    #[arg(long, value_name = "FRET_ID", default_value = &**MIN_FRET_STR, value_parser = clap::value_parser!(FretID).range(0..=MAX_FRET_ID as i64))]
     min_fret: FretID,
     /// Maximal fret up to which to play <chord>
-    #[clap(long, value_name = "FRET_ID", default_value = &MAX_FRET_STR, validator = validate_fret_id)]
+    #[arg(long, value_name = "FRET_ID", default_value = &**MAX_FRET_STR, value_parser = clap::value_parser!(FretID).range(0..=MAX_FRET_ID as i64))]
     max_fret: FretID,
     /// Maximal span between the first and the last fret pressed down when playing <chord>
-    #[clap(long, value_name = "FRET_COUNT", default_value = &MAX_SPAN_STR, validator = validate_span)]
+    #[arg(long, value_name = "FRET_COUNT", default_value = &**MAX_SPAN_STR, value_parser = clap::value_parser!(Semitones).range(0..=MAX_SPAN as i64))]
     max_span: Semitones,
     /// Number of semitones to add (e.g. 1, +1) or to subtract (e.g. -1)
-    #[clap(
+    #[arg(
         long,
         value_name = "SEMITONES",
         allow_hyphen_values = true,
         default_value = "0"
     )]
     transpose: i8,
-}
-
-fn validate_fret_id(s: &str) -> Result<(), String> {
-    if let Ok(fret) = s.parse::<FretID>() {
-        if fret <= MAX_FRET_ID {
-            return Ok(());
-        }
-    }
-
-    Err(String::from("must be a number between 0 and 21"))
-}
-
-fn validate_span(s: &str) -> Result<(), String> {
-    if let Ok(span) = s.parse::<Semitones>() {
-        if span <= MAX_SPAN {
-            return Ok(());
-        }
-    }
-
-    Err(String::from("must be a number between 0 and 5"))
 }
 
 fn main() {

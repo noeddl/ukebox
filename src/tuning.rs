@@ -1,14 +1,13 @@
 use std::fmt;
 use std::str::FromStr;
 
-use clap;
-use clap::ArgEnum;
+use clap::ValueEnum;
 
 use crate::{Interval, Note, Semitones};
 
-// Using clap's `arg_enum` macro allows the specification of all Tuning
+// Using clap's `value_enum` macro allows the specification of all Tuning
 // variants as `possible_values` for the CLI `--tuning` option.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, ArgEnum)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, ValueEnum)]
 #[clap(rename_all = "UPPER")]
 pub enum Tuning {
     C,
