@@ -1,5 +1,4 @@
 use std::convert::TryFrom;
-use std::error::Error;
 use std::fmt;
 use std::ops::{Add, Sub};
 use std::str::FromStr;
@@ -7,21 +6,15 @@ use std::str::FromStr;
 use itertools::Itertools;
 
 use crate::{
-    ChordType, Note, PitchClass, Semitones, UkeString, Voicing, VoicingConfig, STRING_COUNT,
+    ChordType, NoMatchingChordTypeFoundError, Note, PitchClass, Semitones, UkeString, Voicing,
+    VoicingConfig, STRING_COUNT,
 };
 
 /// Custom error for strings that cannot be parsed into chords.
-#[derive(Debug)]
+#[derive(Debug, thiserror::Error)]
+#[error("could not parse chord name '{name}'")]
 pub struct ParseChordError {
     name: String,
-}
-
-impl Error for ParseChordError {}
-
-impl fmt::Display for ParseChordError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "Could not parse chord name \"{}\"", self.name)
-    }
 }
 
 /// A chord such as C, Cm and so on.
@@ -122,7 +115,7 @@ impl FromStr for Chord {
 }
 
 impl TryFrom<&[PitchClass]> for Chord {
-    type Error = &'static str;
+    type Error = NoMatchingChordTypeFoundError;
 
     /// Determine the chord that is represented by a list of pitch classes.
     fn try_from(pitches: &[PitchClass]) -> Result<Self, Self::Error> {
@@ -167,7 +160,7 @@ mod tests {
         case("CmMaj7b5")
     )]
     fn test_from_str_fail(chord: &str) {
-        assert!(Chord::from_str(chord).is_err())
+        assert!(Chord::from_str(chord).is_err());
     }
 
     #[rstest(

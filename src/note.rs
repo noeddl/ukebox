@@ -5,15 +5,10 @@ use std::str::FromStr;
 use crate::{Interval, PitchClass, Semitones, StaffPosition};
 
 /// Custom error for strings that cannot be parsed into notes.
-#[derive(Debug)]
+#[derive(Debug, thiserror::Error)]
+#[error("could not parse note name '{name}'")]
 pub struct ParseNoteError {
     name: String,
-}
-
-impl fmt::Display for ParseNoteError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "Could not parse note name \"{}\"", self.name)
-    }
 }
 
 /// A note such a C, C# and so on.

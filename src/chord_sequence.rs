@@ -19,8 +19,12 @@ impl ChordSequence {
     }
 }
 
+#[derive(Debug, thiserror::Error)]
+#[error("could not parse chord sequence")]
+pub struct ParseChordSequenceError;
+
 impl FromStr for ChordSequence {
-    type Err = &'static str;
+    type Err = ParseChordSequenceError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let res: Result<Vec<_>, _> = s.split_whitespace().map(Chord::from_str).collect();
@@ -29,7 +33,7 @@ impl FromStr for ChordSequence {
             return Ok(Self { chords });
         }
 
-        Err("Could not parse chord sequence")
+        Err(ParseChordSequenceError)
     }
 }
 
@@ -55,7 +59,7 @@ mod tests {
 
     #[rstest(chord_seq, case("Z"), case("A Z"))]
     fn test_from_str_fail(chord_seq: &str) {
-        assert!(ChordSequence::from_str(chord_seq).is_err())
+        assert!(ChordSequence::from_str(chord_seq).is_err());
     }
 
     #[rstest(
