@@ -11,7 +11,7 @@ fn test_no_args() -> Result<(), Box<dyn Error>> {
     let mut cmd = Command::cargo_bin("ukebox")?;
     cmd.assert()
         .failure()
-        .stderr(predicate::str::contains("USAGE:"));
+        .stderr(predicate::str::contains("Usage:"));
 
     Ok(())
 }
@@ -22,7 +22,7 @@ fn test_unknown_chord() -> Result<(), Box<dyn Error>> {
     cmd.arg("chart");
     cmd.arg("blafoo");
     cmd.assert().failure().stderr(predicate::str::contains(
-        "error: Invalid value \"blafoo\" for '<CHORD>': Could not parse chord name \"blafoo\"",
+        "error: invalid value 'blafoo' for '<CHORD>': could not parse chord name 'blafoo'",
     ));
 
     Ok(())
@@ -49,10 +49,7 @@ fn test_invalid_min_fret(min_fret: &str) -> Result<(), Box<dyn Error>> {
     cmd.arg("C");
     cmd.assert()
         .failure()
-        .stderr(predicate::str::contains(format!(
-        "error: Invalid value \"{}\" for '--min-fret <FRET_ID>': must be a number between 0 and 21",
-        min_fret
-    )));
+        .stderr(predicate::str::contains(format!("error: invalid value '{min_fret}' for '--min-fret <FRET_ID>': 22 is not in 0..=21")).or(predicate::str::contains(format!("error: invalid value '{min_fret}' for '--min-fret <FRET_ID>': invalid digit found in string"))));
 
     Ok(())
 }
@@ -65,10 +62,7 @@ fn test_invalid_max_fret(max_fret: &str) -> Result<(), Box<dyn Error>> {
     cmd.arg("C");
     cmd.assert()
         .failure()
-        .stderr(predicate::str::contains(format!(
-        "error: Invalid value \"{}\" for '--max-fret <FRET_ID>': must be a number between 0 and 21",
-        max_fret
-    )));
+        .stderr(predicate::str::contains(format!("error: invalid value '{max_fret}' for '--max-fret <FRET_ID>': 22 is not in 0..=21")).or(predicate::str::contains(format!("error: invalid value '{max_fret}' for '--max-fret <FRET_ID>': invalid digit found in string"))));
 
     Ok(())
 }
@@ -79,9 +73,9 @@ fn test_invalid_max_span(max_span: &str) -> Result<(), Box<dyn Error>> {
     cmd.arg("chart");
     cmd.arg("--max-span").arg(max_span);
     cmd.arg("C");
-    cmd.assert().failure().stderr(predicate::str::contains(
-        format!("error: Invalid value \"{}\" for '--max-span <FRET_COUNT>': must be a number between 0 and 5", max_span),
-    ));
+    cmd.assert()
+        .failure()
+        .stderr(predicate::str::contains(format!("error: invalid value '{max_span}' for '--max-span <FRET_COUNT>': 6 is not in 0..=5")).or(predicate::str::contains(format!("error: invalid value '{max_span}' for '--max-span <FRET_COUNT>': invalid digit found in string"))));
 
     Ok(())
 }
@@ -92,7 +86,7 @@ fn test_invalid_pattern() -> Result<(), Box<dyn Error>> {
     cmd.arg("name");
     cmd.arg("blafoo");
     cmd.assert().failure().stderr(predicate::str::contains(
-        "error: Invalid value \"blafoo\" for '<FRET_PATTERN>': Fret pattern has wrong format (should be something like 1234 or \"7 8 9 10\")",
+        "error: invalid value 'blafoo' for '<FRET_PATTERN>': fret pattern has wrong format (should be something like 1234 or '7 8 9 10')",
     ));
 
     Ok(())
