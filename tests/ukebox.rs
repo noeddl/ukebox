@@ -157,7 +157,7 @@ fn test_no_voicing_seq_found() -> Result<(), Box<dyn Error>> {
 fn test_chart(chord: &str, chart: &'static str) -> Result<(), Box<dyn Error + 'static>> {
     let mut cmd = Command::cargo_bin("ukebox")?;
     cmd.arg("chart").arg(chord);
-    cmd.assert().success().stdout(format!("{}\n", chart));
+    cmd.assert().success().stdout(format!("{chart}\n"));
 
     Ok(())
 }
@@ -212,7 +212,7 @@ fn test_tuning(
     cmd.arg("chart");
     cmd.arg("--tuning").arg(tuning);
     cmd.arg(chord);
-    cmd.assert().success().stdout(format!("{}\n", chart));
+    cmd.assert().success().stdout(format!("{chart}\n"));
 
     Ok(())
 }
@@ -270,7 +270,7 @@ fn test_min_fret(
     cmd.arg("chart");
     cmd.arg("--min-fret").arg(min_fret);
     cmd.arg(chord);
-    cmd.assert().success().stdout(format!("{}\n", chart));
+    cmd.assert().success().stdout(format!("{chart}\n"));
 
     Ok(())
 }
@@ -314,7 +314,7 @@ fn test_max_span(
     cmd.arg("chart");
     cmd.arg("--max-span").arg(max_span);
     cmd.arg(chord);
-    cmd.assert().success().stdout(format!("{}\n", chart));
+    cmd.assert().success().stdout(format!("{chart}\n"));
 
     Ok(())
 }
@@ -381,7 +381,7 @@ fn test_transpose(
     cmd.arg("chart");
     cmd.arg("--transpose").arg(semitones);
     cmd.arg(chord);
-    cmd.assert().success().stdout(format!("{}\n", chart));
+    cmd.assert().success().stdout(format!("{chart}\n"));
 
     Ok(())
 }
@@ -524,7 +524,7 @@ fn test_all(
     }
 
     cmd.arg(chord);
-    cmd.assert().success().stdout(format!("{}\n", chart));
+    cmd.assert().success().stdout(format!("{chart}\n"));
 
     Ok(())
 }
@@ -542,7 +542,7 @@ fn test_all(
 fn test_name(chart: &str, names: &'static str) -> Result<(), Box<dyn Error + 'static>> {
     let mut cmd = Command::cargo_bin("ukebox")?;
     cmd.arg("name").arg(chart);
-    cmd.assert().success().stdout(format!("{}\n", names));
+    cmd.assert().success().stdout(format!("{names}\n"));
 
     Ok(())
 }
@@ -567,7 +567,7 @@ fn test_name_with_tuning(
     cmd.arg("name");
     cmd.arg("--tuning").arg(tuning);
     cmd.arg(chart);
-    cmd.assert().success().stdout(format!("{}\n", names));
+    cmd.assert().success().stdout(format!("{names}\n"));
 
     Ok(())
 }
@@ -698,7 +698,7 @@ fn test_voice_lead(
         cmd.arg(arg).arg(value);
     }
     cmd.arg(chord_seq);
-    cmd.assert().success().stdout(format!("{}\n", chart));
+    cmd.assert().success().stdout(format!("{chart}\n"));
 
     Ok(())
 }

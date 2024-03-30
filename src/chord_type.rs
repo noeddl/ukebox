@@ -287,7 +287,7 @@ impl fmt::Display for ChordType {
             AddedFourth => "added 4th",
         };
 
-        write!(f, "{}", s)
+        write!(f, "{s}")
     }
 }
 

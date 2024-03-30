@@ -85,7 +85,7 @@ impl Chord {
 impl fmt::Display for Chord {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let name = format!("{}{}", self.root, self.chord_type.to_symbol());
-        write!(f, "{} - {} {}", name, self.root, self.chord_type)
+        write!(f, "{name} - {} {}", self.root, self.chord_type)
     }
 }
 
@@ -193,7 +193,7 @@ mod tests {
         third: Note,
         fifth: Note,
     ) {
-        let chord = Chord::from_str(&format!("{}{}", chord_base, chord_suffix)).unwrap();
+        let chord = Chord::from_str(&format!("{chord_base}{chord_suffix}")).unwrap();
 
         assert_eq!(chord.notes, vec![root, third, fifth]);
         assert_eq!(chord.chord_type, ChordType::Major);
@@ -231,7 +231,7 @@ mod tests {
         fifth: Note,
         seventh: Note,
     ) {
-        let chord = Chord::from_str(&format!("{}{}", chord_base, chord_suffix)).unwrap();
+        let chord = Chord::from_str(&format!("{chord_base}{chord_suffix}")).unwrap();
 
         assert_eq!(chord.notes, vec![root, third, fifth, seventh]);
         assert_eq!(chord.chord_type, ChordType::MajorSeventh);
@@ -271,7 +271,7 @@ mod tests {
         seventh: Note,
         ninth: Note,
     ) {
-        let chord = Chord::from_str(&format!("{}{}", chord_base, chord_suffix)).unwrap();
+        let chord = Chord::from_str(&format!("{chord_base}{chord_suffix}")).unwrap();
 
         assert_eq!(chord.notes, vec![root, third, fifth, seventh, ninth]);
         assert_eq!(chord.chord_type, ChordType::MajorNinth);
@@ -313,7 +313,7 @@ mod tests {
         ninth: Note,
         eleventh: Note,
     ) {
-        let chord = Chord::from_str(&format!("{}{}", chord_base, chord_suffix)).unwrap();
+        let chord = Chord::from_str(&format!("{chord_base}{chord_suffix}")).unwrap();
 
         assert_eq!(
             chord.notes,
@@ -360,7 +360,7 @@ mod tests {
         eleventh: Note,
         thirteenth: Note,
     ) {
-        let chord = Chord::from_str(&format!("{}{}", chord_base, chord_suffix)).unwrap();
+        let chord = Chord::from_str(&format!("{chord_base}{chord_suffix}")).unwrap();
 
         assert_eq!(
             chord.notes,
@@ -401,7 +401,7 @@ mod tests {
         fifth: Note,
         sixth: Note,
     ) {
-        let chord = Chord::from_str(&format!("{}{}", chord_base, chord_suffix)).unwrap();
+        let chord = Chord::from_str(&format!("{chord_base}{chord_suffix}")).unwrap();
 
         assert_eq!(chord.notes, vec![root, third, fifth, sixth]);
         assert_eq!(chord.chord_type, ChordType::MajorSixth);
@@ -441,7 +441,7 @@ mod tests {
         sixth: Note,
         ninth: Note,
     ) {
-        let chord = Chord::from_str(&format!("{}{}", chord_base, chord_suffix)).unwrap();
+        let chord = Chord::from_str(&format!("{chord_base}{chord_suffix}")).unwrap();
 
         assert_eq!(chord.notes, vec![root, third, fifth, sixth, ninth]);
         assert_eq!(chord.chord_type, ChordType::SixthNinth);
@@ -479,7 +479,7 @@ mod tests {
         fifth: Note,
         seventh: Note,
     ) {
-        let chord = Chord::from_str(&format!("{}{}", chord_base, chord_suffix)).unwrap();
+        let chord = Chord::from_str(&format!("{chord_base}{chord_suffix}")).unwrap();
 
         assert_eq!(chord.notes, vec![root, third, fifth, seventh]);
         assert_eq!(chord.chord_type, ChordType::DominantSeventh);
@@ -519,7 +519,7 @@ mod tests {
         seventh: Note,
         ninth: Note,
     ) {
-        let chord = Chord::from_str(&format!("{}{}", chord_base, chord_suffix)).unwrap();
+        let chord = Chord::from_str(&format!("{chord_base}{chord_suffix}")).unwrap();
 
         assert_eq!(chord.notes, vec![root, third, fifth, seventh, ninth]);
         assert_eq!(chord.chord_type, ChordType::DominantNinth);
@@ -561,7 +561,7 @@ mod tests {
         ninth: Note,
         eleventh: Note,
     ) {
-        let chord = Chord::from_str(&format!("{}{}", chord_base, chord_suffix)).unwrap();
+        let chord = Chord::from_str(&format!("{chord_base}{chord_suffix}")).unwrap();
 
         assert_eq!(
             chord.notes,
@@ -608,7 +608,7 @@ mod tests {
         eleventh: Note,
         thirteenth: Note,
     ) {
-        let chord = Chord::from_str(&format!("{}{}", chord_base, chord_suffix)).unwrap();
+        let chord = Chord::from_str(&format!("{chord_base}{chord_suffix}")).unwrap();
 
         assert_eq!(
             chord.notes,
@@ -651,7 +651,7 @@ mod tests {
         seventh: Note,
         ninth: Note,
     ) {
-        let chord = Chord::from_str(&format!("{}{}", chord_base, chord_suffix)).unwrap();
+        let chord = Chord::from_str(&format!("{chord_base}{chord_suffix}")).unwrap();
 
         assert_eq!(chord.notes, vec![root, third, fifth, seventh, ninth]);
         assert_eq!(chord.chord_type, ChordType::DominantSeventhFlatNinth);
@@ -691,7 +691,7 @@ mod tests {
         seventh: Note,
         ninth: Note,
     ) {
-        let chord = Chord::from_str(&format!("{}{}", chord_base, chord_suffix)).unwrap();
+        let chord = Chord::from_str(&format!("{chord_base}{chord_suffix}")).unwrap();
 
         assert_eq!(chord.notes, vec![root, third, fifth, seventh, ninth]);
         assert_eq!(chord.chord_type, ChordType::DominantSeventhSharpNinth);
@@ -729,7 +729,7 @@ mod tests {
         fifth: Note,
         seventh: Note,
     ) {
-        let chord = Chord::from_str(&format!("{}{}", chord_base, chord_suffix)).unwrap();
+        let chord = Chord::from_str(&format!("{chord_base}{chord_suffix}")).unwrap();
 
         assert_eq!(chord.notes, vec![root, third, fifth, seventh]);
         assert_eq!(chord.chord_type, ChordType::DominantSeventhFlatFifth);
@@ -765,7 +765,7 @@ mod tests {
         fourth: Note,
         fifth: Note,
     ) {
-        let chord = Chord::from_str(&format!("{}{}", chord_base, chord_suffix)).unwrap();
+        let chord = Chord::from_str(&format!("{chord_base}{chord_suffix}")).unwrap();
 
         assert_eq!(chord.notes, vec![root, fourth, fifth]);
         assert_eq!(chord.chord_type, ChordType::SuspendedFourth);
@@ -801,7 +801,7 @@ mod tests {
         second: Note,
         fifth: Note,
     ) {
-        let chord = Chord::from_str(&format!("{}{}", chord_base, chord_suffix)).unwrap();
+        let chord = Chord::from_str(&format!("{chord_base}{chord_suffix}")).unwrap();
 
         assert_eq!(chord.notes, vec![root, second, fifth]);
         assert_eq!(chord.chord_type, ChordType::SuspendedSecond);
@@ -839,7 +839,7 @@ mod tests {
         fifth: Note,
         seventh: Note,
     ) {
-        let chord = Chord::from_str(&format!("{}{}", chord_base, chord_suffix)).unwrap();
+        let chord = Chord::from_str(&format!("{chord_base}{chord_suffix}")).unwrap();
 
         assert_eq!(chord.notes, vec![root, fourth, fifth, seventh]);
         assert_eq!(chord.chord_type, ChordType::DominantSeventhSuspendedFourth);
@@ -877,7 +877,7 @@ mod tests {
         fifth: Note,
         seventh: Note,
     ) {
-        let chord = Chord::from_str(&format!("{}{}", chord_base, chord_suffix)).unwrap();
+        let chord = Chord::from_str(&format!("{chord_base}{chord_suffix}")).unwrap();
 
         assert_eq!(chord.notes, vec![root, second, fifth, seventh]);
         assert_eq!(chord.chord_type, ChordType::DominantSeventhSuspendedSecond);
@@ -913,7 +913,7 @@ mod tests {
         third: Note,
         fifth: Note,
     ) {
-        let chord = Chord::from_str(&format!("{}{}", chord_base, chord_suffix)).unwrap();
+        let chord = Chord::from_str(&format!("{chord_base}{chord_suffix}")).unwrap();
 
         assert_eq!(chord.notes, vec![root, third, fifth]);
         assert_eq!(chord.chord_type, ChordType::Minor);
@@ -951,7 +951,7 @@ mod tests {
         fifth: Note,
         seventh: Note,
     ) {
-        let chord = Chord::from_str(&format!("{}{}", chord_base, chord_suffix)).unwrap();
+        let chord = Chord::from_str(&format!("{chord_base}{chord_suffix}")).unwrap();
 
         assert_eq!(chord.notes, vec![root, third, fifth, seventh]);
         assert_eq!(chord.chord_type, ChordType::MinorSeventh);
@@ -989,7 +989,7 @@ mod tests {
         fifth: Note,
         seventh: Note,
     ) {
-        let chord = Chord::from_str(&format!("{}{}", chord_base, chord_suffix)).unwrap();
+        let chord = Chord::from_str(&format!("{chord_base}{chord_suffix}")).unwrap();
 
         assert_eq!(chord.notes, vec![root, third, fifth, seventh]);
         assert_eq!(chord.chord_type, ChordType::MinorMajorSeventh);
@@ -1027,7 +1027,7 @@ mod tests {
         fifth: Note,
         sixth: Note,
     ) {
-        let chord = Chord::from_str(&format!("{}{}", chord_base, chord_suffix)).unwrap();
+        let chord = Chord::from_str(&format!("{chord_base}{chord_suffix}")).unwrap();
 
         assert_eq!(chord.notes, vec![root, third, fifth, sixth]);
         assert_eq!(chord.chord_type, ChordType::MinorSixth);
@@ -1067,7 +1067,7 @@ mod tests {
         seventh: Note,
         ninth: Note,
     ) {
-        let chord = Chord::from_str(&format!("{}{}", chord_base, chord_suffix)).unwrap();
+        let chord = Chord::from_str(&format!("{chord_base}{chord_suffix}")).unwrap();
 
         assert_eq!(chord.notes, vec![root, third, fifth, seventh, ninth]);
         assert_eq!(chord.chord_type, ChordType::MinorNinth);
@@ -1109,7 +1109,7 @@ mod tests {
         ninth: Note,
         eleventh: Note,
     ) {
-        let chord = Chord::from_str(&format!("{}{}", chord_base, chord_suffix)).unwrap();
+        let chord = Chord::from_str(&format!("{chord_base}{chord_suffix}")).unwrap();
 
         assert_eq!(
             chord.notes,
@@ -1156,7 +1156,7 @@ mod tests {
         eleventh: Note,
         thirteenth: Note,
     ) {
-        let chord = Chord::from_str(&format!("{}{}", chord_base, chord_suffix)).unwrap();
+        let chord = Chord::from_str(&format!("{chord_base}{chord_suffix}")).unwrap();
 
         assert_eq!(
             chord.notes,
@@ -1195,7 +1195,7 @@ mod tests {
         third: Note,
         fifth: Note,
     ) {
-        let chord = Chord::from_str(&format!("{}{}", chord_base, chord_suffix)).unwrap();
+        let chord = Chord::from_str(&format!("{chord_base}{chord_suffix}")).unwrap();
 
         assert_eq!(chord.notes, vec![root, third, fifth]);
         assert_eq!(chord.chord_type, ChordType::Diminished);
@@ -1233,7 +1233,7 @@ mod tests {
         fifth: Note,
         seventh: Note,
     ) {
-        let chord = Chord::from_str(&format!("{}{}", chord_base, chord_suffix)).unwrap();
+        let chord = Chord::from_str(&format!("{chord_base}{chord_suffix}")).unwrap();
 
         assert_eq!(chord.notes, vec![root, third, fifth, seventh]);
         assert_eq!(chord.chord_type, ChordType::DiminishedSeventh);
@@ -1271,7 +1271,7 @@ mod tests {
         fifth: Note,
         seventh: Note,
     ) {
-        let chord = Chord::from_str(&format!("{}{}", chord_base, chord_suffix)).unwrap();
+        let chord = Chord::from_str(&format!("{chord_base}{chord_suffix}")).unwrap();
 
         assert_eq!(chord.notes, vec![root, third, fifth, seventh]);
         assert_eq!(chord.chord_type, ChordType::HalfDiminishedSeventh);
@@ -1305,7 +1305,7 @@ mod tests {
         root: Note,
         fifth: Note,
     ) {
-        let chord = Chord::from_str(&format!("{}{}", chord_base, chord_suffix)).unwrap();
+        let chord = Chord::from_str(&format!("{chord_base}{chord_suffix}")).unwrap();
 
         assert_eq!(chord.notes, vec![root, fifth]);
         assert_eq!(chord.chord_type, ChordType::Fifth);
@@ -1341,7 +1341,7 @@ mod tests {
         third: Note,
         fifth: Note,
     ) {
-        let chord = Chord::from_str(&format!("{}{}", chord_base, chord_suffix)).unwrap();
+        let chord = Chord::from_str(&format!("{chord_base}{chord_suffix}")).unwrap();
 
         assert_eq!(chord.notes, vec![root, third, fifth]);
         assert_eq!(chord.chord_type, ChordType::Augmented);
@@ -1379,7 +1379,7 @@ mod tests {
         fifth: Note,
         seventh: Note,
     ) {
-        let chord = Chord::from_str(&format!("{}{}", chord_base, chord_suffix)).unwrap();
+        let chord = Chord::from_str(&format!("{chord_base}{chord_suffix}")).unwrap();
 
         assert_eq!(chord.notes, vec![root, third, fifth, seventh]);
         assert_eq!(chord.chord_type, ChordType::AugmentedSeventh);
@@ -1417,7 +1417,7 @@ mod tests {
         fifth: Note,
         seventh: Note,
     ) {
-        let chord = Chord::from_str(&format!("{}{}", chord_base, chord_suffix)).unwrap();
+        let chord = Chord::from_str(&format!("{chord_base}{chord_suffix}")).unwrap();
 
         assert_eq!(chord.notes, vec![root, third, fifth, seventh]);
         assert_eq!(chord.chord_type, ChordType::AugmentedMajorSeventh);
@@ -1455,7 +1455,7 @@ mod tests {
         fifth: Note,
         ninth: Note,
     ) {
-        let chord = Chord::from_str(&format!("{}{}", chord_base, chord_suffix)).unwrap();
+        let chord = Chord::from_str(&format!("{chord_base}{chord_suffix}")).unwrap();
 
         assert_eq!(chord.notes, vec![root, third, fifth, ninth]);
         assert_eq!(chord.chord_type, ChordType::AddedNinth);
@@ -1493,7 +1493,7 @@ mod tests {
         fourth: Note,
         fifth: Note,
     ) {
-        let chord = Chord::from_str(&format!("{}{}", chord_base, chord_suffix)).unwrap();
+        let chord = Chord::from_str(&format!("{chord_base}{chord_suffix}")).unwrap();
 
         assert_eq!(chord.notes, vec![root, third, fourth, fifth]);
         assert_eq!(chord.chord_type, ChordType::AddedFourth);

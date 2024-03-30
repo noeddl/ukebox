@@ -101,8 +101,8 @@ fn main() {
             println!("The root note C is used as an example.\n");
 
             for chord_type in ChordType::values() {
-                let symbols = chord_type.symbols().map(|s| format!("C{}", s)).join(", ");
-                println!("C {} - {}", chord_type, symbols);
+                let symbols = chord_type.symbols().map(|s| format!("C{s}")).join(", ");
+                println!("C {chord_type} - {symbols}");
             }
         }
         Subcommand::Chart {
@@ -124,12 +124,12 @@ fn main() {
             if voicings.peek().is_none() {
                 println!("No matching chord voicing was found");
             } else {
-                println!("[{}]\n", chord);
+                println!("[{chord}]\n");
             }
 
             for voicing in voicings {
                 let chart = ChordChart::new(voicing, voicing_opts.max_span);
-                println!("{}", chart);
+                println!("{chart}");
 
                 if !all {
                     break;
@@ -145,7 +145,7 @@ fn main() {
             }
 
             for chord in chords {
-                println!("{}", chord);
+                println!("{chord}");
             }
         }
         Subcommand::VoiceLead {
@@ -168,9 +168,9 @@ fn main() {
 
             for (path, _dist) in voicing_graph.paths(1) {
                 for (chord, voicing) in chord_seq.chords().zip(path.iter()) {
-                    println!("[{}]\n", chord);
+                    println!("[{chord}]\n");
                     let chart = ChordChart::new(*voicing, voicing_opts.max_span);
-                    println!("{}", chart);
+                    println!("{chart}");
                 }
                 //println!("{:?}\n", dist);
                 //println!("---------------------------\n");

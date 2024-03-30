@@ -49,6 +49,6 @@ impl fmt::Display for Tuning {
             Tuning::G => "G",
         };
 
-        write!(f, "{}", s)
+        write!(f, "{s}")
     }
 }

@@ -94,7 +94,7 @@ impl fmt::Display for Note {
             _ => panic!("Impossible combination of PitchClass and StaffPosition"),
         };
 
-        write!(f, "{}", s)
+        write!(f, "{s}")
     }
 }
 
@@ -235,7 +235,7 @@ mod tests {
     )]
     fn test_from_and_to_str(s: &str) {
         let note = Note::from_str(s).unwrap();
-        assert_eq!(format!("{}", note), s);
+        assert_eq!(format!("{note}"), s);
     }
 
     #[rstest(
