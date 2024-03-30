@@ -65,7 +65,7 @@ impl ChordType {
     ///
     /// Unfortunately, we have to list them all and make sure to update
     /// this list if a value is added or removed.
-    pub fn values() -> impl Iterator<Item = ChordType> {
+    pub fn values() -> impl Iterator<Item = Self> {
         use ChordType::*;
 
         [
@@ -298,7 +298,7 @@ impl FromStr for ChordType {
     type Err = NoValidChordTypeError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        ChordType::values()
+        Self::values()
             .find(|ct| ct.symbols().any(|sym| sym == s))
             .ok_or(NoValidChordTypeError)
     }
@@ -328,7 +328,7 @@ impl TryFrom<&[PitchClass]> for ChordType {
             }
         };
 
-        for chord_type in ChordType::values() {
+        for chord_type in Self::values() {
             // If a chord has less required intervals than we have strings, add optional intervals
             // until all strings are used.
             let min_len = min(chord_type.intervals().count(), STRING_COUNT);

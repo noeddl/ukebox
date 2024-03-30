@@ -74,7 +74,7 @@ impl Chord {
             .sorted()
     }
 
-    pub fn transpose(&self, semitones: i8) -> Chord {
+    pub fn transpose(&self, semitones: i8) -> Self {
         match semitones {
             s if s < 0 => self.clone() - semitones.unsigned_abs() as Semitones,
             _ => self.clone() + semitones as Semitones,

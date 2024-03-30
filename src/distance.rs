@@ -23,8 +23,8 @@ impl Distance {
 impl Add for Distance {
     type Output = Self;
 
-    fn add(self, other: Distance) -> Self {
-        Distance(self.0 + other.0, self.1 + other.1)
+    fn add(self, other: Self) -> Self {
+        Self(self.0 + other.0, self.1 + other.1)
     }
 }
 

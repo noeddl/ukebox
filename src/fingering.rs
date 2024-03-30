@@ -10,7 +10,7 @@ pub struct Fingering {
 impl Fingering {
     /// Compute the distance between two fingerings, inspired by
     /// http://www.petecorey.com/blog/2018/08/27/computing-fingering-distance-with-dr-levenshtein/
-    pub fn distance(&self, other: Fingering) -> u8 {
+    pub fn distance(&self, other: Self) -> u8 {
         let dist = |(&(s1, f1), &(s2, f2))| {
             let add = s1 == 0 && s2 != 0;
             let remove = s1 != 0 && s2 == 0;

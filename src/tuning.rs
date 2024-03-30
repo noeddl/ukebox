@@ -44,9 +44,9 @@ impl Tuning {
 impl fmt::Display for Tuning {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let s = match self {
-            Tuning::C => "C",
-            Tuning::D => "D",
-            Tuning::G => "G",
+            Self::C => "C",
+            Self::D => "D",
+            Self::G => "G",
         };
 
         write!(f, "{s}")

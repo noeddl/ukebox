@@ -13,7 +13,7 @@ impl ChordSequence {
         self.chords.iter()
     }
 
-    pub fn transpose(&self, semitones: i8) -> ChordSequence {
+    pub fn transpose(&self, semitones: i8) -> Self {
         let chords = self.chords().map(|c| c.transpose(semitones)).collect();
         Self { chords }
     }

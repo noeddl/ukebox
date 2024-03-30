@@ -226,21 +226,21 @@ impl Voicing {
     /// It's computed by simply summing up the distances between the frets that
     /// are pressed down on the same string when moving from one voicing to the other.
     /// Inspired by http://www.petecorey.com/blog/2018/07/30/voice-leading-with-elixir/
-    pub fn semitone_distance(&self, other: Voicing) -> u8 {
+    pub fn semitone_distance(&self, other: Self) -> u8 {
         self.frets()
             .zip(other.frets())
             .map(|(f1, f2)| max(f1, f2) - min(f1, f2))
             .sum()
     }
 
-    pub fn fingering_distance(&self, other: Voicing) -> u8 {
+    pub fn fingering_distance(&self, other: Self) -> u8 {
         let l_fingering = Fingering::from(*self);
         let r_fingering = Fingering::from(other);
 
         l_fingering.distance(r_fingering)
     }
 
-    pub fn distance(&self, other: Voicing) -> Distance {
+    pub fn distance(&self, other: Self) -> Distance {
         let semitone_distance = self.semitone_distance(other);
         let fingering_distance = self.fingering_distance(other);
 
