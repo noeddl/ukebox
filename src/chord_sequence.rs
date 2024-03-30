@@ -3,7 +3,7 @@ use std::str::FromStr;
 
 use crate::Chord;
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub struct ChordSequence {
     chords: Vec<Chord>,
 }
