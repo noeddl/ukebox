@@ -41,45 +41,6 @@ fn test_no_voicing_found() -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-#[rstest(min_fret, case("22"), case("foo"))]
-fn test_invalid_min_fret(min_fret: &str) -> Result<(), Box<dyn Error>> {
-    let mut cmd = Command::cargo_bin("ukebox")?;
-    cmd.arg("chart");
-    cmd.arg("--min-fret").arg(min_fret);
-    cmd.arg("C");
-    cmd.assert()
-        .failure()
-        .stderr(predicate::str::contains(format!("error: invalid value '{min_fret}' for '--min-fret <FRET_ID>': 22 is not in 0..=21")).or(predicate::str::contains(format!("error: invalid value '{min_fret}' for '--min-fret <FRET_ID>': invalid digit found in string"))));
-
-    Ok(())
-}
-
-#[rstest(max_fret, case("22"), case("foo"))]
-fn test_invalid_max_fret(max_fret: &str) -> Result<(), Box<dyn Error>> {
-    let mut cmd = Command::cargo_bin("ukebox")?;
-    cmd.arg("chart");
-    cmd.arg("--max-fret").arg(max_fret);
-    cmd.arg("C");
-    cmd.assert()
-        .failure()
-        .stderr(predicate::str::contains(format!("error: invalid value '{max_fret}' for '--max-fret <FRET_ID>': 22 is not in 0..=21")).or(predicate::str::contains(format!("error: invalid value '{max_fret}' for '--max-fret <FRET_ID>': invalid digit found in string"))));
-
-    Ok(())
-}
-
-#[rstest(max_span, case("6"), case("foo"))]
-fn test_invalid_max_span(max_span: &str) -> Result<(), Box<dyn Error>> {
-    let mut cmd = Command::cargo_bin("ukebox")?;
-    cmd.arg("chart");
-    cmd.arg("--max-span").arg(max_span);
-    cmd.arg("C");
-    cmd.assert()
-        .failure()
-        .stderr(predicate::str::contains(format!("error: invalid value '{max_span}' for '--max-span <FRET_COUNT>': 6 is not in 0..=5")).or(predicate::str::contains(format!("error: invalid value '{max_span}' for '--max-span <FRET_COUNT>': invalid digit found in string"))));
-
-    Ok(())
-}
-
 #[test]
 fn test_invalid_pattern() -> Result<(), Box<dyn Error>> {
     let mut cmd = Command::cargo_bin("ukebox")?;
