@@ -18,3 +18,4 @@
 
 *.sublime-workspace
 notes.md
+.DS_Store
