@@ -10,6 +10,7 @@ homepage = "https://github.com/noeddl/ukebox"
 repository = "https://github.com/noeddl/ukebox"
 keywords = ["ukulele", "chords", "music", "cli"]
 categories = ["command-line-utilities"]
+rust-version = "1.64"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
