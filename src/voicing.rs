@@ -63,11 +63,7 @@ impl Voicing {
 
     /// Return the lowest fret at which a string is pressed down.
     pub fn get_min_pressed_fret(&self) -> FretID {
-        match self.frets().filter(|&x| x > 0).min() {
-            Some(x) => x,
-            // Special case [0, 0, 0, 0]: no string is pressed down.
-            _ => 0,
-        }
+        self.frets().filter(|&x| x > 0).min().unwrap_or_default()
     }
 
     /// Return the lowest fret involved in playing the chord voicing
@@ -338,6 +334,7 @@ mod tests {
 
     #[rstest(
         frets, min_pressed_fret, min_fret, max_fret, span,
+        // Special case [0, 0, 0, 0]: no string is pressed down.
         case([0, 0, 0, 0], 0, 0, 0, 0),
         case([1, 1, 1, 1], 1, 1, 1, 1),
         case([2, 0, 1, 3], 1, 0, 3, 3),

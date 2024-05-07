@@ -1,5 +1,6 @@
 use std::cmp::max;
 use std::fmt;
+use std::fmt::Write;
 
 use crate::{FretID, Semitones, UkeString, Voicing, MIN_CHART_WIDTH};
 
@@ -76,8 +77,10 @@ impl ChordChart {
                     "-".to_string()
                 }
             })
-            .map(|c| format!("-{}-|", c))
-            .collect();
+            .fold(String::new(), |mut output, c| {
+                let _ = write!(output, "-{c}-|");
+                output
+            });
 
         format!("{} {}{}{}- {}\n", root_str, sym, nut, s, note)
     }
