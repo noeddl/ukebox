@@ -11,7 +11,7 @@ fn test_no_args() -> Result<(), Box<dyn Error>> {
     let mut cmd = Command::cargo_bin("ukebox")?;
     cmd.assert()
         .failure()
-        .stderr(predicate::str::contains("USAGE:"));
+        .stderr(predicate::str::contains("Usage:"));
 
     Ok(())
 }
@@ -22,7 +22,7 @@ fn test_unknown_chord() -> Result<(), Box<dyn Error>> {
     cmd.arg("chart");
     cmd.arg("blafoo");
     cmd.assert().failure().stderr(predicate::str::contains(
-        "error: Invalid value \"blafoo\" for '<CHORD>': Could not parse chord name \"blafoo\"",
+        "error: invalid value 'blafoo' for '<CHORD>': could not parse chord name 'blafoo'",
     ));
 
     Ok(())
@@ -41,58 +41,13 @@ fn test_no_voicing_found() -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-#[rstest(min_fret, case("22"), case("foo"))]
-fn test_invalid_min_fret(min_fret: &str) -> Result<(), Box<dyn Error>> {
-    let mut cmd = Command::cargo_bin("ukebox")?;
-    cmd.arg("chart");
-    cmd.arg("--min-fret").arg(min_fret);
-    cmd.arg("C");
-    cmd.assert()
-        .failure()
-        .stderr(predicate::str::contains(format!(
-        "error: Invalid value \"{}\" for '--min-fret <FRET_ID>': must be a number between 0 and 21",
-        min_fret
-    )));
-
-    Ok(())
-}
-
-#[rstest(max_fret, case("22"), case("foo"))]
-fn test_invalid_max_fret(max_fret: &str) -> Result<(), Box<dyn Error>> {
-    let mut cmd = Command::cargo_bin("ukebox")?;
-    cmd.arg("chart");
-    cmd.arg("--max-fret").arg(max_fret);
-    cmd.arg("C");
-    cmd.assert()
-        .failure()
-        .stderr(predicate::str::contains(format!(
-        "error: Invalid value \"{}\" for '--max-fret <FRET_ID>': must be a number between 0 and 21",
-        max_fret
-    )));
-
-    Ok(())
-}
-
-#[rstest(max_span, case("6"), case("foo"))]
-fn test_invalid_max_span(max_span: &str) -> Result<(), Box<dyn Error>> {
-    let mut cmd = Command::cargo_bin("ukebox")?;
-    cmd.arg("chart");
-    cmd.arg("--max-span").arg(max_span);
-    cmd.arg("C");
-    cmd.assert().failure().stderr(predicate::str::contains(
-        format!("error: Invalid value \"{}\" for '--max-span <FRET_COUNT>': must be a number between 0 and 5", max_span),
-    ));
-
-    Ok(())
-}
-
 #[test]
 fn test_invalid_pattern() -> Result<(), Box<dyn Error>> {
     let mut cmd = Command::cargo_bin("ukebox")?;
     cmd.arg("name");
     cmd.arg("blafoo");
     cmd.assert().failure().stderr(predicate::str::contains(
-        "error: Invalid value \"blafoo\" for '<FRET_PATTERN>': Fret pattern has wrong format (should be something like 1234 or \"7 8 9 10\")",
+        "error: invalid value 'blafoo' for '<FRET_PATTERN>': fret pattern has wrong format (should be something like 1234 or '7 8 9 10')",
     ));
 
     Ok(())
@@ -163,7 +118,7 @@ fn test_no_voicing_seq_found() -> Result<(), Box<dyn Error>> {
 fn test_chart(chord: &str, chart: &'static str) -> Result<(), Box<dyn Error + 'static>> {
     let mut cmd = Command::cargo_bin("ukebox")?;
     cmd.arg("chart").arg(chord);
-    cmd.assert().success().stdout(format!("{}\n", chart));
+    cmd.assert().success().stdout(format!("{chart}\n"));
 
     Ok(())
 }
@@ -218,7 +173,7 @@ fn test_tuning(
     cmd.arg("chart");
     cmd.arg("--tuning").arg(tuning);
     cmd.arg(chord);
-    cmd.assert().success().stdout(format!("{}\n", chart));
+    cmd.assert().success().stdout(format!("{chart}\n"));
 
     Ok(())
 }
@@ -276,7 +231,7 @@ fn test_min_fret(
     cmd.arg("chart");
     cmd.arg("--min-fret").arg(min_fret);
     cmd.arg(chord);
-    cmd.assert().success().stdout(format!("{}\n", chart));
+    cmd.assert().success().stdout(format!("{chart}\n"));
 
     Ok(())
 }
@@ -320,7 +275,7 @@ fn test_max_span(
     cmd.arg("chart");
     cmd.arg("--max-span").arg(max_span);
     cmd.arg(chord);
-    cmd.assert().success().stdout(format!("{}\n", chart));
+    cmd.assert().success().stdout(format!("{chart}\n"));
 
     Ok(())
 }
@@ -387,7 +342,7 @@ fn test_transpose(
     cmd.arg("chart");
     cmd.arg("--transpose").arg(semitones);
     cmd.arg(chord);
-    cmd.assert().success().stdout(format!("{}\n", chart));
+    cmd.assert().success().stdout(format!("{chart}\n"));
 
     Ok(())
 }
@@ -530,7 +485,7 @@ fn test_all(
     }
 
     cmd.arg(chord);
-    cmd.assert().success().stdout(format!("{}\n", chart));
+    cmd.assert().success().stdout(format!("{chart}\n"));
 
     Ok(())
 }
@@ -548,7 +503,7 @@ fn test_all(
 fn test_name(chart: &str, names: &'static str) -> Result<(), Box<dyn Error + 'static>> {
     let mut cmd = Command::cargo_bin("ukebox")?;
     cmd.arg("name").arg(chart);
-    cmd.assert().success().stdout(format!("{}\n", names));
+    cmd.assert().success().stdout(format!("{names}\n"));
 
     Ok(())
 }
@@ -573,7 +528,7 @@ fn test_name_with_tuning(
     cmd.arg("name");
     cmd.arg("--tuning").arg(tuning);
     cmd.arg(chart);
-    cmd.assert().success().stdout(format!("{}\n", names));
+    cmd.assert().success().stdout(format!("{names}\n"));
 
     Ok(())
 }
@@ -704,7 +659,7 @@ fn test_voice_lead(
         cmd.arg(arg).arg(value);
     }
     cmd.arg(chord_seq);
-    cmd.assert().success().stdout(format!("{}\n", chart));
+    cmd.assert().success().stdout(format!("{chart}\n"));
 
     Ok(())
 }

@@ -65,7 +65,7 @@ impl ChordType {
     ///
     /// Unfortunately, we have to list them all and make sure to update
     /// this list if a value is added or removed.
-    pub fn values() -> impl Iterator<Item = ChordType> {
+    pub fn values() -> impl Iterator<Item = Self> {
         use ChordType::*;
 
         [
@@ -287,22 +287,29 @@ impl fmt::Display for ChordType {
             AddedFourth => "added 4th",
         };
 
-        write!(f, "{}", s)
+        write!(f, "{s}")
     }
 }
+
+#[derive(Debug)]
+pub struct NoValidChordTypeError;
 
 impl FromStr for ChordType {
-    type Err = &'static str;
+    type Err = NoValidChordTypeError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        ChordType::values()
+        Self::values()
             .find(|ct| ct.symbols().any(|sym| sym == s))
-            .ok_or("no valid chord type")
+            .ok_or(NoValidChordTypeError)
     }
 }
 
+#[derive(Debug, thiserror::Error)]
+#[error("no matching chord type found")]
+pub struct NoMatchingChordTypeFoundError;
+
 impl TryFrom<&[PitchClass]> for ChordType {
-    type Error = &'static str;
+    type Error = NoMatchingChordTypeFoundError;
 
     /// Determine the chord type from a list of pitch classes representing a chord.
     fn try_from(pitches: &[PitchClass]) -> Result<Self, Self::Error> {
@@ -321,7 +328,7 @@ impl TryFrom<&[PitchClass]> for ChordType {
             }
         };
 
-        for chord_type in ChordType::values() {
+        for chord_type in Self::values() {
             // If a chord has less required intervals than we have strings, add optional intervals
             // until all strings are used.
             let min_len = min(chord_type.intervals().count(), STRING_COUNT);
@@ -349,7 +356,7 @@ impl TryFrom<&[PitchClass]> for ChordType {
             }
         }
 
-        Err("No matching chord type found.")
+        Err(NoMatchingChordTypeFoundError)
     }
 }
 

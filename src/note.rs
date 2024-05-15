@@ -5,15 +5,10 @@ use std::str::FromStr;
 use crate::{Interval, PitchClass, Semitones, StaffPosition};
 
 /// Custom error for strings that cannot be parsed into notes.
-#[derive(Debug)]
+#[derive(Debug, thiserror::Error)]
+#[error("could not parse note name '{name}'")]
 pub struct ParseNoteError {
     name: String,
-}
-
-impl fmt::Display for ParseNoteError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "Could not parse note name \"{}\"", self.name)
-    }
 }
 
 /// A note such a C, C# and so on.
@@ -99,7 +94,7 @@ impl fmt::Display for Note {
             _ => panic!("Impossible combination of PitchClass and StaffPosition"),
         };
 
-        write!(f, "{}", s)
+        write!(f, "{s}")
     }
 }
 
@@ -240,7 +235,7 @@ mod tests {
     )]
     fn test_from_and_to_str(s: &str) {
         let note = Note::from_str(s).unwrap();
-        assert_eq!(format!("{}", note), s);
+        assert_eq!(format!("{note}"), s);
     }
 
     #[rstest(

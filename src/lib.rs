@@ -19,6 +19,7 @@ pub use chord::Chord;
 pub use chord_chart::ChordChart;
 pub use chord_sequence::ChordSequence;
 pub use chord_type::ChordType;
+pub use chord_type::NoMatchingChordTypeFoundError;
 pub use distance::Distance;
 pub use fingering::Fingering;
 pub use fret_pattern::FretPattern;

@@ -82,7 +82,7 @@ impl ChordChart {
                 output
             });
 
-        format!("{} {}{}{}- {}\n", root_str, sym, nut, s, note)
+        format!("{root_str} {sym}{nut}{s}- {note}\n")
     }
 }
 
@@ -109,10 +109,10 @@ impl fmt::Display for ChordChart {
         // If the fretboard section shown does not include the nut,
         // indicate the number of the first fret shown.
         if base_fret > 1 {
-            return writeln!(f, "{}{:width$}", s, base_fret, width = root_width + 6);
+            return writeln!(f, "{s}{base_fret:width$}", width = root_width + 6);
         }
 
-        write!(f, "{}", s)
+        write!(f, "{s}")
     }
 }
 

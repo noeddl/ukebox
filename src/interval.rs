@@ -1,18 +1,12 @@
-use std::fmt;
 use std::str::FromStr;
 
 use crate::{Semitones, StaffSteps};
 
 /// Custom error for strings that cannot be parsed into intervals.
-#[derive(Debug)]
+#[derive(Debug, thiserror::Error)]
+#[error("could not parse interval name '{name}'")]
 pub struct ParseIntervalError {
     name: String,
-}
-
-impl fmt::Display for ParseIntervalError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "Could not parse interval name \"{}\"", self.name)
-    }
 }
 
 /// An interval is the difference between two notes.

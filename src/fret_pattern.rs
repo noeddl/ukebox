@@ -1,25 +1,13 @@
 use std::convert::TryInto;
-use std::error::Error;
-use std::fmt;
 use std::slice::Iter;
 use std::str::FromStr;
 
 use crate::{FretID, STRING_COUNT};
 
 /// Custom error for strings that cannot be parsed into a fret pattern.
-#[derive(Debug)]
-pub struct ParseFretPatternError {}
-
-impl Error for ParseFretPatternError {}
-
-impl fmt::Display for ParseFretPatternError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(
-            f,
-            "Fret pattern has wrong format (should be something like 1234 or \"7 8 9 10\")"
-        )
-    }
-}
+#[derive(Debug, thiserror::Error)]
+#[error("fret pattern has wrong format (should be something like 1234 or '7 8 9 10')")]
+pub struct ParseFretPatternError;
 
 /// A pattern of frets to press down for playing a chord.
 /// Each index of the array corresponds to a ukulele string.
@@ -62,7 +50,7 @@ impl FromStr for FretPattern {
             }
         }
 
-        Err(ParseFretPatternError {})
+        Err(ParseFretPatternError)
     }
 }
 
@@ -84,6 +72,6 @@ mod tests {
 
     #[rstest(s, case(""), case("Cm"), case("222"), case("22201"))]
     fn test_from_str_fail(s: &str) {
-        assert!(FretPattern::from_str(s).is_err())
+        assert!(FretPattern::from_str(s).is_err());
     }
 }
