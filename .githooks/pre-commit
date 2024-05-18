@@ -1,0 +1,17 @@
+#!/bin/bash
+
+set -e
+
+echo 'Run clippy ...'
+# Make cargo clippy fail on warnings by setting `-D warnings`
+cargo clippy -- -D warnings
+
+echo 'Run rustfmt ...'
+
+RUSTFMT_CONFIG="group_imports=StdExternalCrate,imports_granularity=Crate"
+
+# Apply formatting to modified Rust files and stage them
+for rust_file in $(git diff --name-only --staged | grep ".*\.rs$"); do
+    rustfmt +nightly --config $RUSTFMT_CONFIG $rust_file
+    git add $rust_file
+done
