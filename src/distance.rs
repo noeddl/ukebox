@@ -1,5 +1,4 @@
-use std::iter::Sum;
-use std::ops::Add;
+use std::{iter::Sum, ops::Add};
 
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 /// The distance between two voicings combining semitone distance

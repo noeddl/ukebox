@@ -1,7 +1,4 @@
-use std::cmp::min;
-use std::convert::TryFrom;
-use std::fmt;
-use std::str::FromStr;
+use std::{cmp::min, convert::TryFrom, fmt, str::FromStr};
 
 use crate::{Interval, PitchClass, PITCH_CLASS_COUNT, STRING_COUNT};
 

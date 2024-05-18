@@ -1,5 +1,4 @@
-use std::slice::Iter;
-use std::str::FromStr;
+use std::{slice::Iter, str::FromStr};
 
 use crate::Chord;
 

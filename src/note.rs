@@ -1,6 +1,8 @@
-use std::fmt;
-use std::ops::{Add, Sub};
-use std::str::FromStr;
+use std::{
+    fmt,
+    ops::{Add, Sub},
+    str::FromStr,
+};
 
 use crate::{Interval, PitchClass, Semitones, StaffPosition};
 

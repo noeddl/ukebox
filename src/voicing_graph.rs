@@ -1,9 +1,7 @@
 use std::iter::Iterator;
 
 use itertools::Itertools;
-use petgraph::algo::all_simple_paths;
-use petgraph::prelude::NodeIndex;
-use petgraph::Graph;
+use petgraph::{algo::all_simple_paths, prelude::NodeIndex, Graph};
 
 use crate::{Chord, ChordSequence, Distance, Semitones, Voicing, VoicingConfig};
 

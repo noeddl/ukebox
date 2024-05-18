@@ -1,7 +1,9 @@
-use std::cmp::{max, min, Ordering};
-use std::convert::{TryFrom, TryInto};
-use std::fmt;
-use std::slice::Iter;
+use std::{
+    cmp::{max, min, Ordering},
+    convert::{TryFrom, TryInto},
+    fmt,
+    slice::Iter,
+};
 
 use itertools::Itertools;
 
