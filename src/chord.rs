@@ -1,7 +1,9 @@
-use std::convert::TryFrom;
-use std::fmt;
-use std::ops::{Add, Sub};
-use std::str::FromStr;
+use std::{
+    convert::TryFrom,
+    fmt,
+    ops::{Add, Sub},
+    str::FromStr,
+};
 
 use itertools::Itertools;
 

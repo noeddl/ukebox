@@ -66,9 +66,8 @@ impl From<Voicing> for Fingering {
 mod tests {
     use rstest::rstest;
 
-    use crate::{FretID, Tuning, STRING_COUNT};
-
     use super::*;
+    use crate::{FretID, Tuning, STRING_COUNT};
 
     #[rstest(
         frets, finger_positions,

@@ -1,6 +1,4 @@
-use std::cmp::max;
-use std::fmt;
-use std::fmt::Write;
+use std::{cmp::max, fmt, fmt::Write};
 
 use crate::{FretID, Semitones, UkeString, Voicing, MIN_CHART_WIDTH};
 

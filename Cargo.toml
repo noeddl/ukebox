@@ -16,13 +16,13 @@ rust-version = "1.74"
 
 [dependencies]
 clap = {version = "4.3", features = ["derive"] }
-itertools = "0.10"
+itertools = "0.13"
 lazy_static = "1.4"
 petgraph = "0.6"
 thiserror = "1.0.58"
 
 [dev-dependencies]
 assert_cmd = "2.0"
-indoc = "1.0"
-predicates = "2"
-rstest = "0.12"
+indoc = "2.0"
+predicates = "3.1"
+rstest = "0.19"

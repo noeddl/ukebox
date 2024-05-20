@@ -1,6 +1,4 @@
-use std::convert::TryInto;
-use std::slice::Iter;
-use std::str::FromStr;
+use std::{convert::TryInto, slice::Iter, str::FromStr};
 
 use crate::{FretID, STRING_COUNT};
 

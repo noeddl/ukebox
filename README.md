@@ -8,6 +8,20 @@
 
 `ukebox` is a ukulele chord toolbox for the command line written in Rust.
 
+## Table of contents
+
+- [Features](#features)
+- [Installation](#installation)
+- [Usage](#usage)
+  - [Chord chart lookup](#chord-chart-lookup)
+  - [Chord name lookup](#chord-name-lookup)
+  - [Voice leading](#voice-leading)
+- [Supported chord types](#supported-chord-types)
+- [Development](#development)
+  - [Pre-commit hooks](#pre-commit-hooks)
+- [License](#license)
+- [Contribution](#contribution)
+
 ## Features
 
 * shows you how to play a given chord on a ukulele by printing a **chord chart** in ASCII art
@@ -328,6 +342,24 @@ C augmented major 7th - CaugMaj7, C+M7
 C added 9th - Cadd9, Cadd2
 C added 4th - Cadd4
 ```
+
+## Development
+
+### Pre-commit hooks
+
+To automatically enforce coding conventions, Git hooks can simplify the process. Pre-commit hooks run before each commit, checking conditions or modifying files (e.g., using rustfmt to format code). The .githooks folder contains a pre-commit script that runs the Rust linter clippy and formats the code with rustfmt. You need to install these tools and configure Git to use the hooks in .githooks.
+
+```
+$ rustup component add clippy
+$ rustup component add rustfmt
+$ git config core.hooksPath .githooks
+```
+
+Now, the hooks will run every time you commit. If a problem is found, the commit process is aborted with a message. Resolve clippy warnings manually, add changed files with git add, and rerun git commit until no errors remain.
+
+To ignore clippy lints for specific blocks, use #[allow(LINT_NAME)], or globally with #![allow(LINT_NAME)] at the top of lib.rs. Prevent rustfmt from formatting a block by adding #[rustfmt::skip].
+
+To bypass pre-commit hooks for a commit, add the -n option to git commit.
 
 ## License
 

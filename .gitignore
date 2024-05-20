@@ -17,5 +17,6 @@
 # End of https://www.gitignore.io/api/rust
 
 *.sublime-workspace
+.vscode
 notes.md
 .DS_Store
