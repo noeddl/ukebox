@@ -1,9 +1,15 @@
 # Changelog
 
+## [0.9.2] - 2024-05-21
+
+* Migrate to clap 4.x - contributed by [@schneiderfelipe](https://github.com/schneiderfelipe) in [#123](https://github.com/noeddl/ukebox/pull/123).
+* Update dependencies and remove [vulnerability in atty](https://github.com/noeddl/ukebox/security/dependabot/2).
+* Increase MSRV to 1.74.1 as needed for the updated dependencies.
+
 ## [0.9.1] - 2022-06-15
 
 * Set up Github Actions for continuous integration and automatic compilation of binaries for different platforms when making new releases.
-* Update dependencies and remove vulnerability from regex 1.5.4.
+* Update dependencies and remove [vulnerability in regex 1.5.4](https://github.com/noeddl/ukebox/security/dependabot/1).
 * Switch from structopt to clap.
 * Increase MSRV to 1.56.0 to allow for dependencies using Edition 2021.
 
