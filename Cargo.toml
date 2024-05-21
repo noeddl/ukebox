@@ -19,7 +19,7 @@ clap = {version = "4.3", features = ["derive"] }
 itertools = "0.13"
 lazy_static = "1.4"
 petgraph = "0.6"
-thiserror = "1.0.58"
+thiserror = "1.0.61"
 
 [dev-dependencies]
 assert_cmd = "2.0"
