@@ -5,6 +5,7 @@ use crate::StaffSteps;
 const STAFF_POSITION_COUNT: StaffSteps = 7;
 
 /// The vertical position of the notehead on the staff (on a line or in a space).
+///
 /// We use the staff position of an enharmonic note to decide whether it is sharp
 /// or flat.
 ///

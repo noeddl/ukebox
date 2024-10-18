@@ -8,6 +8,7 @@ use crate::{FretID, STRING_COUNT};
 pub struct ParseFretPatternError;
 
 /// A pattern of frets to press down for playing a chord.
+///
 /// Each index of the array corresponds to a ukulele string.
 #[derive(Debug, Copy, Clone)]
 pub struct FretPattern {
