@@ -12,15 +12,17 @@ use crate::{
     FINGER_COUNT, STRING_COUNT,
 };
 
+/// A chord voicing.
+///
+/// The voicing of a chord describes the order of the individual notes within
+/// the chord. The same chord can be voiced in different ways, i.e. there are
+/// several ways to play the same chord on the ukulele.
+/// https://en.wikipedia.org/wiki/Voicing_(music)
 #[derive(Clone, Copy, PartialEq, Eq)]
 pub struct Voicing {
     uke_strings: [UkeString; STRING_COUNT],
 }
 
-/// The voicing of a chord describes the order of the individual notes within
-/// the chord. The same chord can be voiced in different ways, i.e. there are
-/// several ways to play the same chord on the ukulele.
-/// https://en.wikipedia.org/wiki/Voicing_(music)
 impl Voicing {
     // Create a Voicing instance from a set of frets and a tuning.
     // As there is no information about a certain chord for which

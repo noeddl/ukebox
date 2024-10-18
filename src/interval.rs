@@ -10,6 +10,7 @@ pub struct ParseIntervalError {
 }
 
 /// An interval is the difference between two notes.
+///
 /// https://en.wikipedia.org/wiki/Interval_(music)
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Interval {
