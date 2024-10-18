@@ -7,7 +7,9 @@ use crate::{Chord, ChordSequence, Distance, Semitones, Voicing, VoicingConfig};
 
 const MAX_DIST: Semitones = 10;
 
-/// A graph whose nodes represent chord voicings and whose edges
+/// A graph of voicings to find the optimal voice leading.
+///
+/// The nodes of the graph represent chord voicings and its edges
 /// are weighted by the distances between the voicings. It is used
 /// to find the (by some definition) optimal voice leading for
 /// a given sequence of chords.
